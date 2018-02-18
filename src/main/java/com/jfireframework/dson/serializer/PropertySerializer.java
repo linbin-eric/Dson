@@ -2,13 +2,13 @@ package com.jfireframework.dson.serializer;
 
 import com.jfireframework.dson.StringOutput;
 
-public interface PropertySerializer<T>
+public interface PropertySerializer
 {
     String propertyName();
     
-    Object propertyValue(T entity);
+    Object propertyValue(Object entity);
     
-    void initialize(Class<T> type, String property);
+    void initialize(Class<?> type, String property);
     
     void serialize(Object propertyValue, StringOutput output);
 }

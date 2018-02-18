@@ -1,6 +1,6 @@
 package com.jfireframework.dson.serializer;
 
-public interface CollectionSerializer extends Serializer
+public interface ArraySerializer extends Serializer
 {
     
 }

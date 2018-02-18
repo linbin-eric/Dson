@@ -4,19 +4,19 @@ import com.jfireframework.dson.JsonProcessor;
 import com.jfireframework.dson.StringOutput;
 import com.jfireframework.dson.serializer.Serializer;
 
-public class StringSerializer implements Serializer<String>
+public class StringSerializer implements Serializer
 {
     
     @Override
-    public void initialize(JsonProcessor jsonProcessor, Class<String> type)
+    public void initialize(JsonProcessor jsonProcessor, Class<?> type)
     {
         
     }
     
     @Override
-    public void serialize(String entity, StringOutput output)
+    public void serialize(Object entity, StringOutput output)
     {
-        output.appendDoubleQuotes().append(entity).appendDoubleQuotes();
+        output.appendDoubleQuotes().append((String) entity).appendDoubleQuotes();
     }
     
 }

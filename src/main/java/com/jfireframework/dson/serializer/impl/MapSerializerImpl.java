@@ -7,12 +7,12 @@ import com.jfireframework.dson.JsonProcessor;
 import com.jfireframework.dson.StringOutput;
 import com.jfireframework.dson.serializer.MapSerializer;
 
-public class MapSerializerImpl<T> implements MapSerializer<T>
+public class MapSerializerImpl implements MapSerializer
 {
     private JsonProcessor jsonProcessor;
     
     @Override
-    public void serialize(T entity, StringOutput output)
+    public void serialize(Object entity, StringOutput output)
     {
         if (entity == null)
         {
@@ -51,20 +51,20 @@ public class MapSerializerImpl<T> implements MapSerializer<T>
     
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Object> keys(T entity)
+    public Set<Object> keys(Map<?, ?> entity)
     {
         return ((Map<Object, ?>) entity).keySet();
     }
     
     @SuppressWarnings("unchecked")
     @Override
-    public Object value(Object key, T entity)
+    public Object value(Object key, Map<?, ?> entity)
     {
         return ((Map<Object, Object>) entity).get(key);
     }
     
     @Override
-    public void initialize(JsonProcessor jsonProcessor, Class<T> type)
+    public void initialize(JsonProcessor jsonProcessor, Class<?> type)
     {
         this.jsonProcessor = jsonProcessor;
     }

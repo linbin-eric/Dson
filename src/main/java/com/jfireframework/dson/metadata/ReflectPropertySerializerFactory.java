@@ -19,7 +19,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
     }
     
     @Override
-    public <T> PropertySerializer<T> get(Class<T> type, String property)
+    public PropertySerializer get(Class<?> type, String property)
     {
         Class<?> ckass = type;
         Field field = null;
@@ -45,7 +45,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
         }
         field.setAccessible(true);
         Class<?> fieldType = field.getType();
-        PropertySerializer<T> propertySerializer = null;
+        PropertySerializer propertySerializer = null;
         if (fieldType == int.class //
                 || fieldType == short.class //
                 || fieldType == long.class//
@@ -55,15 +55,15 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
                 || fieldType == Byte.class//
                 || Number.class.isAssignableFrom(fieldType))
         {
-            propertySerializer = new NumberPropertySerializer<T>();
+            propertySerializer = new NumberPropertySerializer();
         }
         else if (fieldType == String.class || fieldType == Character.class || fieldType == char.class)
         {
-            propertySerializer = new StringProeprtySerializer<T>();
+            propertySerializer = new StringProeprtySerializer();
         }
         else if (fieldType == boolean.class || fieldType == Boolean.class)
         {
-            propertySerializer = new BooleanPropertySerializer<T>();
+            propertySerializer = new BooleanPropertySerializer();
         }
         else if (Map.class.isAssignableFrom(fieldType))
         {
@@ -83,13 +83,13 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
         }
         else
         {
-            propertySerializer = new BeanPropertySerializer<T>();
+            propertySerializer = new BeanPropertySerializer();
         }
         propertySerializer.initialize(type, property);
         return propertySerializer;
     }
     
-    abstract class AbstractPropertySerializer<T> implements PropertySerializer<T>
+    abstract class AbstractPropertySerializer implements PropertySerializer
     {
         private String propertyName;
         private Field  field;
@@ -101,7 +101,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
         }
         
         @Override
-        public Object propertyValue(T entity)
+        public Object propertyValue(Object entity)
         {
             try
             {
@@ -114,7 +114,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
         }
         
         @Override
-        public void initialize(Class<T> type, String property)
+        public void initialize(Class<?> type, String property)
         {
             Class<?> ckass = type;
             while (ckass != Object.class)
@@ -138,7 +138,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
         
     }
     
-    class NumberPropertySerializer<T> extends AbstractPropertySerializer<T>
+    class NumberPropertySerializer extends AbstractPropertySerializer
     {
         
         @Override
@@ -149,7 +149,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
         
     }
     
-    class StringProeprtySerializer<T> extends AbstractPropertySerializer<T>
+    class StringProeprtySerializer extends AbstractPropertySerializer
     {
         
         @Override
@@ -159,7 +159,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
         }
     }
     
-    class BooleanPropertySerializer<T> extends AbstractPropertySerializer<T>
+    class BooleanPropertySerializer extends AbstractPropertySerializer
     {
         
         @Override
@@ -170,7 +170,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
         
     }
     
-    class BeanPropertySerializer<T> extends AbstractPropertySerializer<T>
+    class BeanPropertySerializer extends AbstractPropertySerializer
     {
         
         @Override

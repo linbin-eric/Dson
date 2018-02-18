@@ -9,12 +9,12 @@ import com.jfireframework.dson.StringOutput;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.PropertySerializer;
 
-public class BeanSerializerImpl<T> implements BeanSerializer<T>
+public class BeanSerializerImpl implements BeanSerializer
 {
-    private PropertySerializer<T>[] propertySerializers;
+    private PropertySerializer[] propertySerializers;
     
     @Override
-    public void serialize(T entity, StringOutput output)
+    public void serialize(Object entity, StringOutput output)
     {
         if (propertySerializers.length == 0)
         {
@@ -23,7 +23,7 @@ public class BeanSerializerImpl<T> implements BeanSerializer<T>
         }
         output.append('{');
         boolean isFirst = true;
-        for (PropertySerializer<T> each : propertySerializers)
+        for (PropertySerializer each : propertySerializers)
         {
             Object value = each.propertyValue(entity);
             if (value != null)
@@ -40,19 +40,18 @@ public class BeanSerializerImpl<T> implements BeanSerializer<T>
     }
     
     @Override
-    public PropertySerializer<T>[] propertySerializers()
+    public PropertySerializer[] propertySerializers()
     {
         return propertySerializers;
     }
     
-    @SuppressWarnings("unchecked")
     @Override
-    public void initialize(JsonProcessor jsonProcessor, Class<T> type)
+    public void initialize(JsonProcessor jsonProcessor, Class<?> type)
     {
-        List<PropertySerializer<T>> propertySerializers = new ArrayList<PropertySerializer<T>>();
+        List<PropertySerializer> propertySerializers = new ArrayList<PropertySerializer>();
         for (Field field : ReflectUtil.getAllFields(type))
         {
-            PropertySerializer<T> propertySerializer = jsonProcessor.propertySerializerFactory().get(type, field.getName());
+            PropertySerializer propertySerializer = jsonProcessor.propertySerializerFactory().get(type, field.getName());
             propertySerializers.add(propertySerializer);
         }
         this.propertySerializers = propertySerializers.toArray(new PropertySerializer[propertySerializers.size()]);

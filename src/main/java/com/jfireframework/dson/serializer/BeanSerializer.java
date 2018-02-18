@@ -1,6 +1,6 @@
 package com.jfireframework.dson.serializer;
 
-public interface BeanSerializer<T> extends Serializer<T>
+public interface BeanSerializer extends Serializer
 {
-    PropertySerializer<T>[] propertySerializers();
+    PropertySerializer[] propertySerializers();
 }
