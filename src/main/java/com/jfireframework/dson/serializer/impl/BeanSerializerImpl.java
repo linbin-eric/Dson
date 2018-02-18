@@ -22,19 +22,18 @@ public class BeanSerializerImpl implements BeanSerializer
             return;
         }
         output.append('{');
-        boolean isFirst = true;
+        boolean serialized = false;
         for (PropertySerializer each : propertySerializers)
         {
-            Object value = each.propertyValue(entity);
-            if (value != null)
+            if (each.serialize(entity, output))
             {
-                if (isFirst == false)
-                {
-                    output.append(',');
-                }
-                output.append('"').append(each.propertyName()).append("\":");
-                each.serialize(value, output);
+                serialized = true;
+                output.append(',');
             }
+        }
+        if (serialized)
+        {
+            output.deleteLast();
         }
         output.append('}');
     }

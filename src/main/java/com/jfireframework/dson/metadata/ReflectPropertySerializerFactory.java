@@ -1,12 +1,14 @@
 package com.jfireframework.dson.metadata;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import com.jfireframework.baseutil.exception.JustThrowException;
 import com.jfireframework.dson.JsonProcessor;
 import com.jfireframework.dson.StringOutput;
+import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.PropertySerializer;
 
 public class ReflectPropertySerializerFactory implements PropertySerializerFactory
@@ -81,9 +83,13 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
         {
             
         }
+        else if (Modifier.isFinal(fieldType.getModifiers()))
+        {
+            propertySerializer = new FinalBeanPropertySerializer();
+        }
         else
         {
-            propertySerializer = new BeanPropertySerializer();
+            propertySerializer = new UnFinalBeanPropertySerializer();
         }
         propertySerializer.initialize(type, property);
         return propertySerializer;
@@ -91,27 +97,8 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
     
     abstract class AbstractPropertySerializer implements PropertySerializer
     {
-        private String propertyName;
-        private Field  field;
-        
-        @Override
-        public String propertyName()
-        {
-            return propertyName;
-        }
-        
-        @Override
-        public Object propertyValue(Object entity)
-        {
-            try
-            {
-                return field.get(entity);
-            }
-            catch (Throwable e)
-            {
-                throw new JustThrowException(e);
-            }
-        }
+        protected String propertyName;
+        protected Field  field;
         
         @Override
         public void initialize(Class<?> type, String property)
@@ -142,9 +129,22 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
     {
         
         @Override
-        public void serialize(Object propertyValue, StringOutput output)
+        public boolean serialize(Object entity, StringOutput output)
         {
-            output.append(propertyValue);
+            try
+            {
+                Number number = (Number) field.get(entity);
+                if (number == null)
+                {
+                    return false;
+                }
+                output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').append(number);
+                return true;
+            }
+            catch (Throwable e)
+            {
+                throw new JustThrowException(e);
+            }
         }
         
     }
@@ -153,9 +153,22 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
     {
         
         @Override
-        public void serialize(Object propertyValue, StringOutput output)
+        public boolean serialize(Object entity, StringOutput output)
         {
-            output.append('"').append(propertyValue).append('"');
+            try
+            {
+                String value = (String) field.get(entity);
+                if (value == null)
+                {
+                    return false;
+                }
+                output.appendDoubleQuotes().append(value).appendDoubleQuotes();
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new JustThrowException(e);
+            }
         }
     }
     
@@ -163,20 +176,86 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
     {
         
         @Override
-        public void serialize(Object propertyValue, StringOutput output)
+        public boolean serialize(Object entity, StringOutput output)
         {
-            output.append(propertyValue);
+            try
+            {
+                Boolean value = (Boolean) field.get(entity);
+                if (value == null)
+                {
+                    return false;
+                }
+                output.append(value);
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new JustThrowException(e);
+            }
         }
         
     }
     
-    class BeanPropertySerializer extends AbstractPropertySerializer
+    class FinalBeanPropertySerializer extends AbstractPropertySerializer
+    {
+        private BeanSerializer beanSerializer;
+        
+        @Override
+        public void initialize(Class<?> type, String property)
+        {
+            super.initialize(type, property);
+            try
+            {
+                beanSerializer = jsonProcessor.beanSerializerClass().newInstance();
+                beanSerializer.initialize(jsonProcessor, type);
+            }
+            catch (Exception e)
+            {
+                throw new JustThrowException(e);
+            }
+        }
+        
+        @Override
+        public boolean serialize(Object entity, StringOutput output)
+        {
+            try
+            {
+                Object value = field.get(entity);
+                if (value == null)
+                {
+                    return false;
+                }
+                beanSerializer.serialize(value, output);
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new JustThrowException(e);
+            }
+        }
+        
+    }
+    
+    class UnFinalBeanPropertySerializer extends AbstractPropertySerializer
     {
         
         @Override
-        public void serialize(Object propertyValue, StringOutput output)
+        public boolean serialize(Object entity, StringOutput output)
         {
-            jsonProcessor.serialize(propertyValue, output);
+            try
+            {
+                Object value = field.get(entity);
+                if (value == null)
+                {
+                    return false;
+                }
+                jsonProcessor.serialize(value, output);
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new JustThrowException(e);
+            }
         }
         
     }

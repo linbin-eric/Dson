@@ -28,4 +28,6 @@ public interface StringOutput
      * @return
      */
     StringOutput appendDoubleQuotes();
+    
+    StringOutput deleteLast();
 }
