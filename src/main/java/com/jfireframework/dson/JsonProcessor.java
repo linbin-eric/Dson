@@ -8,17 +8,17 @@ import com.jfireframework.dson.serializer.MapSerializer;
 
 public interface JsonProcessor
 {
-    void initialize(JsonProcessorConfiguration configuration);
-    
-    PropertySerializerFactory propertySerializerFactory();
-    
-    Class<MapSerializer> mapSerializerClass();
-    
-    Class<CollectionSerializer> collectionSerializerClass();
-    
-    Class<BeanSerializer> beanSerializerClass();
-    
-    Class<ArraySerializer> arraySerializerClass();
-    
-    void serialize(Object entity, StringOutput output);
+	void initialize(JsonProcessorConfiguration configuration);
+	
+	PropertySerializerFactory propertySerializerFactory();
+	
+	Class<MapSerializer> mapSerializerClass();
+	
+	Class<CollectionSerializer> collectionSerializerClass();
+	
+	Class<BeanSerializer> beanSerializerClass();
+	
+	Class<ArraySerializer> arraySerializerClass();
+	
+	void serialize(Object entity, StringOutput output);
 }

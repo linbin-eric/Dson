@@ -6,17 +6,22 @@ import com.jfireframework.dson.serializer.Serializer;
 
 public class StringSerializer implements Serializer
 {
-    
-    @Override
-    public void initialize(JsonProcessor jsonProcessor, Class<?> type)
-    {
-        
-    }
-    
-    @Override
-    public void serialize(Object entity, StringOutput output)
-    {
-        output.appendDoubleQuotes().append((String) entity).appendDoubleQuotes();
-    }
-    
+	
+	@Override
+	public void initialize(JsonProcessor jsonProcessor, Class<?> type)
+	{
+		
+	}
+	
+	@Override
+	public boolean serialize(Object entity, StringOutput output)
+	{
+		if (entity == null)
+		{
+			return false;
+		}
+		output.appendDoubleQuotes().append((String) entity).appendDoubleQuotes();
+		return true;
+	}
+	
 }

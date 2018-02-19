@@ -10,9 +10,9 @@ public interface PropertySerializer
     /**
      * 如果有值，则序列化，返回true；否则返回false
      * 
-     * @param entity
+     * @param host
      * @param output
      * @return
      */
-    boolean serialize(Object entity, StringOutput output);
+    boolean serialize(Object host, StringOutput output);
 }

@@ -1,11 +1,9 @@
 package com.jfireframework.dson.serializer;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
+import com.jfireframework.dson.StringOutput;
 
 public interface MapSerializer extends Serializer
 {
-    Set<Object> keys(Map<?, ?> entity);
-    
-    Object value(Object key, Map<?, ?> entity);
+	boolean serialize(Entry<?, ?> entry, StringOutput output);
 }

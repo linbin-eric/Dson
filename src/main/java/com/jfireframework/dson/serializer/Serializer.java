@@ -5,7 +5,14 @@ import com.jfireframework.dson.StringOutput;
 
 public interface Serializer
 {
-    void initialize(JsonProcessor jsonProcessor, Class<?> type);
-    
-    void serialize(Object entity, StringOutput output);
+	void initialize(JsonProcessor jsonProcessor, Class<?> type);
+	
+	/**
+	 * 如果输出内容则返回true；反之返回false
+	 * 
+	 * @param entity
+	 * @param output
+	 * @return
+	 */
+	boolean serialize(Object entity, StringOutput output);
 }
