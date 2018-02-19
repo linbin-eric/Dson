@@ -1,8 +1,11 @@
 package com.jfireframework.dson.metadata;
 
+import com.jfireframework.dson.JsonProcessor;
 import com.jfireframework.dson.serializer.PropertySerializer;
 
 public interface PropertySerializerFactory
 {
-    PropertySerializer get(Class<?> type, String property);
+	void initialize(JsonProcessor jsonProcessor);
+	
+	PropertySerializer get(Class<?> type, String property);
 }

@@ -8,14 +8,14 @@ import com.jfireframework.dson.serializer.MapSerializer;
 
 public interface JsonProcessorConfiguration
 {
-    PropertySerializerFactory getPropertySerializerFactory();
-    
-    Class<MapSerializer> getMapSerializerClass();
-    
-    Class<CollectionSerializer> getCollectionSerializerClass();
-    
-    Class<BeanSerializer> getBeanSerializerClass();
-    
-    Class<ArraySerializer> getArraySerializerClass();
-    
+	Class<? extends PropertySerializerFactory> getPropertySerializerFactoryClass();
+	
+	Class<? extends MapSerializer> getMapSerializerClass();
+	
+	Class<? extends CollectionSerializer> getCollectionSerializerClass();
+	
+	Class<? extends BeanSerializer> getBeanSerializerClass();
+	
+	Class<? extends ArraySerializer> getArraySerializerClass();
+	
 }
