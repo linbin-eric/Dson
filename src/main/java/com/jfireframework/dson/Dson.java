@@ -17,9 +17,16 @@ public class Dson
 		return defaultProcessor;
 	}
 	
+	private static final ThreadLocal<StringOutput> LOCAL = new ThreadLocal<StringOutput>() {
+		protected StringOutput initialValue()
+		{
+			return new StringCacheAdaptStringOutput();
+		}
+	};
+	
 	public static String toJsonString(Object entity)
 	{
-		StringOutput output = new StringCacheAdaptStringOutput();
+		StringOutput output = LOCAL.get().clear();
 		defaultProcessor.serialize(entity, output);
 		return output.toString();
 	}

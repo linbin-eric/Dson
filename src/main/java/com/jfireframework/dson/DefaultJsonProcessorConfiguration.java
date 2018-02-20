@@ -2,6 +2,7 @@ package com.jfireframework.dson;
 
 import com.jfireframework.dson.metadata.PropertySerializerFactory;
 import com.jfireframework.dson.metadata.ReflectPropertySerializerFactory;
+import com.jfireframework.dson.metadata.UnSafePropertySerializerFactory;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
@@ -17,7 +18,7 @@ public class DefaultJsonProcessorConfiguration implements JsonProcessorConfigura
 	@Override
 	public Class<? extends PropertySerializerFactory> getPropertySerializerFactoryClass()
 	{
-		return ReflectPropertySerializerFactory.class;
+		return UnSafePropertySerializerFactory.class;
 	}
 	
 	@Override

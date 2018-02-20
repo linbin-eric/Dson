@@ -100,4 +100,11 @@ public class StringCacheAdaptStringOutput implements StringOutput
 	{
 		return cache.toString();
 	}
+	
+	@Override
+	public StringOutput clear()
+	{
+		cache.clear();
+		return this;
+	}
 }

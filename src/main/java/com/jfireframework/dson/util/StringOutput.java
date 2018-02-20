@@ -34,4 +34,6 @@ public interface StringOutput
 	int length();
 	
 	String toString();
+	
+	StringOutput clear();
 }

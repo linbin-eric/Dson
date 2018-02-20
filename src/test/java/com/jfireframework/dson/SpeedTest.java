@@ -39,12 +39,12 @@ public class SpeedTest
 		Person person = new Person();
 		person.setName("linbin");
 		person.setAge(14);
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 100; i++)
 		{
 			Dson.toJsonString(person);
 			JsonTool.write(person);
 		}
-		int count = 10000000;
+		int count = 100000000;
 		NanoTimeWatch nanoTimeWatch = new NanoTimeWatch();
 		nanoTimeWatch.start();
 		for (int i = 0; i < count; i++)
