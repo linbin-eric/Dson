@@ -166,7 +166,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 				{
 					return false;
 				}
-				output.appendDoubleQuotes().append(value).appendDoubleQuotes();
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').appendDoubleQuotes().append(value).appendDoubleQuotes();
 				return true;
 			}
 			catch (Exception e)
@@ -189,7 +189,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 				{
 					return false;
 				}
-				output.append(value);
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').append(value);
 				return true;
 			}
 			catch (Exception e)
@@ -229,6 +229,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 				{
 					return false;
 				}
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':');
 				beanSerializer.serialize(value, output);
 				return true;
 			}
@@ -253,6 +254,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 				{
 					return false;
 				}
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':');
 				jsonProcessor.serialize(value, output);
 				return true;
 			}
