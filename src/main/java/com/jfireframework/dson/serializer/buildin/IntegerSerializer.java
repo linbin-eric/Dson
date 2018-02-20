@@ -4,12 +4,13 @@ import com.jfireframework.dson.JsonProcessor;
 import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.util.StringOutput;
 
-public class StringSerializer implements Serializer
+public class IntegerSerializer implements Serializer
 {
 	
 	@Override
 	public void initialize(JsonProcessor jsonProcessor, Class<?> type)
 	{
+		// TODO Auto-generated method stub
 		
 	}
 	
@@ -20,7 +21,7 @@ public class StringSerializer implements Serializer
 		{
 			return false;
 		}
-		output.appendDoubleQuotes().append((String) entity).appendDoubleQuotes();
+		output.append((Integer) entity);
 		return true;
 	}
 	

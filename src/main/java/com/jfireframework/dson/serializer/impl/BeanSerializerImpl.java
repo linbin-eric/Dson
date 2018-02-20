@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import com.jfireframework.baseutil.reflect.ReflectUtil;
 import com.jfireframework.dson.JsonProcessor;
-import com.jfireframework.dson.StringOutput;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.PropertySerializer;
+import com.jfireframework.dson.util.StringOutput;
 
 public class BeanSerializerImpl implements BeanSerializer
 {
@@ -54,7 +54,12 @@ public class BeanSerializerImpl implements BeanSerializer
 		List<PropertySerializer> propertySerializers = new ArrayList<PropertySerializer>();
 		for (Field field : ReflectUtil.getAllFields(type))
 		{
+			if (field.getName().contains("this"))
+			{
+				continue;
+			}
 			PropertySerializer propertySerializer = jsonProcessor.propertySerializerFactory().get(type, field.getName());
+			propertySerializer.initialize(type, field.getName());
 			propertySerializers.add(propertySerializer);
 		}
 		this.propertySerializers = propertySerializers.toArray(new PropertySerializer[propertySerializers.size()]);

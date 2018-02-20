@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.Map;
 import com.jfireframework.baseutil.exception.JustThrowException;
 import com.jfireframework.dson.JsonProcessor;
-import com.jfireframework.dson.StringOutput;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.PropertySerializer;
+import com.jfireframework.dson.util.StringOutput;
 
 public class ReflectPropertySerializerFactory implements PropertySerializerFactory
 {
@@ -31,6 +31,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 			try
 			{
 				field = ckass.getDeclaredField(property);
+				break;
 			}
 			catch (NoSuchFieldException e)
 			{
@@ -110,6 +111,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 				try
 				{
 					field = ckass.getDeclaredField(property);
+					break;
 				}
 				catch (NoSuchFieldException e)
 				{
@@ -122,6 +124,7 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 				}
 			}
 			propertyName = field.getName();
+			field.setAccessible(true);
 		}
 		
 	}

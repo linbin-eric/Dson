@@ -1,4 +1,4 @@
-package com.jfireframework.dson;
+package com.jfireframework.dson.util;
 
 public interface StringOutput
 {
@@ -32,4 +32,6 @@ public interface StringOutput
 	StringOutput deleteLast();
 	
 	int length();
+	
+	String toString();
 }

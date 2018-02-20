@@ -3,9 +3,9 @@ package com.jfireframework.dson.serializer.impl;
 import java.lang.reflect.Modifier;
 import com.jfireframework.baseutil.exception.JustThrowException;
 import com.jfireframework.dson.JsonProcessor;
-import com.jfireframework.dson.StringOutput;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
+import com.jfireframework.dson.util.StringOutput;
 
 public class ArraySerializerImpl implements ArraySerializer
 {

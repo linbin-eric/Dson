@@ -5,6 +5,7 @@ import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
 import com.jfireframework.dson.serializer.MapSerializer;
+import com.jfireframework.dson.util.StringOutput;
 
 public interface JsonProcessor
 {
@@ -12,13 +13,13 @@ public interface JsonProcessor
 	
 	PropertySerializerFactory propertySerializerFactory();
 	
-	Class<MapSerializer> mapSerializerClass();
+	Class<? extends MapSerializer> mapSerializerClass();
 	
-	Class<CollectionSerializer> collectionSerializerClass();
+	Class<? extends CollectionSerializer> collectionSerializerClass();
 	
-	Class<BeanSerializer> beanSerializerClass();
+	Class<? extends BeanSerializer> beanSerializerClass();
 	
-	Class<ArraySerializer> arraySerializerClass();
+	Class<? extends ArraySerializer> arraySerializerClass();
 	
 	void serialize(Object entity, StringOutput output);
 }

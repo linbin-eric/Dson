@@ -1,6 +1,6 @@
 package com.jfireframework.dson.strategy;
 
-import com.jfireframework.dson.StringOutput;
+import com.jfireframework.dson.util.StringOutput;
 
 public interface StrategyDescriber
 {

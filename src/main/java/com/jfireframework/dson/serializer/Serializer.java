@@ -1,7 +1,7 @@
 package com.jfireframework.dson.serializer;
 
 import com.jfireframework.dson.JsonProcessor;
-import com.jfireframework.dson.StringOutput;
+import com.jfireframework.dson.util.StringOutput;
 
 public interface Serializer
 {
