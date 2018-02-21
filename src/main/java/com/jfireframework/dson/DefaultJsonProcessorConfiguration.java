@@ -1,7 +1,7 @@
 package com.jfireframework.dson;
 
-import com.jfireframework.dson.metadata.CodePropertySerializerFactory;
 import com.jfireframework.dson.metadata.PropertySerializerFactory;
+import com.jfireframework.dson.metadata.UnSafePropertySerializerFactory;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
@@ -13,35 +13,35 @@ import com.jfireframework.dson.serializer.impl.MapSerializerImpl;
 
 public class DefaultJsonProcessorConfiguration implements JsonProcessorConfiguration
 {
-    
-    @Override
-    public Class<? extends PropertySerializerFactory> getPropertySerializerFactoryClass()
-    {
-        return CodePropertySerializerFactory.class;
-    }
-    
-    @Override
-    public Class<? extends MapSerializer> getMapSerializerClass()
-    {
-        return MapSerializerImpl.class;
-    }
-    
-    @Override
-    public Class<? extends CollectionSerializer> getCollectionSerializerClass()
-    {
-        return CollectionSerizlizerImpl.class;
-    }
-    
-    @Override
-    public Class<? extends BeanSerializer> getBeanSerializerClass()
-    {
-        return BeanSerializerImpl.class;
-    }
-    
-    @Override
-    public Class<? extends ArraySerializer> getArraySerializerClass()
-    {
-        return ArraySerializerImpl.class;
-    }
-    
+	
+	@Override
+	public Class<? extends PropertySerializerFactory> getPropertySerializerFactoryClass()
+	{
+		return UnSafePropertySerializerFactory.class;
+	}
+	
+	@Override
+	public Class<? extends MapSerializer> getMapSerializerClass()
+	{
+		return MapSerializerImpl.class;
+	}
+	
+	@Override
+	public Class<? extends CollectionSerializer> getCollectionSerializerClass()
+	{
+		return CollectionSerizlizerImpl.class;
+	}
+	
+	@Override
+	public Class<? extends BeanSerializer> getBeanSerializerClass()
+	{
+		return BeanSerializerImpl.class;
+	}
+	
+	@Override
+	public Class<? extends ArraySerializer> getArraySerializerClass()
+	{
+		return ArraySerializerImpl.class;
+	}
+	
 }
