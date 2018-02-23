@@ -8,6 +8,8 @@ import java.util.Map;
 import com.jfireframework.baseutil.exception.JustThrowException;
 import com.jfireframework.dson.JsonProcessor;
 import com.jfireframework.dson.serializer.BeanSerializer;
+import com.jfireframework.dson.serializer.CollectionSerializer;
+import com.jfireframework.dson.serializer.MapSerializer;
 import com.jfireframework.dson.serializer.PropertySerializer;
 import com.jfireframework.dson.util.StringOutput;
 
@@ -71,11 +73,11 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 		}
 		else if (Map.class.isAssignableFrom(fieldType))
 		{
-			
+			propertySerializer = new MapPropertySerializer();
 		}
 		else if (Collection.class.isAssignableFrom(fieldType))
 		{
-			
+			propertySerializer = new CollectionPropertySerializer();
 		}
 		else if (Iterator.class.isAssignableFrom(fieldType))
 		{
@@ -127,28 +129,35 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 			field.setAccessible(true);
 		}
 		
+		public boolean serialize(Object entity, StringOutput output)
+		{
+			try
+			{
+				Object propertyValue = field.get(entity);
+				if (propertyValue == null)
+				{
+					return false;
+				}
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':');
+				outputPropertyValue(propertyValue, output);
+				return true;
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
+		}
+		
+		protected abstract void outputPropertyValue(Object propertyValue, StringOutput output);
 	}
 	
 	class NumberPropertySerializer extends AbstractPropertySerializer
 	{
 		
 		@Override
-		public boolean serialize(Object entity, StringOutput output)
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
 		{
-			try
-			{
-				Number number = (Number) field.get(entity);
-				if (number == null)
-				{
-					return false;
-				}
-				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').append(number);
-				return true;
-			}
-			catch (Throwable e)
-			{
-				throw new JustThrowException(e);
-			}
+			output.append((Number) propertyValue);
 		}
 		
 	}
@@ -157,45 +166,20 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 	{
 		
 		@Override
-		public boolean serialize(Object entity, StringOutput output)
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
 		{
-			try
-			{
-				String value = (String) field.get(entity);
-				if (value == null)
-				{
-					return false;
-				}
-				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').appendDoubleQuotes().append(value).appendDoubleQuotes();
-				return true;
-			}
-			catch (Exception e)
-			{
-				throw new JustThrowException(e);
-			}
+			output.appendDoubleQuotes().append((String) propertyValue).appendDoubleQuotes();
 		}
+		
 	}
 	
 	class BooleanPropertySerializer extends AbstractPropertySerializer
 	{
 		
 		@Override
-		public boolean serialize(Object entity, StringOutput output)
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
 		{
-			try
-			{
-				Boolean value = (Boolean) field.get(entity);
-				if (value == null)
-				{
-					return false;
-				}
-				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').append(value);
-				return true;
-			}
-			catch (Exception e)
-			{
-				throw new JustThrowException(e);
-			}
+			output.append((Boolean) propertyValue);
 		}
 		
 	}
@@ -220,23 +204,9 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 		}
 		
 		@Override
-		public boolean serialize(Object entity, StringOutput output)
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
 		{
-			try
-			{
-				Object value = field.get(entity);
-				if (value == null)
-				{
-					return false;
-				}
-				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':');
-				beanSerializer.serialize(value, output);
-				return true;
-			}
-			catch (Exception e)
-			{
-				throw new JustThrowException(e);
-			}
+			beanSerializer.serialize(propertyValue, output);
 		}
 		
 	}
@@ -245,18 +215,24 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 	{
 		
 		@Override
-		public boolean serialize(Object entity, StringOutput output)
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
 		{
+			jsonProcessor.serialize(propertyValue, output);
+		}
+		
+	}
+	
+	class MapPropertySerializer extends AbstractPropertySerializer
+	{
+		private MapSerializer mapSerializer;
+		
+		public void initialize(Class<?> type, String property)
+		{
+			super.initialize(type, property);
 			try
 			{
-				Object value = field.get(entity);
-				if (value == null)
-				{
-					return false;
-				}
-				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':');
-				jsonProcessor.serialize(value, output);
-				return true;
+				mapSerializer = jsonProcessor.mapSerializerClass().newInstance();
+				mapSerializer.initialize(jsonProcessor, field.getType());
 			}
 			catch (Exception e)
 			{
@@ -264,6 +240,36 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 			}
 		}
 		
+		@Override
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
+		{
+			mapSerializer.serialize(propertyValue, output);
+		}
 	}
 	
+	class CollectionPropertySerializer extends AbstractPropertySerializer
+	{
+		private CollectionSerializer collectionSerializer;
+		
+		public void initialize(Class<?> type, String property)
+		{
+			super.initialize(type, property);
+			try
+			{
+				collectionSerializer = jsonProcessor.collectionSerializerClass().newInstance();
+				collectionSerializer.initialize(jsonProcessor, field.getType());
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
+		}
+		
+		@Override
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
+		{
+			collectionSerializer.serialize(propertyValue, output);
+		}
+		
+	}
 }
