@@ -11,7 +11,8 @@ import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
 import com.jfireframework.dson.serializer.MapSerializer;
 import com.jfireframework.dson.serializer.Serializer;
-import com.jfireframework.dson.serializer.buildin.IntegerSerializer;
+import com.jfireframework.dson.serializer.buildin.BooleanSerializer;
+import com.jfireframework.dson.serializer.buildin.NumberSerializer;
 import com.jfireframework.dson.serializer.buildin.StringSerializer;
 import com.jfireframework.dson.util.StringOutput;
 
@@ -27,7 +28,20 @@ public class JsonProcessorImpl implements JsonProcessor
 	public JsonProcessorImpl()
 	{
 		store.put(String.class, new StringSerializer());
-		store.put(Integer.class, new IntegerSerializer());
+		store.put(Integer.class, new NumberSerializer());
+		store.put(Short.class, new NumberSerializer());
+		store.put(Long.class, new NumberSerializer());
+		store.put(Float.class, new NumberSerializer());
+		store.put(Double.class, new NumberSerializer());
+		store.put(Byte.class, new NumberSerializer());
+		store.put(Boolean.class, new BooleanSerializer());
+		store.put(int.class, new NumberSerializer());
+		store.put(short.class, new NumberSerializer());
+		store.put(long.class, new NumberSerializer());
+		store.put(float.class, new NumberSerializer());
+		store.put(double.class, new NumberSerializer());
+		store.put(byte.class, new NumberSerializer());
+		store.put(boolean.class, new BooleanSerializer());
 	}
 	
 	@Override

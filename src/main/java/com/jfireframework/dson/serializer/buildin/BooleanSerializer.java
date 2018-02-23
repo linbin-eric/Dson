@@ -4,7 +4,7 @@ import com.jfireframework.dson.JsonProcessor;
 import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.util.StringOutput;
 
-public class IntegerSerializer implements Serializer
+public class BooleanSerializer implements Serializer
 {
 	
 	@Override
@@ -21,7 +21,7 @@ public class IntegerSerializer implements Serializer
 		{
 			return false;
 		}
-		output.append((Integer) entity);
+		output.append((Boolean) entity);
 		return true;
 	}
 	
