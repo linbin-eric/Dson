@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import com.jfireframework.baseutil.exception.JustThrowException;
 import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
 import com.jfireframework.dson.serializer.MapSerializer;
@@ -81,11 +82,11 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 		}
 		else if (Iterator.class.isAssignableFrom(fieldType))
 		{
-			
+			propertySerializer = new IteratorPropertySerializer();
 		}
 		else if (fieldType.isArray())
 		{
-			
+			propertySerializer = new ArrayPropertySerializer();
 		}
 		else if (Modifier.isFinal(fieldType.getModifiers()))
 		{
@@ -269,6 +270,58 @@ public class ReflectPropertySerializerFactory implements PropertySerializerFacto
 		protected void outputPropertyValue(Object propertyValue, StringOutput output)
 		{
 			collectionSerializer.serialize(propertyValue, output);
+		}
+		
+	}
+	
+	class IteratorPropertySerializer extends AbstractPropertySerializer
+	{
+		
+		@Override
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
+		{
+			output.append('{');
+			Iterator<?> iterator = (Iterator<?>) propertyValue;
+			int originLength = output.length();
+			while (iterator.hasNext())
+			{
+				int length = output.length();
+				jsonProcessor.serialize(iterator.next(), output);
+				if (length != output.length())
+				{
+					output.append(',');
+				}
+			}
+			if (originLength != output.length())
+			{
+				output.deleteLast();
+			}
+			output.append('}');
+		}
+	}
+	
+	class ArrayPropertySerializer extends AbstractPropertySerializer
+	{
+		private ArraySerializer arraySerializer;
+		
+		public void initialize(Class<?> type, String property)
+		{
+			super.initialize(type, property);
+			try
+			{
+				arraySerializer = jsonProcessor.arraySerializerClass().newInstance();
+				arraySerializer.initialize(jsonProcessor, field.getType());
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
+		}
+		
+		@Override
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
+		{
+			arraySerializer.serialize(propertyValue, output);
 		}
 		
 	}
