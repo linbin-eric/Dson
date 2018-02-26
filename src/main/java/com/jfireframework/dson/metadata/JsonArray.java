@@ -1,4 +1,4 @@
-package com.jfireframework.dson.deserializer.token;
+package com.jfireframework.dson.metadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,11 @@ import java.util.List;
 public class JsonArray implements DsonObject
 {
 	List<Element> elements = new ArrayList<Element>();
+	
+	public void add(Object value, JsonValueType valueType)
+	{
+		elements.add(new Element(value, valueType));
+	}
 	
 	@Override
 	public String toString()

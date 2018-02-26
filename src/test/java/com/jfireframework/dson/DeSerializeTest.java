@@ -4,15 +4,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import com.jfireframework.baseutil.time.Timewatch;
 import com.jfireframework.codejson.JsonTool;
-import com.jfireframework.dson.deserializer.token.JsonCollection;
 import com.jfireframework.dson.deserializer.token.Lexer;
+import com.jfireframework.dson.metadata.JsonCollection;
 
 public class DeSerializeTest
 {
 	String value = "{\"name\":\"sad\",\"age\":12,\"sex\":false,\"home\":{\"leng\":12.156},\"address\":[\"上海\",\"福州\"]}";
 	
 	@Test
-	@Ignore
 	public void test()
 	{
 		Lexer lexer = new Lexer(value);

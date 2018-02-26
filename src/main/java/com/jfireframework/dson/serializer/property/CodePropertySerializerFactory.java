@@ -1,4 +1,4 @@
-package com.jfireframework.dson.metadata;
+package com.jfireframework.dson.serializer.property;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

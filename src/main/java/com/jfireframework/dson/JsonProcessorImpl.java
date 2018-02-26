@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import com.jfireframework.baseutil.exception.JustThrowException;
-import com.jfireframework.dson.metadata.PropertySerializerFactory;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
@@ -14,6 +13,7 @@ import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.serializer.buildin.BooleanSerializer;
 import com.jfireframework.dson.serializer.buildin.NumberSerializer;
 import com.jfireframework.dson.serializer.buildin.StringSerializer;
+import com.jfireframework.dson.serializer.property.PropertySerializerFactory;
 import com.jfireframework.dson.util.StringOutput;
 
 public class JsonProcessorImpl implements JsonProcessor

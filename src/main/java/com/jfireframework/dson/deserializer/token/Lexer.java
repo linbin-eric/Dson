@@ -1,5 +1,10 @@
 package com.jfireframework.dson.deserializer.token;
 
+import com.jfireframework.dson.metadata.DsonObject;
+import com.jfireframework.dson.metadata.JsonArray;
+import com.jfireframework.dson.metadata.JsonCollection;
+import com.jfireframework.dson.metadata.JsonValueType;
+
 public class Lexer
 {
 	
@@ -44,22 +49,19 @@ public class Lexer
 			if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
 			{
 				String value = getString(str);
-				Element element = new Element(value, JsonValueType.STRING);
-				jsonArray.elements.add(element);
+				jsonArray.add(value, JsonValueType.STRING);
 			}
 			else if (c >= '0' && c <= '9')
 			{
 				Number number = getNumber(str);
-				Element element = new Element(number, JsonValueType.NUMBER);
-				jsonArray.elements.add(element);
+				jsonArray.add(number, JsonValueType.NUMBER);
 			}
 			else if (c == 'T' || c == 't')
 			{
 				String value = str.substring(offset, offset + 4);
 				if ("TRUE".equals(value) || "true".equals(value))
 				{
-					Element element = new Element(true, JsonValueType.BOOLEAN);
-					jsonArray.elements.add(element);
+					jsonArray.add(true, JsonValueType.BOOLEAN);
 					offset += 4;
 				}
 				else
@@ -72,8 +74,7 @@ public class Lexer
 				String value = str.substring(offset, offset + 5);
 				if ("false".equals(value) || "FALSE".equals(value))
 				{
-					Element element = new Element(false, JsonValueType.BOOLEAN);
-					jsonArray.elements.add(element);
+					jsonArray.add(false, JsonValueType.BOOLEAN);
 					offset += 5;
 				}
 				else
@@ -84,15 +85,13 @@ public class Lexer
 			else if (c == Symbol.LEFT_BRACE.literals())
 			{
 				JsonCollection parseCollection = parseCollection();
-				Element element = new Element(parseCollection, JsonValueType.COLLECTION);
-				jsonArray.elements.add(element);
+				jsonArray.add(parseCollection, JsonValueType.COLLECTION);
 				offset += 1;
 			}
 			else if (c == Symbol.LEFT_BRACKET.literals())
 			{
 				JsonArray array = parseArray();
-				Element element = new Element(array, JsonValueType.ARRAY);
-				jsonArray.elements.add(element);
+				jsonArray.add(array, JsonValueType.ARRAY);
 				offset += 1;
 			}
 			else
@@ -147,16 +146,14 @@ public class Lexer
 			if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
 			{
 				String value = getString(str);
-				Entry entry = new Entry(name, value, JsonValueType.STRING);
-				jsonCollection.entries.add(entry);
+				jsonCollection.add(name, value, JsonValueType.STRING);
 			}
 			else if (c == 'T' || c == 't')
 			{
 				String value = str.substring(offset, offset + 4);
 				if ("TRUE".equals(value) || "true".equals(value))
 				{
-					Entry entry = new Entry(name, true, JsonValueType.BOOLEAN);
-					jsonCollection.entries.add(entry);
+					jsonCollection.add(name, true, JsonValueType.BOOLEAN);
 					offset += 4;
 				}
 				else
@@ -169,8 +166,7 @@ public class Lexer
 				String value = str.substring(offset, offset + 5);
 				if ("false".equals(value) || "FALSE".equals(value))
 				{
-					Entry entry = new Entry(name, false, JsonValueType.BOOLEAN);
-					jsonCollection.entries.add(entry);
+					jsonCollection.add(name, false, JsonValueType.BOOLEAN);
 					offset += 5;
 				}
 				else
@@ -181,21 +177,18 @@ public class Lexer
 			else if (c >= '0' && c <= '9')
 			{
 				Number number = getNumber(str);
-				Entry entry = new Entry(name, number, JsonValueType.NUMBER);
-				jsonCollection.entries.add(entry);
+				jsonCollection.add(name, number, JsonValueType.NUMBER);
 			}
 			else if (c == Symbol.LEFT_BRACE.literals())
 			{
 				JsonCollection parseCollection = parseCollection();
-				Entry entry = new Entry(name, parseCollection, JsonValueType.COLLECTION);
-				jsonCollection.entries.add(entry);
+				jsonCollection.add(name, parseCollection, JsonValueType.COLLECTION);
 				offset += 1;
 			}
 			else if (c == Symbol.LEFT_BRACKET.literals())
 			{
 				JsonArray jsonArray = parseArray();
-				Entry entry = new Entry(name, jsonArray, JsonValueType.ARRAY);
-				jsonCollection.entries.add(entry);
+				jsonCollection.add(name, jsonArray, JsonValueType.ARRAY);
 				offset += 1;
 			}
 			else

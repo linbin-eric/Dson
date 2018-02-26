@@ -1,4 +1,4 @@
-package com.jfireframework.dson.metadata;
+package com.jfireframework.dson.serializer.property;
 
 import com.jfireframework.dson.JsonProcessor;
 import com.jfireframework.dson.serializer.PropertySerializer;

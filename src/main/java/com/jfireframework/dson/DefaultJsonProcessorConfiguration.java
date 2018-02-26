@@ -1,7 +1,5 @@
 package com.jfireframework.dson;
 
-import com.jfireframework.dson.metadata.PropertySerializerFactory;
-import com.jfireframework.dson.metadata.ReflectPropertySerializerFactory;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
@@ -10,6 +8,8 @@ import com.jfireframework.dson.serializer.impl.ArraySerializerImpl;
 import com.jfireframework.dson.serializer.impl.BeanSerializerImpl;
 import com.jfireframework.dson.serializer.impl.CollectionSerizlizerImpl;
 import com.jfireframework.dson.serializer.impl.MapSerializerImpl;
+import com.jfireframework.dson.serializer.property.PropertySerializerFactory;
+import com.jfireframework.dson.serializer.property.ReflectPropertySerializerFactory;
 
 public class DefaultJsonProcessorConfiguration implements JsonProcessorConfiguration
 {
