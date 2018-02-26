@@ -3,7 +3,43 @@ package com.jfireframework.dson.deserializer.token;
 import java.util.ArrayList;
 import java.util.List;
 
-class JsonArray
+public class JsonArray implements DsonObject
 {
-    List<Element> elements = new ArrayList<Element>();
+	List<Element> elements = new ArrayList<Element>();
+	
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append('[');
+		for (Element element : elements)
+		{
+			switch (element.valueType)
+			{
+				case STRING:
+					builder.append('"').append(element.value).append('"').append(',');
+					break;
+				case NUMBER:
+					builder.append(element.value).append(',');
+					break;
+				case BOOLEAN:
+					builder.append(element.value).append(',');
+					break;
+				case ARRAY:
+					builder.append(element.value).append(',');
+					break;
+				case COLLECTION:
+					builder.append(element.value).append(',');
+					break;
+				default:
+					break;
+			}
+		}
+		if (elements.isEmpty() == false)
+		{
+			builder.deleteCharAt(builder.length() - 1);
+		}
+		builder.append(']');
+		return builder.toString();
+	}
 }
