@@ -3,7 +3,7 @@ package com.jfireframework.dson.deserializer.token;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Symbol implements TokenType
+public enum Symbol 
 {
     LEFT_BRACE('{'), //
     RIGHT_BRACE('}'), //
