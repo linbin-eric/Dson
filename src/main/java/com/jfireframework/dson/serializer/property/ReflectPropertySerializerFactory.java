@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import com.jfireframework.baseutil.exception.JustThrowException;
 import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.metadata.PropertySerializerFactory;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;

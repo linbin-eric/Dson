@@ -1,5 +1,7 @@
 package com.jfireframework.dson;
 
+import com.jfireframework.dson.metadata.EntryDeserializerFactory;
+import com.jfireframework.dson.metadata.PropertySerializerFactory;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
@@ -8,7 +10,6 @@ import com.jfireframework.dson.serializer.impl.ArraySerializerImpl;
 import com.jfireframework.dson.serializer.impl.BeanSerializerImpl;
 import com.jfireframework.dson.serializer.impl.CollectionSerizlizerImpl;
 import com.jfireframework.dson.serializer.impl.MapSerializerImpl;
-import com.jfireframework.dson.serializer.property.PropertySerializerFactory;
 import com.jfireframework.dson.serializer.property.ReflectPropertySerializerFactory;
 
 public class DefaultJsonProcessorConfiguration implements JsonProcessorConfiguration
@@ -42,6 +43,13 @@ public class DefaultJsonProcessorConfiguration implements JsonProcessorConfigura
 	public Class<? extends ArraySerializer> getArraySerializerClass()
 	{
 		return ArraySerializerImpl.class;
+	}
+
+	@Override
+	public Class<? extends EntryDeserializerFactory> getEntryDeserializerFactoryClass()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

@@ -1,4 +1,4 @@
-package com.jfireframework.dson.metadata;
+package com.jfireframework.dson.metadata.json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,8 @@ public class JsonArray implements DsonObject
 				case STRING:
 					builder.append('"').append(element.value).append('"').append(',');
 					break;
-				case NUMBER:
+				case NUMBER_DOUBLE:
+				case NUMBER_LONG:
 					builder.append(element.value).append(',');
 					break;
 				case BOOLEAN:

@@ -8,6 +8,7 @@ import java.util.Map;
 import com.jfireframework.baseutil.exception.JustThrowException;
 import com.jfireframework.baseutil.reflect.ReflectUtil;
 import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.metadata.PropertySerializerFactory;
 import com.jfireframework.dson.serializer.PropertySerializer;
 import com.jfireframework.dson.util.StringOutput;
 import sun.misc.Unsafe;

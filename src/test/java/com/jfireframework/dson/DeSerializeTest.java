@@ -5,7 +5,7 @@ import org.junit.Test;
 import com.jfireframework.baseutil.time.Timewatch;
 import com.jfireframework.codejson.JsonTool;
 import com.jfireframework.dson.deserializer.token.Lexer;
-import com.jfireframework.dson.metadata.JsonCollection;
+import com.jfireframework.dson.metadata.json.JsonCollection;
 
 public class DeSerializeTest
 {

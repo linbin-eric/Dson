@@ -1,4 +1,4 @@
-package com.jfireframework.dson.metadata;
+package com.jfireframework.dson.metadata.json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,17 +24,18 @@ public class JsonCollection implements DsonObject
 		builder.append('{');
 		for (Entry entry : entries)
 		{
-			builder.append('"').append(entry.name).append("\":");
-			switch (entry.valueType)
+			builder.append('"').append(entry.getName()).append("\":");
+			switch (entry.getValueType())
 			{
 				case STRING:
-					builder.append('"').append(entry.value).append('"');
+					builder.append('"').append(entry.getValue()).append('"');
 					break;
-				case NUMBER:
-					builder.append(entry.value);
+				case NUMBER_DOUBLE:
+				case NUMBER_LONG:
+					builder.append(entry.getValue());
 					break;
 				case BOOLEAN:
-					builder.append(entry.value);
+					builder.append(entry.getValue());
 					break;
 				case COLLECTION:
 					builder.append(entry.value);

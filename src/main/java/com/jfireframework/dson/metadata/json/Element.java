@@ -1,4 +1,4 @@
-package com.jfireframework.dson.metadata;
+package com.jfireframework.dson.metadata.json;
 
 public class Element
 {

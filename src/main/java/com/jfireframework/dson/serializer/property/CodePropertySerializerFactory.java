@@ -12,6 +12,7 @@ import com.jfireframework.baseutil.smc.compiler.JavaStringCompiler;
 import com.jfireframework.baseutil.smc.model.CompilerModel;
 import com.jfireframework.baseutil.smc.model.MethodModel;
 import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.metadata.PropertySerializerFactory;
 import com.jfireframework.dson.serializer.PropertySerializer;
 import com.jfireframework.dson.util.StringOutput;
 

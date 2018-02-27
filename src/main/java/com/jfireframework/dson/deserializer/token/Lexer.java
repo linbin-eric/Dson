@@ -1,9 +1,9 @@
 package com.jfireframework.dson.deserializer.token;
 
-import com.jfireframework.dson.metadata.DsonObject;
-import com.jfireframework.dson.metadata.JsonArray;
-import com.jfireframework.dson.metadata.JsonCollection;
-import com.jfireframework.dson.metadata.JsonValueType;
+import com.jfireframework.dson.metadata.json.DsonObject;
+import com.jfireframework.dson.metadata.json.JsonArray;
+import com.jfireframework.dson.metadata.json.JsonCollection;
+import com.jfireframework.dson.metadata.json.JsonValueType;
 
 public class Lexer
 {
@@ -54,7 +54,14 @@ public class Lexer
 			else if (c >= '0' && c <= '9')
 			{
 				Number number = getNumber(str);
-				jsonArray.add(number, JsonValueType.NUMBER);
+				if (number instanceof Double)
+				{
+					jsonArray.add(number, JsonValueType.NUMBER_DOUBLE);
+				}
+				else
+				{
+					jsonArray.add(number, JsonValueType.NUMBER_DOUBLE);
+				}
 			}
 			else if (c == 'T' || c == 't')
 			{
@@ -177,7 +184,14 @@ public class Lexer
 			else if (c >= '0' && c <= '9')
 			{
 				Number number = getNumber(str);
-				jsonCollection.add(name, number, JsonValueType.NUMBER);
+				if (number instanceof Double)
+				{
+					jsonCollection.add(name, number, JsonValueType.NUMBER_DOUBLE);
+				}
+				else
+				{
+					jsonCollection.add(name, number, JsonValueType.NUMBER_LONG);
+				}
 			}
 			else if (c == Symbol.LEFT_BRACE.literals())
 			{
