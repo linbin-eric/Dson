@@ -1,4 +1,4 @@
-package com.jfireframework.dson.deserializer.token;
+package com.jfireframework.dson.metadata.parse;
 
 import com.jfireframework.dson.metadata.json.DsonObject;
 import com.jfireframework.dson.metadata.json.JsonArray;

@@ -1,15 +1,33 @@
 package com.jfireframework.dson.metadata.json;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JsonCollection implements DsonObject
 {
-	List<Entry> entries = new ArrayList<Entry>();
+	List<Entry>			entries	= new ArrayList<Entry>();
+	Map<String, Entry>	map ;
 	
-	public List<Entry> getEntries()
+	public Collection<Entry> getEntries()
 	{
 		return entries;
+	}
+	
+	public Map<String, Entry> getMap()
+	{
+		if (map != null)
+		{
+			return map;
+		}
+		map = new HashMap<String, Entry>();
+		for (Entry entry : entries)
+		{
+			map.put(entry.getName(), entry);
+		}
+		return map;
 	}
 	
 	public void add(String name, Object value, JsonValueType valueType)

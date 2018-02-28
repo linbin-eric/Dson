@@ -1,6 +1,5 @@
 package com.jfireframework.dson;
 
-import com.jfireframework.dson.metadata.EntryDeserializerFactory;
 import com.jfireframework.dson.metadata.PropertySerializerFactory;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
@@ -13,8 +12,6 @@ public interface JsonProcessor
 	void initialize(JsonProcessorConfiguration configuration);
 	
 	PropertySerializerFactory propertySerializerFactory();
-	
-	EntryDeserializerFactory entryDeserializerFactory();
 	
 	Class<? extends MapSerializer> mapSerializerClass();
 	

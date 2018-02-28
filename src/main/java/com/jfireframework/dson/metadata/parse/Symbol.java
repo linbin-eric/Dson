@@ -1,4 +1,4 @@
-package com.jfireframework.dson.deserializer.token;
+package com.jfireframework.dson.metadata.parse;
 
 import java.util.HashMap;
 import java.util.Map;

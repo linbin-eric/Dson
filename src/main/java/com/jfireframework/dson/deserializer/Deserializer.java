@@ -1,10 +1,10 @@
 package com.jfireframework.dson.deserializer;
 
-import com.jfireframework.dson.metadata.EntryDeserializerFactory;
+import java.lang.reflect.Type;
 
 public interface Deserializer
 {
-	EntryDeserializerFactory entryDeserializerFactory();
+	DeserializeDescriptor describe(Type type);
 	
-	DeserializeDescriber describe(Class<?> type);
+	<T> T deserialize(Type type, String json);
 }
