@@ -18,6 +18,15 @@ import com.jfireframework.dson.deserializer.buildin.LongDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.buildin.ObjectDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.buildin.ShortDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.buildin.StringDeserializDescriptor;
+import com.jfireframework.dson.deserializer.buildin.array.BooleanArrayDeserializeDescriptor;
+import com.jfireframework.dson.deserializer.buildin.array.ByteArrayDeserializeDescriptor;
+import com.jfireframework.dson.deserializer.buildin.array.CharArrayDeserializeDescriptor;
+import com.jfireframework.dson.deserializer.buildin.array.DoubleArrayDeserializeDescriptor;
+import com.jfireframework.dson.deserializer.buildin.array.FloatArrayDeserializeDescriptor;
+import com.jfireframework.dson.deserializer.buildin.array.IntArrayDeserializeDescriptor;
+import com.jfireframework.dson.deserializer.buildin.array.LongArrayDeserializeDescriptor;
+import com.jfireframework.dson.deserializer.buildin.array.ShortArrayDeserializeDescriptor;
+import com.jfireframework.dson.deserializer.buildin.array.StringArrayDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.impl.ArrayDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.impl.CollectionDeserializeDecriptor;
 import com.jfireframework.dson.deserializer.impl.MapDeserializeDescriptor;
@@ -39,6 +48,16 @@ public class DefaultDeserializer implements Deserializer
 		store.put(Boolean.class, new BooleanDeserializeDescriptor());
 		store.put(Object.class, new ObjectDeserializeDescriptor());
 		store.put(String.class, new StringDeserializDescriptor());
+		//
+		store.put(boolean[].class, new BooleanArrayDeserializeDescriptor());
+		store.put(byte[].class, new ByteArrayDeserializeDescriptor());
+		store.put(char[].class, new CharArrayDeserializeDescriptor());
+		store.put(double[].class, new DoubleArrayDeserializeDescriptor());
+		store.put(float[].class, new FloatArrayDeserializeDescriptor());
+		store.put(int[].class, new IntArrayDeserializeDescriptor());
+		store.put(long[].class, new LongArrayDeserializeDescriptor());
+		store.put(short[].class, new ShortArrayDeserializeDescriptor());
+		store.put(String[].class, new StringArrayDeserializeDescriptor());
 	}
 	
 	@Override

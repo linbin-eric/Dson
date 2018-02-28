@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import com.jfireframework.baseutil.reflect.ReflectUtil;
-import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.PropertySerializer;
 import com.jfireframework.dson.util.StringOutput;
@@ -44,7 +44,7 @@ public class BeanSerializerImpl implements BeanSerializer
     }
     
     @Override
-    public void initialize(JsonProcessor jsonProcessor, Class<?> type)
+    public void initialize(Serializer jsonProcessor, Class<?> type)
     {
         List<PropertySerializer> propertySerializers = new ArrayList<PropertySerializer>();
         for (Field field : ReflectUtil.getAllFields(type))

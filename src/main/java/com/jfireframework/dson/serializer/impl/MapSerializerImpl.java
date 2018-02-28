@@ -2,13 +2,13 @@ package com.jfireframework.dson.serializer.impl;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.serializer.MapSerializer;
 import com.jfireframework.dson.util.StringOutput;
 
 public class MapSerializerImpl implements MapSerializer
 {
-	private JsonProcessor jsonProcessor;
+	private Serializer jsonProcessor;
 	
 	@Override
 	public boolean serialize(Object entity, StringOutput output)
@@ -36,7 +36,7 @@ public class MapSerializerImpl implements MapSerializer
 	}
 	
 	@Override
-	public void initialize(JsonProcessor jsonProcessor, Class<?> type)
+	public void initialize(Serializer jsonProcessor, Class<?> type)
 	{
 		this.jsonProcessor = jsonProcessor;
 	}

@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import com.jfireframework.baseutil.exception.JustThrowException;
-import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.metadata.PropertySerializerFactory;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
@@ -17,10 +17,10 @@ import com.jfireframework.dson.util.StringOutput;
 
 public class ReflectPropertySerializerFactory implements PropertySerializerFactory
 {
-	private JsonProcessor jsonProcessor;
+	private Serializer jsonProcessor;
 	
 	@Override
-	public void initialize(JsonProcessor jsonProcessor)
+	public void initialize(Serializer jsonProcessor)
 	{
 		this.jsonProcessor = jsonProcessor;
 	}

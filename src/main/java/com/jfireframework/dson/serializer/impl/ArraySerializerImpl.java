@@ -2,17 +2,18 @@ package com.jfireframework.dson.serializer.impl;
 
 import java.lang.reflect.Modifier;
 import com.jfireframework.baseutil.exception.JustThrowException;
-import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
+import com.jfireframework.dson.serializer.SerializeDescriptor;
 import com.jfireframework.dson.util.StringOutput;
 
-public class ArraySerializerImpl implements ArraySerializer
+public class ArraySerializerImpl implements SerializeDescriptor
 {
-	private JsonProcessor	jsonProcessor;
-	private ComponentMode	componentMode;
-	private BeanSerializer	finalBeanSerializer;
-	private ArraySerializer	componentArraySerializer;
+	private Serializer			serializer;
+	private ComponentMode		componentMode;
+	private SerializeDescriptor	finalBeanSerializer;
+	private SerializeDescriptor	componentArraySerializer;
 	
 	enum ComponentMode
 	{
@@ -29,17 +30,16 @@ public class ArraySerializerImpl implements ArraySerializer
 	}
 	
 	@Override
-	public void initialize(JsonProcessor jsonProcessor, Class<?> type)
+	public void initialize(Serializer serializer, Class<?> type)
 	{
-		this.jsonProcessor = jsonProcessor;
+		this.serializer = serializer;
 		Class<?> componentType = type.getComponentType();
 		if (componentType.isArray())
 		{
 			componentMode = ComponentMode.ARRAY;
 			try
 			{
-				componentArraySerializer = jsonProcessor.arraySerializerClass().newInstance();
-				componentArraySerializer.initialize(jsonProcessor, componentType);
+				componentArraySerializer = serializer.describe(componentType);
 			}
 			catch (Exception e)
 			{
@@ -98,8 +98,8 @@ public class ArraySerializerImpl implements ArraySerializer
 			componentMode = ComponentMode.FINAL;
 			try
 			{
-				finalBeanSerializer = jsonProcessor.beanSerializerClass().newInstance();
-				finalBeanSerializer.initialize(jsonProcessor, componentType);
+				finalBeanSerializer = serializer.beanSerializerClass().newInstance();
+				finalBeanSerializer.initialize(serializer, componentType);
 			}
 			catch (Exception e)
 			{
@@ -280,7 +280,7 @@ public class ArraySerializerImpl implements ArraySerializer
 					if (each != null)
 					{
 						int length = output.length();
-						jsonProcessor.serialize(each, output);
+						serializer.serialize(each, output);
 						if (length != output.length())
 						{
 							serialized = true;

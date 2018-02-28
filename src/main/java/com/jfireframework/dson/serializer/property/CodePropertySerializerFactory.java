@@ -11,17 +11,17 @@ import com.jfireframework.baseutil.smc.SmcHelper;
 import com.jfireframework.baseutil.smc.compiler.JavaStringCompiler;
 import com.jfireframework.baseutil.smc.model.CompilerModel;
 import com.jfireframework.baseutil.smc.model.MethodModel;
-import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.metadata.PropertySerializerFactory;
 import com.jfireframework.dson.serializer.PropertySerializer;
 import com.jfireframework.dson.util.StringOutput;
 
 public class CodePropertySerializerFactory implements PropertySerializerFactory
 {
-    private JsonProcessor jsonProcessor;
+    private Serializer jsonProcessor;
     
     @Override
-    public void initialize(JsonProcessor jsonProcessor)
+    public void initialize(Serializer jsonProcessor)
     {
         this.jsonProcessor = jsonProcessor;
     }

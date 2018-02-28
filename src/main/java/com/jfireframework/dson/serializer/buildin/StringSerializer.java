@@ -1,14 +1,14 @@
 package com.jfireframework.dson.serializer.buildin;
 
-import com.jfireframework.dson.JsonProcessor;
-import com.jfireframework.dson.serializer.Serializer;
+import com.jfireframework.dson.Serializer;
+import com.jfireframework.dson.serializer.SerializeDescriptor;
 import com.jfireframework.dson.util.StringOutput;
 
-public class StringSerializer implements Serializer
+public class StringSerializer implements SerializeDescriptor
 {
 	
 	@Override
-	public void initialize(JsonProcessor jsonProcessor, Class<?> type)
+	public void initialize(Serializer jsonProcessor, Class<?> type)
 	{
 		
 	}

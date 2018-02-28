@@ -1,16 +1,16 @@
 package com.jfireframework.dson.serializer.impl;
 
 import java.util.Collection;
-import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
 import com.jfireframework.dson.util.StringOutput;
 
 public class CollectionSerizlizerImpl implements CollectionSerializer
 {
-	private JsonProcessor jsonProcessor;
+	private Serializer jsonProcessor;
 	
 	@Override
-	public void initialize(JsonProcessor jsonProcessor, Class<?> type)
+	public void initialize(Serializer jsonProcessor, Class<?> type)
 	{
 		this.jsonProcessor = jsonProcessor;
 		

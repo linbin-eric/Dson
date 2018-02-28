@@ -5,14 +5,14 @@ import com.jfireframework.dson.util.StringOutput;
 
 public class Dson
 {
-	private static JsonProcessor defaultProcessor;
+	private static Serializer defaultProcessor;
 	static
 	{
 		defaultProcessor = new JsonProcessorImpl();
 		defaultProcessor.initialize(new DefaultJsonProcessorConfiguration());
 	}
 	
-	public static final JsonProcessor defaultProcessor()
+	public static final Serializer defaultProcessor()
 	{
 		return defaultProcessor;
 	}

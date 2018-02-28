@@ -1,11 +1,11 @@
 package com.jfireframework.dson.serializer;
 
-import com.jfireframework.dson.JsonProcessor;
+import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.util.StringOutput;
 
-public interface Serializer
+public interface SerializeDescriptor
 {
-	void initialize(JsonProcessor jsonProcessor, Class<?> type);
+	void initialize(Serializer jsonProcessor, Class<?> type);
 	
 	/**
 	 * 如果输出内容则返回true；反之返回false

@@ -10,20 +10,20 @@ import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
 import com.jfireframework.dson.serializer.MapSerializer;
-import com.jfireframework.dson.serializer.Serializer;
+import com.jfireframework.dson.serializer.SerializeDescriptor;
 import com.jfireframework.dson.serializer.buildin.BooleanSerializer;
 import com.jfireframework.dson.serializer.buildin.NumberSerializer;
 import com.jfireframework.dson.serializer.buildin.StringSerializer;
 import com.jfireframework.dson.util.StringOutput;
 
-public class JsonProcessorImpl implements JsonProcessor
+public class JsonProcessorImpl implements Serializer
 {
 	private PropertySerializerFactory				propertySerializerFactory;
 	private Class<? extends MapSerializer>			mapSerializerClass;
 	private Class<? extends CollectionSerializer>	collectionSerializerClass;
 	private Class<? extends BeanSerializer>			beanSerializerClass;
 	private Class<? extends ArraySerializer>		arraySerializerClass;
-	private ConcurrentMap<Class<?>, Serializer>		store	= new ConcurrentHashMap<Class<?>, Serializer>();
+	private ConcurrentMap<Class<?>, SerializeDescriptor>		store	= new ConcurrentHashMap<Class<?>, SerializeDescriptor>();
 	
 	public JsonProcessorImpl()
 	{
@@ -78,7 +78,7 @@ public class JsonProcessorImpl implements JsonProcessor
 	public void serialize(Object entity, StringOutput output)
 	{
 		Class<?> type = entity.getClass();
-		Serializer serializer = store.get(type);
+		SerializeDescriptor serializer = store.get(type);
 		if (serializer == null)
 		{
 			if (Map.class.isAssignableFrom(type))
