@@ -15,4 +15,6 @@ public interface SerializeDescriptor
 	 * @return
 	 */
 	boolean serialize(Object entity, StringOutput output);
+	
+	boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output);
 }

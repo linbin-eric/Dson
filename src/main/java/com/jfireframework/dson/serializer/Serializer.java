@@ -9,4 +9,5 @@ public interface Serializer
 	
 	void serialize(Object entity, StringOutput output);
 	
+	void serializeWithoutDoubleQuotes(Object entity, StringOutput output);
 }

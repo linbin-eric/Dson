@@ -32,6 +32,12 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 	private Serializer				serializer;
 	
 	@Override
+	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	{
+		return serialize(entity, output);
+	}
+	
+	@Override
 	public boolean serialize(Object entity, StringOutput output)
 	{
 		if (propertySerializers.length == 0 || entity == null)
@@ -265,4 +271,5 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 		}
 		
 	}
+	
 }
