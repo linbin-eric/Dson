@@ -2,8 +2,8 @@ package com.jfireframework.dson.serializer.impl;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.serializer.MapSerializer;
+import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.util.StringOutput;
 
 public class MapSerializerImpl implements MapSerializer

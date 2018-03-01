@@ -1,7 +1,7 @@
 package com.jfireframework.dson.metadata;
 
-import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.serializer.PropertySerializer;
+import com.jfireframework.dson.serializer.Serializer;
 
 public interface PropertySerializerFactory
 {

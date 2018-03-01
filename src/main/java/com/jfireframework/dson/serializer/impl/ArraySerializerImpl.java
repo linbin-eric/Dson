@@ -2,10 +2,10 @@ package com.jfireframework.dson.serializer.impl;
 
 import java.lang.reflect.Modifier;
 import com.jfireframework.baseutil.exception.JustThrowException;
-import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.serializer.ArraySerializer;
 import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.SerializeDescriptor;
+import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.util.StringOutput;
 
 public class ArraySerializerImpl implements SerializeDescriptor

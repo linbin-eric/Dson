@@ -1,7 +1,6 @@
-package com.jfireframework.dson;
+package com.jfireframework.dson.serializer;
 
 import java.lang.reflect.Type;
-import com.jfireframework.dson.serializer.SerializeDescriptor;
 import com.jfireframework.dson.util.StringOutput;
 
 public interface Serializer

@@ -11,6 +11,7 @@ import com.jfireframework.dson.serializer.BeanSerializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
 import com.jfireframework.dson.serializer.MapSerializer;
 import com.jfireframework.dson.serializer.SerializeDescriptor;
+import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.serializer.buildin.BooleanSerializer;
 import com.jfireframework.dson.serializer.buildin.NumberSerializer;
 import com.jfireframework.dson.serializer.buildin.StringSerializer;

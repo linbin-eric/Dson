@@ -1,8 +1,8 @@
 package com.jfireframework.dson.serializer.impl;
 
 import java.util.Collection;
-import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.serializer.CollectionSerializer;
+import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.util.StringOutput;
 
 public class CollectionSerizlizerImpl implements CollectionSerializer

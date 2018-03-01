@@ -1,7 +1,7 @@
 package com.jfireframework.dson.serializer.buildin;
 
-import com.jfireframework.dson.Serializer;
 import com.jfireframework.dson.serializer.SerializeDescriptor;
+import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.util.StringOutput;
 
 public class StringSerializer implements SerializeDescriptor

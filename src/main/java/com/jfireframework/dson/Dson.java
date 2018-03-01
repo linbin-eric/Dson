@@ -1,5 +1,6 @@
 package com.jfireframework.dson;
 
+import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.util.StringCacheAdaptStringOutput;
 import com.jfireframework.dson.util.StringOutput;
 
