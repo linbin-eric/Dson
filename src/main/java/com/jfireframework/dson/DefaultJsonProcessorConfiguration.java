@@ -8,7 +8,7 @@ import com.jfireframework.dson.serializer.CollectionSerializer;
 import com.jfireframework.dson.serializer.MapSerializer;
 import com.jfireframework.dson.serializer.impl.ArraySerializerImpl;
 import com.jfireframework.dson.serializer.impl.ReflectBeanSerializeDescriptor;
-import com.jfireframework.dson.serializer.impl.CollectionSerizlizerImpl;
+import com.jfireframework.dson.serializer.impl.CollectionSerializeDescriptor;
 import com.jfireframework.dson.serializer.impl.MapSerializeDescriptor;
 import com.jfireframework.dson.serializer.property.ReflectPropertySerializerFactory;
 
@@ -30,7 +30,7 @@ public class DefaultJsonProcessorConfiguration implements JsonProcessorConfigura
 	@Override
 	public Class<? extends CollectionSerializer> getCollectionSerializerClass()
 	{
-		return CollectionSerizlizerImpl.class;
+		return CollectionSerializeDescriptor.class;
 	}
 	
 	@Override

@@ -1,18 +1,19 @@
 package com.jfireframework.dson.serializer.impl;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
-import com.jfireframework.dson.serializer.CollectionSerializer;
+import com.jfireframework.dson.serializer.SerializeDescriptor;
 import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.util.StringOutput;
 
-public class CollectionSerizlizerImpl implements CollectionSerializer
+public class CollectionSerializeDescriptor implements SerializeDescriptor
 {
-	private Serializer jsonProcessor;
+	private Serializer serializer;
 	
 	@Override
-	public void initialize(Serializer jsonProcessor, Class<?> type)
+	public void initialize(Serializer serializer, Type type)
 	{
-		this.jsonProcessor = jsonProcessor;
+		// TODO Auto-generated method stub
 		
 	}
 	
@@ -68,6 +69,13 @@ public class CollectionSerizlizerImpl implements CollectionSerializer
 		}
 		output.append(']');
 		return true;
+	}
+	
+	@Override
+	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 }
