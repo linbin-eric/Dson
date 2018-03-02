@@ -30,6 +30,12 @@ public class MapSerializeDescriptor implements SerializeDescriptor
 	private ValueDescriptor	valueDescriptor;
 	
 	@Override
+	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	{
+		return serializeWithoutDoubleQuotes(entity, output);
+	}
+	
+	@Override
 	public boolean serialize(Object entity, StringOutput output)
 	{
 		if (entity == null)
@@ -51,6 +57,18 @@ public class MapSerializeDescriptor implements SerializeDescriptor
 			output.deleteLast();
 		}
 		output.append('}');
+		return true;
+	}
+	
+	private boolean serialize(Entry<?, ?> entry, StringOutput output)
+	{
+		Object value = entry.getValue();
+		if (value == null)
+		{
+			return false;
+		}
+		keyDescriptor.serialize(entry, output);
+		valueDescriptor.serialize(entry, output);
 		return true;
 	}
 	
@@ -82,41 +100,37 @@ public class MapSerializeDescriptor implements SerializeDescriptor
 				keyDescriptor = new UnFinalObjectKeyDescriptor();
 			}
 			keyDescriptor.initialize(keyType);
+			Type valueType = actualTypeArguments[1];
+			if (valueType instanceof Class<?>)
+			{
+				if (valueType.equals(String.class))
+				{
+					valueDescriptor = new StringValueDescriptor();
+				}
+				else if (Number.class.isAssignableFrom((Class<?>) valueType) || valueType.equals(Boolean.class))
+				{
+					valueDescriptor = new DirectValueDescriptror();
+				}
+				else if (Modifier.isFinal(((Class<?>) valueType).getModifiers()))
+				{
+					valueDescriptor = new FinalObjectValueDescriptor();
+				}
+				else
+				{
+					valueDescriptor = new UnFinalObjectValueDescriptor();
+				}
+				valueDescriptor.initialize(valueType);
+			}
 		}
 		else if (type instanceof Class<?>)
 		{
-			keyDescriptor = serializer.describe(Object.class);
-			valueDescriptor = serializer.describe(Object.class);
+			keyDescriptor = new UnFinalObjectKeyDescriptor();
+			valueDescriptor = new UnFinalObjectValueDescriptor();
 		}
 		else
 		{
 			throw new IllegalArgumentException();
 		}
-	}
-	
-	@Override
-	public boolean serialize(Entry<?, ?> entry, StringOutput output)
-	{
-		Object value = entry.getValue();
-		if (value == null)
-		{
-			return false;
-		}
-		output.appendDoubleQuotes().append(entry.getKey()).append("\":");
-		if (value instanceof String || value instanceof Character)
-		{
-			output.append('"').append(value).append('"');
-		}
-		else if (value instanceof Number //
-		        || value instanceof Boolean)
-		{
-			output.append(value);
-		}
-		else
-		{
-			jsonProcessor.serialize(value, output);
-		}
-		return true;
 	}
 	
 	class StringKeyDescriptor implements KeyDescriptor
@@ -173,4 +187,73 @@ public class MapSerializeDescriptor implements SerializeDescriptor
 		}
 		
 	}
+	
+	class DirectValueDescriptror implements ValueDescriptor
+	{
+		
+		@Override
+		public void initialize(Type type)
+		{
+			
+		}
+		
+		@Override
+		public void serialize(Entry<?, ?> entry, StringOutput output)
+		{
+			output.append((Number) entry.getValue());
+		}
+		
+	}
+	
+	class StringValueDescriptor implements ValueDescriptor
+	{
+		
+		@Override
+		public void initialize(Type type)
+		{
+			
+		}
+		
+		@Override
+		public void serialize(Entry<?, ?> entry, StringOutput output)
+		{
+			output.appendDoubleQuotes().append((String) entry.getValue()).appendDoubleQuotes();
+		}
+	}
+	
+	class FinalObjectValueDescriptor implements ValueDescriptor
+	{
+		private SerializeDescriptor serializeDescriptor;
+		
+		@Override
+		public void initialize(Type type)
+		{
+			serializeDescriptor = serializer.describe(type);
+		}
+		
+		@Override
+		public void serialize(Entry<?, ?> entry, StringOutput output)
+		{
+			serializeDescriptor.serialize(entry.getValue(), output);
+		}
+		
+	}
+	
+	class UnFinalObjectValueDescriptor implements ValueDescriptor
+	{
+		
+		@Override
+		public void initialize(Type type)
+		{
+			
+		}
+		
+		@Override
+		public void serialize(Entry<?, ?> entry, StringOutput output)
+		{
+			serializer.serialize(entry.getValue(), output);
+		}
+		
+	}
+	
 }
