@@ -1,5 +1,6 @@
 package com.jfireframework.dson.serializer.impl;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import com.jfireframework.dson.serializer.SerializeDescriptor;
@@ -22,51 +23,64 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 	@Override
 	public void initialize(Serializer serializer, Type type)
 	{
-		Class<?> componentType = ((Class<?>) type).getComponentType();
-		if (componentType == int.class)
+		this.serializer = serializer;
+		if (type instanceof Class<?>)
 		{
-			arraySerializer = new IntArraySerializer();
+			Class<?> componentType = ((Class<?>) type).getComponentType();
+			if (componentType == int.class)
+			{
+				arraySerializer = new IntArraySerializer();
+			}
+			else if (componentType == short.class)
+			{
+				arraySerializer = new ShortArraySerializer();
+			}
+			else if (componentType == long.class)
+			{
+				arraySerializer = new LongArraySerializer();
+			}
+			else if (componentType == float.class)
+			{
+				arraySerializer = new FloatArraySerializer();
+			}
+			else if (componentType == double.class)
+			{
+				arraySerializer = new DoubleArraySerializer();
+			}
+			else if (componentType == boolean.class)
+			{
+				arraySerializer = new BooleanArraySerializer();
+			}
+			else if (componentType == byte.class)
+			{
+				arraySerializer = new ByteArraySerializer();
+			}
+			else if (componentType == char.class)
+			{
+				arraySerializer = new CharArraySerializer();
+			}
+			else if (componentType == String.class)
+			{
+				arraySerializer = new StringArraySerializer();
+			}
+			else if (Modifier.isFinal(componentType.getModifiers()))
+			{
+				arraySerializer = new FinalArraySerializer();
+			}
+			else
+			{
+				arraySerializer = new UnFinalArraySerializer();
+			}
 		}
-		else if (componentType == short.class)
-		{
-			arraySerializer = new ShortArraySerializer();
-		}
-		else if (componentType == long.class)
-		{
-			arraySerializer = new LongArraySerializer();
-		}
-		else if (componentType == float.class)
-		{
-			arraySerializer = new FloatArraySerializer();
-		}
-		else if (componentType == double.class)
-		{
-			arraySerializer = new DoubleArraySerializer();
-		}
-		else if (componentType == boolean.class)
-		{
-			arraySerializer = new BooleanArraySerializer();
-		}
-		else if (componentType == byte.class)
-		{
-			arraySerializer = new ByteArraySerializer();
-		}
-		else if (componentType == char.class)
-		{
-			arraySerializer = new CharArraySerializer();
-		}
-		else if (componentType == String.class)
-		{
-			arraySerializer = new StringArraySerializer();
-		}
-		else if (Modifier.isFinal(componentType.getModifiers()))
-		{
-			arraySerializer = new FinalArraySerializer();
-		}
-		else
+		else if (type instanceof GenericArrayType)
 		{
 			arraySerializer = new UnFinalArraySerializer();
 		}
+		else
+		{
+			throw new IllegalArgumentException();
+		}
+		arraySerializer.initialize(type);
 	}
 	
 	@Override
@@ -221,7 +235,7 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 			char[] array = (char[]) entity;
 			for (char c : array)
 			{
-				output.append(c).append(',');
+				output.appendDoubleQuotes().append(c).appendDoubleQuotes().append(',');
 			}
 		}
 		
@@ -250,7 +264,18 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 		public void initialize(Type type)
 		{
 			super.initialize(type);
-			serializeDescriptor = serializer.describe(type);
+			if (type instanceof Class<?>)
+			{
+				serializeDescriptor = serializer.describe(((Class<?>) type).getComponentType());
+			}
+			else if (type instanceof GenericArrayType)
+			{
+				serializeDescriptor = serializer.describe(((GenericArrayType) type).getGenericComponentType());
+			}
+			else
+			{
+				throw new IllegalArgumentException();
+			}
 		}
 		
 		@Override

@@ -1,6 +1,7 @@
 package com.jfireframework.dson.deserializer.impl;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,9 +31,14 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 	@Override
 	public void initialize(Type type, Deserializer deserializer)
 	{
+		this.deserializer = deserializer;
 		this.type = (Class<?>) type;
 		for (Field field : ReflectUtil.getAllFields(this.type))
 		{
+			if (Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
+			{
+				continue;
+			}
 			Class<?> fieldType = field.getType();
 			BasePropertyDeserializeDescriber propertyDeserializeDescriptor = null;
 			if (fieldType == int.class || fieldType == Integer.class)
@@ -49,7 +55,7 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 			}
 			else if (fieldType == short.class || fieldType == Short.class)
 			{
-				propertyDeserializeDescriptor = new LongPropertyDescriptor();
+				propertyDeserializeDescriptor = new ShortPropertyDescriber();
 			}
 			else if (fieldType == float.class || fieldType == Float.class)
 			{
@@ -81,7 +87,11 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 			}
 			else if (fieldType.isArray())
 			{
-				propertyDeserializeDescriptor = new ArrayPropertyDescriptor();
+				propertyDeserializeDescriptor = new CollectionPropertyDescriptor();
+			}
+			else if (fieldType == Object.class)
+			{
+				propertyDeserializeDescriptor = new ObjectPropertyDescriptor();
 			}
 			else
 			{
@@ -295,6 +305,17 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 		}
 	}
 	
+	class ObjectPropertyDescriptor extends BasePropertyDeserializeDescriber
+	{
+		
+		@Override
+		public void deserialize(Object bean, Entry entry)
+		{
+			setValue(bean, entry.getValue());
+		}
+		
+	}
+	
 	class BeanPropertyDescriptor extends BasePropertyDeserializeDescriber
 	{
 		private DeserializeDescriptor deserializeDescriber;
@@ -317,29 +338,6 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 		}
 	}
 	
-	class ArrayPropertyDescriptor extends BasePropertyDeserializeDescriber
-	{
-		private DeserializeDescriptor deserializeDescriber;
-		
-		@Override
-		protected void initialize(Field field)
-		{
-			super.initialize(field);
-			deserializeDescriber = deserializer.describe(type);
-		}
-		
-		@Override
-		public void deserialize(Object bean, Entry entry)
-		{
-			if (entry.getValueType() != JsonValueType.ARRAY)
-			{
-				return;
-			}
-			setValue(bean, deserializeDescriber.deserialize(entry));
-		}
-		
-	}
-	
 	class CollectionPropertyDescriptor extends BasePropertyDeserializeDescriber
 	{
 		private DeserializeDescriptor deserializeDescriber;
@@ -348,13 +346,13 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 		protected void initialize(Field field)
 		{
 			super.initialize(field);
-			deserializeDescriber = deserializer.describe(field.getType());
+			deserializeDescriber = deserializer.describe(field.getGenericType());
 		}
 		
 		@Override
 		public void deserialize(Object bean, Entry entry)
 		{
-			if (entry.getValueType() != JsonValueType.COLLECTION)
+			if (entry.getValueType() != JsonValueType.ARRAY)
 			{
 				return;
 			}

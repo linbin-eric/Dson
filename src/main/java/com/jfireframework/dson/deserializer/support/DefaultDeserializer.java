@@ -1,5 +1,6 @@
 package com.jfireframework.dson.deserializer.support;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -81,8 +82,6 @@ public class DefaultDeserializer implements Deserializer
 				{
 					describer = new ReflectBeanDeserializeDescriptor();
 				}
-				describer.initialize(type, this);
-				store.put(type, describer);
 			}
 			else if (type instanceof Class<?>)
 			{
@@ -102,13 +101,17 @@ public class DefaultDeserializer implements Deserializer
 				{
 					describer = new ReflectBeanDeserializeDescriptor();
 				}
-				describer.initialize(type, this);
-				store.put(type, describer);
+			}
+			else if (type instanceof GenericArrayType)
+			{
+				describer = new ArrayDeserializeDescriptor();
 			}
 			else
 			{
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("非法参数:" + type);
 			}
+			store.putIfAbsent(type, describer);
+			describer.initialize(type, this);
 		}
 		return describer;
 	}

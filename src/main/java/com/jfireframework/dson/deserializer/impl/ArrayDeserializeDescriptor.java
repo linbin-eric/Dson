@@ -1,6 +1,8 @@
 package com.jfireframework.dson.deserializer.impl;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import com.jfireframework.dson.deserializer.DeserializeDescriptor;
 import com.jfireframework.dson.deserializer.Deserializer;
@@ -19,13 +21,21 @@ public class ArrayDeserializeDescriptor implements DeserializeDescriptor
 	@Override
 	public void initialize(Type type, Deserializer deserializer)
 	{
-		if (type instanceof Class<?> == false)
+		if (type instanceof Class<?>)
 		{
-			throw new IllegalArgumentException();
+			Class<?> arrayType = (Class<?>) type;
+			componentType = arrayType.getComponentType();
+			elementDescriber = deserializer.describe(componentType);
 		}
-		Class<?> arrayType = (Class<?>) type;
-		componentType = arrayType.getComponentType();
-		elementDescriber = deserializer.describe(componentType);
+		else if (type instanceof GenericArrayType)
+		{
+			componentType = (Class<?>) ((ParameterizedType) ((GenericArrayType) type).getGenericComponentType()).getRawType();
+			elementDescriber = deserializer.describe(((GenericArrayType) type).getGenericComponentType());
+		}
+		else
+		{
+			throw new IllegalArgumentException("非法类型:" + type);
+		}
 	}
 	
 	@Override

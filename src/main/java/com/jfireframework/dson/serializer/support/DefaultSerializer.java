@@ -1,5 +1,6 @@
 package com.jfireframework.dson.serializer.support;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -80,12 +81,16 @@ public class DefaultSerializer implements Serializer
 					serializeDescriptor = new ReflectBeanSerializeDescriptor();
 				}
 			}
+			else if (type instanceof GenericArrayType)
+			{
+				serializeDescriptor = new ArraySerializeDescriptor();
+			}
 			else
 			{
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("当前类型:" + type);
 			}
-			serializeDescriptor.initialize(this, type);
 			store.putIfAbsent(type, serializeDescriptor);
+			serializeDescriptor.initialize(this, type);
 		}
 		return serializeDescriptor;
 	}

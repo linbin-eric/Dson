@@ -60,7 +60,7 @@ public class Lexer
 				}
 				else
 				{
-					jsonArray.add(number, JsonValueType.NUMBER_DOUBLE);
+					jsonArray.add(number, JsonValueType.NUMBER_LONG);
 				}
 			}
 			else if (c == 'T' || c == 't')
@@ -101,9 +101,13 @@ public class Lexer
 				jsonArray.add(array, JsonValueType.ARRAY);
 				offset += 1;
 			}
+			else if (c == Symbol.RIGHT_BRACKET.literals())
+			{
+				break;
+			}
 			else
 			{
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("非法字符:" + c + "当前解析剩余内容:" + str.substring(offset));
 			}
 			c = str.charAt(offset);
 			if (c == Symbol.RIGHT_BRACKET.literals())
@@ -204,6 +208,10 @@ public class Lexer
 				JsonArray jsonArray = parseArray();
 				jsonCollection.add(name, jsonArray, JsonValueType.ARRAY);
 				offset += 1;
+			}
+			else if (c == Symbol.RIGHT_BRACE.literals())
+			{
+				break;
 			}
 			else
 			{

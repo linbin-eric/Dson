@@ -26,7 +26,7 @@ public class Dson
 		return output.toString();
 	}
 	
-	public static <T> T fromString(String json, Type type)
+	public static <T> T fromString(Type type, String json)
 	{
 		return deserializer.deserialize(type, json);
 	}

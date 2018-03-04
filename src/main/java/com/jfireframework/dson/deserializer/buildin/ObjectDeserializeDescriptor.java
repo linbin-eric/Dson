@@ -32,13 +32,13 @@ public class ObjectDeserializeDescriptor implements DeserializeDescriptor
 	@Override
 	public Object deserialize(Entry entry)
 	{
-		return entry;
+		return entry.getValue();
 	}
 	
 	@Override
 	public Object deserialize(Element element)
 	{
-		return element;
+		return element.getValue();
 	}
 	
 }

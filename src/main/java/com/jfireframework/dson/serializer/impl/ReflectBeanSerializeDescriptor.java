@@ -62,12 +62,13 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 	}
 	
 	@Override
-	public void initialize(Serializer jsonProcessor, Type type)
+	public void initialize(Serializer serializer, Type type)
 	{
+		this.serializer = serializer;
 		List<PropertySerializer> list = new ArrayList<PropertySerializer>();
 		for (Field field : ReflectUtil.getAllFields((Class<?>) type))
 		{
-			if (field.getName().contains("this"))
+			if (field.getName().contains("this") || Modifier.isStatic(field.getModifiers()))
 			{
 				continue;
 			}
@@ -84,9 +85,13 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 			{
 				propertySerializer = new NumberPropertySerializer();
 			}
-			else if (fieldType == String.class || fieldType == Character.class || fieldType == char.class)
+			else if (fieldType == String.class)
 			{
 				propertySerializer = new StringProeprtySerializer();
+			}
+			else if (fieldType == Character.class || fieldType == char.class)
+			{
+				propertySerializer = new CharacterPropertySerializer();
 			}
 			else if (fieldType == boolean.class || fieldType == Boolean.class)
 			{
@@ -181,6 +186,17 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 		protected void outputPropertyValue(Object propertyValue, StringOutput output)
 		{
 			output.append((Boolean) propertyValue);
+		}
+		
+	}
+	
+	class CharacterPropertySerializer extends AbstractPropertySerializer
+	{
+		
+		@Override
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
+		{
+			output.appendDoubleQuotes().append((Character) propertyValue).appendDoubleQuotes();
 		}
 		
 	}
