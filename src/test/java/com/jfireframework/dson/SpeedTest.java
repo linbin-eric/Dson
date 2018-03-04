@@ -3,6 +3,7 @@ package com.jfireframework.dson;
 import org.junit.Test;
 import com.jfireframework.baseutil.time.NanoTimeWatch;
 import com.jfireframework.codejson.JsonTool;
+import com.jfireframework.dson.serializer.SerializeDescriptor;
 
 public class SpeedTest
 {

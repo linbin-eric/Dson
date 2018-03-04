@@ -1,5 +1,7 @@
 package com.jfireframework.dson.serializer.impl;
 
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import com.jfireframework.dson.serializer.SerializeDescriptor;
@@ -8,13 +10,58 @@ import com.jfireframework.dson.util.StringOutput;
 
 public class CollectionSerializeDescriptor implements SerializeDescriptor
 {
-	private Serializer serializer;
+	interface ElementSerializer
+	{
+		void initialize(Type elementType);
+		
+		boolean serialize(Object element, StringOutput output);
+	}
+	
+	private Serializer			serializer;
+	private ElementSerializer	elementSerializer;
 	
 	@Override
 	public void initialize(Serializer serializer, Type type)
 	{
-		// TODO Auto-generated method stub
-		
+		this.serializer = serializer;
+		if (type instanceof Class<?>)
+		{
+			elementSerializer = new UnfinalElementSerializer();
+		}
+		else if (type instanceof ParameterizedType)
+		{
+			Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+			if (elementType instanceof Class<?>)
+			{
+				if (Modifier.isFinal(((Class<?>) elementType).getModifiers()))
+				{
+					elementSerializer = new FinalElementSerializer();
+				}
+				else
+				{
+					elementSerializer = new UnfinalElementSerializer();
+				}
+			}
+			else if (elementType instanceof ParameterizedType)
+			{
+				elementSerializer = new UnfinalElementSerializer();
+			}
+			else
+			{
+				throw new IllegalArgumentException();
+			}
+			elementSerializer.initialize(elementType);
+		}
+		else
+		{
+			throw new IllegalArgumentException();
+		}
+	}
+	
+	@Override
+	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	{
+		return serialize(entity, output);
 	}
 	
 	@Override
@@ -24,46 +71,17 @@ public class CollectionSerializeDescriptor implements SerializeDescriptor
 		{
 			return false;
 		}
-		boolean serialized = false;
+		Collection<?> collection = (Collection<?>) entity;
 		output.append('[');
-		for (Object each : ((Collection<?>) entity))
+		int length = output.length();
+		for (Object each : collection)
 		{
-			if (each == null)
+			if (elementSerializer.serialize(each, output))
 			{
-				continue;
-			}
-			if (each instanceof Number)
-			{
-				output.append((Number) each).append(',');
-				serialized = true;
-			}
-			else if (each instanceof Boolean)
-			{
-				output.append((Boolean) each).append(',');
-				serialized = true;
-			}
-			else if (each instanceof String)
-			{
-				output.appendDoubleQuotes().append((String) each).append("\",");
-				serialized = true;
-			}
-			else if (each instanceof Character)
-			{
-				output.appendDoubleQuotes().append((Character) each).append("\",");
-				serialized = true;
-			}
-			else
-			{
-				int length = output.length();
-				jsonProcessor.serialize(each, output);
-				if (length != output.length())
-				{
-					output.append(',');
-					serialized = true;
-				}
+				output.append(',');
 			}
 		}
-		if (serialized)
+		if (output.length() != length)
 		{
 			output.deleteLast();
 		}
@@ -71,11 +89,40 @@ public class CollectionSerializeDescriptor implements SerializeDescriptor
 		return true;
 	}
 	
-	@Override
-	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	class FinalElementSerializer implements ElementSerializer
 	{
-		// TODO Auto-generated method stub
-		return false;
+		private SerializeDescriptor serializeDescriptor;
+		
+		@Override
+		public void initialize(Type elementType)
+		{
+			serializeDescriptor = serializer.describe(elementType);
+		}
+		
+		@Override
+		public boolean serialize(Object element, StringOutput output)
+		{
+			return serializeDescriptor.serialize(element, output);
+		}
+		
+	}
+	
+	class UnfinalElementSerializer implements ElementSerializer
+	{
+		@Override
+		public void initialize(Type elementType)
+		{
+			
+		}
+		
+		@Override
+		public boolean serialize(Object element, StringOutput output)
+		{
+			int length = output.length();
+			serializer.serialize(element, output);
+			return output.length() > length;
+		}
+		
 	}
 	
 }

@@ -1,34 +1,33 @@
 package com.jfireframework.dson;
 
+import java.lang.reflect.Type;
+import com.jfireframework.dson.deserializer.Deserializer;
+import com.jfireframework.dson.deserializer.support.DefaultDeserializer;
 import com.jfireframework.dson.serializer.Serializer;
+import com.jfireframework.dson.serializer.support.DefaultSerializer;
 import com.jfireframework.dson.util.StringCacheAdaptStringOutput;
 import com.jfireframework.dson.util.StringOutput;
 
 public class Dson
 {
-	private static Serializer defaultProcessor;
-	static
-	{
-		defaultProcessor = new JsonProcessorImpl();
-		defaultProcessor.initialize(new DefaultJsonProcessorConfiguration());
-	}
-	
-	public static final Serializer defaultProcessor()
-	{
-		return defaultProcessor;
-	}
-	
-	private static final ThreadLocal<StringOutput> LOCAL = new ThreadLocal<StringOutput>() {
-		protected StringOutput initialValue()
-		{
-			return new StringCacheAdaptStringOutput();
-		}
-	};
+	private static Serializer						serializer		= new DefaultSerializer();
+	private static Deserializer						deserializer	= new DefaultDeserializer();
+	private static final ThreadLocal<StringOutput>	LOCAL			= new ThreadLocal<StringOutput>() {
+																		protected StringOutput initialValue()
+																		{
+																			return new StringCacheAdaptStringOutput();
+																		}
+																	};
 	
 	public static String toJsonString(Object entity)
 	{
 		StringOutput output = LOCAL.get().clear();
-		defaultProcessor.serialize(entity, output);
+		serializer.serialize(entity, output);
 		return output.toString();
+	}
+	
+	public static <T> T fromString(String json, Type type)
+	{
+		return deserializer.deserialize(type, json);
 	}
 }
