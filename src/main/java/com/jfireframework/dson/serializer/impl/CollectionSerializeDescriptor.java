@@ -14,7 +14,7 @@ public class CollectionSerializeDescriptor implements SerializeDescriptor
 	{
 		void initialize(Type elementType);
 		
-		boolean serialize(Object element, StringOutput output);
+		void serialize(Object element, StringOutput output);
 	}
 	
 	private Serializer			serializer;
@@ -76,10 +76,11 @@ public class CollectionSerializeDescriptor implements SerializeDescriptor
 		int length = output.length();
 		for (Object each : collection)
 		{
-			if (elementSerializer.serialize(each, output))
+			if (each == null)
 			{
-				output.append(',');
+				continue;
 			}
+			elementSerializer.serialize(each, output);
 		}
 		if (output.length() != length)
 		{
@@ -100,9 +101,9 @@ public class CollectionSerializeDescriptor implements SerializeDescriptor
 		}
 		
 		@Override
-		public boolean serialize(Object element, StringOutput output)
+		public void serialize(Object element, StringOutput output)
 		{
-			return serializeDescriptor.serialize(element, output);
+			serializeDescriptor.serialize(element, output);
 		}
 		
 	}
@@ -116,11 +117,9 @@ public class CollectionSerializeDescriptor implements SerializeDescriptor
 		}
 		
 		@Override
-		public boolean serialize(Object element, StringOutput output)
+		public void serialize(Object element, StringOutput output)
 		{
-			int length = output.length();
 			serializer.serialize(element, output);
-			return output.length() > length;
 		}
 		
 	}
