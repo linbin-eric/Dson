@@ -25,7 +25,7 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 		 * @param output
 		 * @return
 		 */
-		boolean serialize(Object host, StringOutput output);
+		void serialize(Object host, StringOutput output);
 	}
 	
 	private PropertySerializer[]	propertySerializers;
@@ -48,10 +48,7 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 		int length = output.length();
 		for (PropertySerializer each : propertySerializers)
 		{
-			if (each.serialize(entity, output))
-			{
-				output.append(',');
-			}
+			each.serialize(entity, output);
 		}
 		if (length != output.length())
 		{
@@ -135,18 +132,18 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 			field.setAccessible(true);
 		}
 		
-		public boolean serialize(Object entity, StringOutput output)
+		public void serialize(Object entity, StringOutput output)
 		{
 			try
 			{
 				Object propertyValue = field.get(entity);
 				if (propertyValue == null)
 				{
-					return false;
+					return;
 				}
 				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':');
 				outputPropertyValue(propertyValue, output);
-				return true;
+				output.append(',');
 			}
 			catch (Exception e)
 			{
