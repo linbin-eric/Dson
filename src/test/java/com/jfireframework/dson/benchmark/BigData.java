@@ -1,4 +1,4 @@
-package com.jfireframework.codejson.test.benchmark;
+package com.jfireframework.dson.benchmark;
 
 import java.util.ArrayList;
 import java.util.HashMap;
