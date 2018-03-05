@@ -120,20 +120,5 @@ public class FunctionTest extends Support
 		FunData16 data16 = new FunData16();
 		data16.setTest(TestEnum.PUSH);
 		assertEquals("{\"test\":\"PUSH\"}", Dson.toJsonString(data16));
-		WriteStrategy strategy = new WriteStrategy();
-		strategy.setWriteEnumName(false);
-		assertEquals("{\"test\":0}", strategy.write(data16));
-		strategy = new WriteStrategy();
-		assertEquals("{\"test\":\"PUSH\"}", strategy.write(data16));
-		FunData16 result = Dson.fromString(FunData16.class, "{\"test\":\"PUSH\"}");
-		assertEquals(TestEnum.PUSH, result.getTest());
-		ReadStrategy readStrategy = new ReadStrategy();
-		result = readStrategy.read(FunData16.class, "{\"test\":\"PUSH\"}");
-		assertEquals(TestEnum.PUSH, result.getTest());
-		readStrategy = new ReadStrategy();
-		readStrategy.setReadEnumName(false);
-		result = readStrategy.read(FunData16.class, "{\"test\":0}");
-		assertEquals(TestEnum.PUSH, result.getTest());
-		
 	}
 }

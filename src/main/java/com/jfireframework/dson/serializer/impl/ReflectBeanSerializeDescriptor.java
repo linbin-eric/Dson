@@ -105,6 +105,10 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 			{
 				propertySerializer = new ArrayPropertySerializer();
 			}
+			else if (Enum.class.isAssignableFrom(fieldType))
+			{
+				propertySerializer = new EnumPropertySerializer();
+			}
 			else if (Modifier.isFinal(fieldType.getModifiers()))
 			{
 				propertySerializer = new FinalBeanPropertySerializer();
@@ -193,6 +197,18 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 		protected void outputPropertyValue(Object propertyValue, StringOutput output)
 		{
 			output.appendDoubleQuotes().append((Character) propertyValue).appendDoubleQuotes();
+		}
+		
+	}
+	
+	class EnumPropertySerializer extends AbstractPropertySerializer
+	{
+		
+		@Override
+		protected void outputPropertyValue(Object propertyValue, StringOutput output)
+		{
+			Enum<?> instance = (Enum<?>) propertyValue;
+			output.appendDoubleQuotes().append(instance.name()).appendDoubleQuotes();
 		}
 		
 	}

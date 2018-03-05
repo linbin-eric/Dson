@@ -19,6 +19,7 @@ import com.jfireframework.dson.serializer.buildin.ShortSerializeDescriptor;
 import com.jfireframework.dson.serializer.buildin.StringSerializeDescriptor;
 import com.jfireframework.dson.serializer.impl.ArraySerializeDescriptor;
 import com.jfireframework.dson.serializer.impl.CollectionSerializeDescriptor;
+import com.jfireframework.dson.serializer.impl.EnumSerializeDescriptor;
 import com.jfireframework.dson.serializer.impl.MapSerializeDescriptor;
 import com.jfireframework.dson.serializer.impl.ReflectBeanSerializeDescriptor;
 import com.jfireframework.dson.util.StringOutput;
@@ -57,6 +58,10 @@ public class DefaultSerializer implements Serializer
 				{
 					serializeDescriptor = new CollectionSerializeDescriptor();
 				}
+				else if (Enum.class.isAssignableFrom(rawType))
+				{
+					serializeDescriptor = new EnumSerializeDescriptor();
+				}
 				else
 				{
 					serializeDescriptor = new ReflectBeanSerializeDescriptor();
@@ -71,6 +76,10 @@ public class DefaultSerializer implements Serializer
 				else if (Collection.class.isAssignableFrom((Class<?>) type))
 				{
 					serializeDescriptor = new CollectionSerializeDescriptor();
+				}
+				else if (Enum.class.isAssignableFrom((Class<?>) type))
+				{
+					serializeDescriptor = new EnumSerializeDescriptor();
 				}
 				else if (((Class<?>) type).isArray())
 				{

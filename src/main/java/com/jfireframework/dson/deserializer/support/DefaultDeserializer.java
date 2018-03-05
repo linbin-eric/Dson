@@ -30,6 +30,7 @@ import com.jfireframework.dson.deserializer.buildin.array.ShortArrayDeserializeD
 import com.jfireframework.dson.deserializer.buildin.array.StringArrayDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.impl.ArrayDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.impl.CollectionDeserializeDecriptor;
+import com.jfireframework.dson.deserializer.impl.EnumDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.impl.MapDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.impl.ReflectBeanDeserializeDescriptor;
 
@@ -78,6 +79,10 @@ public class DefaultDeserializer implements Deserializer
 				{
 					describer = new CollectionDeserializeDecriptor();
 				}
+				else if (Enum.class.isAssignableFrom(rawType))
+				{
+					describer = new EnumDeserializeDescriptor();
+				}
 				else
 				{
 					describer = new ReflectBeanDeserializeDescriptor();
@@ -92,6 +97,10 @@ public class DefaultDeserializer implements Deserializer
 				else if (Collection.class.isAssignableFrom((Class<?>) type))
 				{
 					describer = new CollectionDeserializeDecriptor();
+				}
+				else if (Enum.class.isAssignableFrom((Class<?>) type))
+				{
+					describer = new EnumDeserializeDescriptor();
 				}
 				else if (((Class<?>) type).isArray())
 				{

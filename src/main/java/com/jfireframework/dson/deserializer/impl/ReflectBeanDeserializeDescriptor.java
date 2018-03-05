@@ -77,6 +77,10 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 			{
 				propertyDeserializeDescriptor = new StringPropertyDescriptor();
 			}
+			else if (Enum.class.isAssignableFrom(fieldType))
+			{
+				propertyDeserializeDescriptor = new EnumPropertyDescriptor();
+			}
 			else if (Map.class.isAssignableFrom(fieldType))
 			{
 				propertyDeserializeDescriptor = new BeanPropertyDescriptor();
@@ -303,6 +307,30 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 			}
 			setValue(bean, ((String) entry.getValue()).charAt(0));
 		}
+	}
+	
+	class EnumPropertyDescriptor extends BasePropertyDeserializeDescriber
+	{
+		Map<String, ? extends Enum<?>> allEnumInstances;
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		protected void initialize(Field field)
+		{
+			super.initialize(field);
+			allEnumInstances = ReflectUtil.getAllEnumInstances((Class<? extends Enum<?>>) field.getType());
+		}
+		
+		@Override
+		public void deserialize(Object bean, Entry entry)
+		{
+			if (entry.getValueType() != JsonValueType.STRING)
+			{
+				return;
+			}
+			setValue(bean, allEnumInstances.get(entry.getValue()));
+		}
+		
 	}
 	
 	class ObjectPropertyDescriptor extends BasePropertyDeserializeDescriber
