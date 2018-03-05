@@ -59,35 +59,34 @@ public class CollectionSerializeDescriptor implements SerializeDescriptor
 	}
 	
 	@Override
-	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	public void serializeWithoutDoubleQuotes(Object entity, StringOutput output)
 	{
-		return serialize(entity, output);
+		serialize(entity, output);
 	}
 	
 	@Override
-	public boolean serialize(Object entity, StringOutput output)
+	public void serialize(Object entity, StringOutput output)
 	{
 		if (entity == null)
 		{
-			return false;
+			return;
 		}
 		Collection<?> collection = (Collection<?>) entity;
 		output.append('[');
 		int length = output.length();
 		for (Object each : collection)
 		{
-			if (each == null)
+			if (each != null)
 			{
-				continue;
+				elementSerializer.serialize(each, output);
+				output.append(',');
 			}
-			elementSerializer.serialize(each, output);
 		}
 		if (output.length() != length)
 		{
 			output.deleteLast();
 		}
 		output.append(']');
-		return true;
 	}
 	
 	class FinalElementSerializer implements ElementSerializer

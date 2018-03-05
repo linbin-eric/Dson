@@ -14,7 +14,7 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 	{
 		void initialize(Type type);
 		
-		boolean Serializer(Object entity, StringOutput output);
+		void Serializer(Object entity, StringOutput output);
 	}
 	
 	private Serializer		serializer;
@@ -84,15 +84,19 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 	}
 	
 	@Override
-	public boolean serialize(Object entity, StringOutput output)
+	public void serialize(Object entity, StringOutput output)
 	{
-		return arraySerializer.Serializer(entity, output);
+		if (entity == null)
+		{
+			return;
+		}
+		arraySerializer.Serializer(entity, output);
 	}
 	
 	@Override
-	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	public void serializeWithoutDoubleQuotes(Object entity, StringOutput output)
 	{
-		return serialize(entity, output);
+		serialize(entity, output);
 	}
 	
 	abstract class TemplateSerializer implements ArraySerializer
@@ -104,12 +108,8 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 		}
 		
 		@Override
-		public boolean Serializer(Object entity, StringOutput output)
+		public void Serializer(Object entity, StringOutput output)
 		{
-			if (entity == null)
-			{
-				return false;
-			}
 			output.append('[');
 			int length = output.length();
 			output(entity, output);
@@ -118,7 +118,6 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 				output.deleteLast();
 			}
 			output.append(']');
-			return true;
 		}
 		
 		abstract void output(Object entity, StringOutput output);
@@ -250,7 +249,10 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 			String[] array = (String[]) entity;
 			for (String each : array)
 			{
-				output.appendDoubleQuotes().append(each).appendDoubleQuotes().append(',');
+				if (each != null)
+				{
+					output.appendDoubleQuotes().append(each).appendDoubleQuotes().append(',');
+				}
 			}
 		}
 		
@@ -284,8 +286,9 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 			Object[] array = (Object[]) entity;
 			for (Object each : array)
 			{
-				if (serializeDescriptor.serialize(each, output))
+				if (each != null)
 				{
+					serializeDescriptor.serialize(each, output);
 					output.append(',');
 				}
 			}

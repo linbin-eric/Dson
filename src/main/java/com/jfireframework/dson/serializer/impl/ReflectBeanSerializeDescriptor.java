@@ -32,17 +32,17 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 	private Serializer				serializer;
 	
 	@Override
-	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	public void serializeWithoutDoubleQuotes(Object entity, StringOutput output)
 	{
-		return serialize(entity, output);
+		serialize(entity, output);
 	}
 	
 	@Override
-	public boolean serialize(Object entity, StringOutput output)
+	public void serialize(Object entity, StringOutput output)
 	{
 		if (propertySerializers.length == 0 || entity == null)
 		{
-			return false;
+			return;
 		}
 		output.append('{');
 		int length = output.length();
@@ -55,7 +55,6 @@ public class ReflectBeanSerializeDescriptor implements SerializeDescriptor
 			output.deleteLast();
 		}
 		output.append('}');
-		return true;
 	}
 	
 	@Override

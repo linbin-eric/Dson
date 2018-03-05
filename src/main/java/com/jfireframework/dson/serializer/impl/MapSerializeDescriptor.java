@@ -30,17 +30,17 @@ public class MapSerializeDescriptor implements SerializeDescriptor
 	private ValueDescriptor	valueDescriptor;
 	
 	@Override
-	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	public void serializeWithoutDoubleQuotes(Object entity, StringOutput output)
 	{
-		return serializeWithoutDoubleQuotes(entity, output);
+		serializeWithoutDoubleQuotes(entity, output);
 	}
 	
 	@Override
-	public boolean serialize(Object entity, StringOutput output)
+	public void serialize(Object entity, StringOutput output)
 	{
 		if (entity == null)
 		{
-			return false;
+			return;
 		}
 		output.append('{');
 		int length = output.length();
@@ -53,7 +53,6 @@ public class MapSerializeDescriptor implements SerializeDescriptor
 			output.deleteLast();
 		}
 		output.append('}');
-		return true;
 	}
 	
 	private void serialize(Entry<?, ?> entry, StringOutput output)

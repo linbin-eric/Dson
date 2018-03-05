@@ -8,25 +8,23 @@ import com.jfireframework.dson.util.StringOutput;
 public class StringSerializeDescriptor implements SerializeDescriptor
 {
 	@Override
-	public boolean serialize(Object entity, StringOutput output)
+	public void serialize(Object entity, StringOutput output)
 	{
 		if (entity == null)
 		{
-			return false;
+			return;
 		}
 		output.appendDoubleQuotes().append((String) entity).appendDoubleQuotes();
-		return true;
 	}
 	
 	@Override
-	public boolean serializeWithoutDoubleQuotes(Object entity, StringOutput output)
+	public void serializeWithoutDoubleQuotes(Object entity, StringOutput output)
 	{
 		if (entity == null)
 		{
-			return false;
+			return;
 		}
 		output.append((String) entity);
-		return true;
 	}
 	
 	@Override
