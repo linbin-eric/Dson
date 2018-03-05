@@ -43,16 +43,12 @@ public class MapSerializeDescriptor implements SerializeDescriptor
 			return false;
 		}
 		output.append('{');
-		boolean serialized = false;
+		int length = output.length();
 		for (Entry<?, ?> entry : ((Map<?, ?>) entity).entrySet())
 		{
-			if (serialize(entry, output))
-			{
-				serialized = true;
-				output.append(',');
-			}
+			serialize(entry, output);
 		}
-		if (serialized)
+		if (length != output.length())
 		{
 			output.deleteLast();
 		}
@@ -60,16 +56,16 @@ public class MapSerializeDescriptor implements SerializeDescriptor
 		return true;
 	}
 	
-	private boolean serialize(Entry<?, ?> entry, StringOutput output)
+	private void serialize(Entry<?, ?> entry, StringOutput output)
 	{
 		Object value = entry.getValue();
 		if (value == null)
 		{
-			return false;
+			return;
 		}
 		keyDescriptor.serialize(entry, output);
 		valueDescriptor.serialize(entry, output);
-		return true;
+		output.append(',');
 	}
 	
 	@Override
