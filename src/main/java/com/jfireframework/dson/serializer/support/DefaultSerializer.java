@@ -4,6 +4,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.jfireframework.dson.serializer.SerializeDescriptor;
@@ -11,6 +12,7 @@ import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.serializer.buildin.BooleanSerializeDescriptor;
 import com.jfireframework.dson.serializer.buildin.ByteSerializeDescriptor;
 import com.jfireframework.dson.serializer.buildin.CharacterSerializeDescriptor;
+import com.jfireframework.dson.serializer.buildin.DateSerializeDescriptor;
 import com.jfireframework.dson.serializer.buildin.DoubleSerializeDescriptor;
 import com.jfireframework.dson.serializer.buildin.FloatSerializeDescriptor;
 import com.jfireframework.dson.serializer.buildin.IntegerSerializeDescriptor;
@@ -39,6 +41,8 @@ public class DefaultSerializer implements Serializer
 		store.put(Boolean.class, new BooleanSerializeDescriptor());
 		store.put(Character.class, new CharacterSerializeDescriptor());
 		store.put(String.class, new StringSerializeDescriptor());
+		store.put(Date.class, new DateSerializeDescriptor());
+		store.put(java.sql.Date.class, new DateSerializeDescriptor());
 	}
 	
 	@Override

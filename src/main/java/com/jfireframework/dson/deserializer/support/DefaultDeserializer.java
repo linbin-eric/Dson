@@ -4,6 +4,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -12,6 +13,7 @@ import com.jfireframework.dson.deserializer.Deserializer;
 import com.jfireframework.dson.deserializer.buildin.BooleanDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.buildin.ByteDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.buildin.CharacterDeserializeDescriptor;
+import com.jfireframework.dson.deserializer.buildin.DateDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.buildin.DoubleDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.buildin.FloatDeserializeDescriptor;
 import com.jfireframework.dson.deserializer.buildin.IntegerDeserializeDescriptor;
@@ -50,6 +52,8 @@ public class DefaultDeserializer implements Deserializer
 		store.put(Boolean.class, new BooleanDeserializeDescriptor());
 		store.put(Object.class, new ObjectDeserializeDescriptor());
 		store.put(String.class, new StringDeserializDescriptor());
+		store.put(Date.class, new DateDeserializeDescriptor());
+		store.put(java.sql.Date.class, new DateDeserializeDescriptor());
 		//
 		store.put(boolean[].class, new BooleanArrayDeserializeDescriptor());
 		store.put(byte[].class, new ByteArrayDeserializeDescriptor());
