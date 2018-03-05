@@ -2,6 +2,7 @@ package com.jfireframework.dson.deserializer.buildin;
 
 import java.lang.reflect.Type;
 import java.util.Date;
+import java.util.Map;
 import com.jfireframework.dson.deserializer.DeserializeDescriptor;
 import com.jfireframework.dson.deserializer.Deserializer;
 import com.jfireframework.dson.metadata.json.DsonObject;
@@ -13,7 +14,7 @@ public class DateDeserializeDescriptor implements DeserializeDescriptor
 {
 	
 	@Override
-	public void initialize(Type type, Deserializer deserializer)
+	public void initialize(Type type, Deserializer deserializer, Map<Type, DeserializeDescriptor> map)
 	{
 		// TODO Auto-generated method stub
 		

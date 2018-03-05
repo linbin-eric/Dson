@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import org.junit.Test;
 import com.jfireframework.baseutil.reflect.TypeUtil;
-import com.jfireframework.codejson.test.strategy.FunData16;
-import com.jfireframework.codejson.test.strategy.FunctionData10;
-import com.jfireframework.codejson.test.strategy.FunctionData13;
-import com.jfireframework.codejson.test.strategy.FunctionData7;
-import com.jfireframework.codejson.test.strategy.TestEnum;
 import com.jfireframework.codejson.util.NameTool;
+import com.jfireframework.dson.model.FunData16;
+import com.jfireframework.dson.model.FunctionData10;
+import com.jfireframework.dson.model.FunctionData13;
+import com.jfireframework.dson.model.FunctionData7;
+import com.jfireframework.dson.model.TestEnum;
 
 public class FunctionTest extends Support
 {

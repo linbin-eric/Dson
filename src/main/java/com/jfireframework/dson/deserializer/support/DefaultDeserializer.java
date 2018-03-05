@@ -5,6 +5,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -38,103 +39,120 @@ import com.jfireframework.dson.deserializer.impl.ReflectBeanDeserializeDescripto
 
 public class DefaultDeserializer implements Deserializer
 {
-	private ConcurrentMap<Type, DeserializeDescriptor> store = new ConcurrentHashMap<Type, DeserializeDescriptor>();
-	
-	public DefaultDeserializer()
-	{
-		store.put(Character.class, new CharacterDeserializeDescriptor());
-		store.put(Byte.class, new ByteDeserializeDescriptor());
-		store.put(Integer.class, new IntegerDeserializeDescriptor());
-		store.put(Short.class, new ShortDeserializeDescriptor());
-		store.put(Long.class, new LongDeserializeDescriptor());
-		store.put(Float.class, new FloatDeserializeDescriptor());
-		store.put(Double.class, new DoubleDeserializeDescriptor());
-		store.put(Boolean.class, new BooleanDeserializeDescriptor());
-		store.put(Object.class, new ObjectDeserializeDescriptor());
-		store.put(String.class, new StringDeserializDescriptor());
-		store.put(Date.class, new DateDeserializeDescriptor());
-		store.put(java.sql.Date.class, new DateDeserializeDescriptor());
-		//
-		store.put(boolean[].class, new BooleanArrayDeserializeDescriptor());
-		store.put(byte[].class, new ByteArrayDeserializeDescriptor());
-		store.put(char[].class, new CharArrayDeserializeDescriptor());
-		store.put(double[].class, new DoubleArrayDeserializeDescriptor());
-		store.put(float[].class, new FloatArrayDeserializeDescriptor());
-		store.put(int[].class, new IntArrayDeserializeDescriptor());
-		store.put(long[].class, new LongArrayDeserializeDescriptor());
-		store.put(short[].class, new ShortArrayDeserializeDescriptor());
-		store.put(String[].class, new StringArrayDeserializeDescriptor());
-	}
-	
-	@Override
-	public DeserializeDescriptor describe(Type type)
-	{
-		DeserializeDescriptor describer = store.get(type);
-		if (describer == null)
-		{
-			if (type instanceof ParameterizedType)
-			{
-				Class<?> rawType = (Class<?>) ((ParameterizedType) type).getRawType();
-				if (Map.class.isAssignableFrom(rawType))
-				{
-					describer = new MapDeserializeDescriptor();
-				}
-				else if (Collection.class.isAssignableFrom(rawType))
-				{
-					describer = new CollectionDeserializeDecriptor();
-				}
-				else if (Enum.class.isAssignableFrom(rawType))
-				{
-					describer = new EnumDeserializeDescriptor();
-				}
-				else
-				{
-					describer = new ReflectBeanDeserializeDescriptor();
-				}
-			}
-			else if (type instanceof Class<?>)
-			{
-				if (Map.class.isAssignableFrom((Class<?>) type))
-				{
-					describer = new MapDeserializeDescriptor();
-				}
-				else if (Collection.class.isAssignableFrom((Class<?>) type))
-				{
-					describer = new CollectionDeserializeDecriptor();
-				}
-				else if (Enum.class.isAssignableFrom((Class<?>) type))
-				{
-					describer = new EnumDeserializeDescriptor();
-				}
-				else if (((Class<?>) type).isArray())
-				{
-					describer = new ArrayDeserializeDescriptor();
-				}
-				else
-				{
-					describer = new ReflectBeanDeserializeDescriptor();
-				}
-			}
-			else if (type instanceof GenericArrayType)
-			{
-				describer = new ArrayDeserializeDescriptor();
-			}
-			else
-			{
-				throw new IllegalArgumentException("非法参数:" + type);
-			}
-			store.putIfAbsent(type, describer);
-			describer.initialize(type, this);
-		}
-		return describer;
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T deserialize(Type type, String json)
-	{
-		DeserializeDescriptor deserializeDescriber = describe(type);
-		return (T) deserializeDescriber.deserialize(json);
-	}
-	
+    private ConcurrentMap<Type, DeserializeDescriptor> store = new ConcurrentHashMap<Type, DeserializeDescriptor>();
+    
+    public DefaultDeserializer()
+    {
+        store.put(Character.class, new CharacterDeserializeDescriptor());
+        store.put(Byte.class, new ByteDeserializeDescriptor());
+        store.put(Integer.class, new IntegerDeserializeDescriptor());
+        store.put(Short.class, new ShortDeserializeDescriptor());
+        store.put(Long.class, new LongDeserializeDescriptor());
+        store.put(Float.class, new FloatDeserializeDescriptor());
+        store.put(Double.class, new DoubleDeserializeDescriptor());
+        store.put(Boolean.class, new BooleanDeserializeDescriptor());
+        store.put(Object.class, new ObjectDeserializeDescriptor());
+        store.put(String.class, new StringDeserializDescriptor());
+        store.put(Date.class, new DateDeserializeDescriptor());
+        store.put(java.sql.Date.class, new DateDeserializeDescriptor());
+        //
+        store.put(boolean[].class, new BooleanArrayDeserializeDescriptor());
+        store.put(byte[].class, new ByteArrayDeserializeDescriptor());
+        store.put(char[].class, new CharArrayDeserializeDescriptor());
+        store.put(double[].class, new DoubleArrayDeserializeDescriptor());
+        store.put(float[].class, new FloatArrayDeserializeDescriptor());
+        store.put(int[].class, new IntArrayDeserializeDescriptor());
+        store.put(long[].class, new LongArrayDeserializeDescriptor());
+        store.put(short[].class, new ShortArrayDeserializeDescriptor());
+        store.put(String[].class, new StringArrayDeserializeDescriptor());
+    }
+    
+    @Override
+    public DeserializeDescriptor describe(Type type, Map<Type, DeserializeDescriptor> map)
+    {
+        if (map.containsKey(type))
+        {
+            return map.get(type);
+        }
+        DeserializeDescriptor describer = store.get(type);
+        if (describer == null)
+        {
+            if (type instanceof ParameterizedType)
+            {
+                Class<?> rawType = (Class<?>) ((ParameterizedType) type).getRawType();
+                if (Map.class.isAssignableFrom(rawType))
+                {
+                    describer = new MapDeserializeDescriptor();
+                }
+                else if (Collection.class.isAssignableFrom(rawType))
+                {
+                    describer = new CollectionDeserializeDecriptor();
+                }
+                else if (Enum.class.isAssignableFrom(rawType))
+                {
+                    describer = new EnumDeserializeDescriptor();
+                }
+                else
+                {
+                    describer = new ReflectBeanDeserializeDescriptor();
+                }
+            }
+            else if (type instanceof Class<?>)
+            {
+                if (Map.class.isAssignableFrom((Class<?>) type))
+                {
+                    describer = new MapDeserializeDescriptor();
+                }
+                else if (Collection.class.isAssignableFrom((Class<?>) type))
+                {
+                    describer = new CollectionDeserializeDecriptor();
+                }
+                else if (Enum.class.isAssignableFrom((Class<?>) type))
+                {
+                    describer = new EnumDeserializeDescriptor();
+                }
+                else if (((Class<?>) type).isArray())
+                {
+                    describer = new ArrayDeserializeDescriptor();
+                }
+                else
+                {
+                    describer = new ReflectBeanDeserializeDescriptor();
+                }
+            }
+            else if (type instanceof GenericArrayType)
+            {
+                describer = new ArrayDeserializeDescriptor();
+            }
+            else
+            {
+                throw new IllegalArgumentException("非法参数:" + type);
+            }
+            map.put(type, describer);
+            describer.initialize(type, this, map);
+        }
+        return describer;
+    }
+    
+    @Override
+    public DeserializeDescriptor describe(Type type)
+    {
+        DeserializeDescriptor describer = store.get(type);
+        if (describer == null)
+        {
+            Map<Type, DeserializeDescriptor> map = new HashMap<Type, DeserializeDescriptor>();
+            describer = describe(type, map);
+            store.putIfAbsent(type, describer);
+        }
+        return describer;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T deserialize(Type type, String json)
+    {
+        DeserializeDescriptor deserializeDescriber = describe(type);
+        return (T) deserializeDescriber.deserialize(json);
+    }
+    
 }

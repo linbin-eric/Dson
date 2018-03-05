@@ -17,7 +17,7 @@ public class EnumDeserializeDescriptor implements DeserializeDescriptor
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void initialize(Type type, Deserializer deserializer)
+	public void initialize(Type type, Deserializer deserializer, Map<Type, DeserializeDescriptor> map)
 	{
 		if (type instanceof Class<?>)
 		{

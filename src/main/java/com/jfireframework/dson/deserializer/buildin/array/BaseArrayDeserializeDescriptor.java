@@ -1,6 +1,7 @@
 package com.jfireframework.dson.deserializer.buildin.array;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 import com.jfireframework.dson.deserializer.DeserializeDescriptor;
 import com.jfireframework.dson.deserializer.Deserializer;
 import com.jfireframework.dson.metadata.json.Element;
@@ -12,7 +13,7 @@ import com.jfireframework.dson.metadata.parse.Lexer;
 public abstract class BaseArrayDeserializeDescriptor implements DeserializeDescriptor
 {
 	@Override
-	public void initialize(Type type, Deserializer deserializer)
+	public void initialize(Type type, Deserializer deserializer, Map<Type, DeserializeDescriptor> map)
 	{
 		if (type instanceof Class<?> == false)
 		{
