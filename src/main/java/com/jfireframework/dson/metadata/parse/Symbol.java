@@ -14,6 +14,7 @@ public enum Symbol
 	NEWLINE('\n'), //
 	RETURN('\r'), //
 	BLANK(' '), //
+	TAB('\t'), //
 	DOUBLE_QUOTATION_MASK('"');//
 	private static Map<Character, Symbol> symbols = new HashMap<Character, Symbol>(128);
 	

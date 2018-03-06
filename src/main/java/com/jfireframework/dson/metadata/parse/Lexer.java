@@ -239,7 +239,10 @@ public class Lexer
 		char c = str.charAt(offset);
 		do
 		{
-			if (c == Symbol.BLANK.literals() || c == Symbol.RETURN.literals() || c == Symbol.NEWLINE.literals())
+			if (c == Symbol.BLANK.literals() //
+			        || c == Symbol.RETURN.literals()//
+			        || c == Symbol.NEWLINE.literals()//
+			        || c == Symbol.TAB.literals())
 			{
 				offset += 1;
 				c = str.charAt(offset);
