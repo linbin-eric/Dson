@@ -226,7 +226,7 @@ public class Lexer
 			}
 			if (c != Symbol.COMMA.literals())
 			{
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("非法字符:" + c + ",当前解析进度:" + str.substring(offset));
 			}
 			offset += 1;
 			continue;
@@ -265,7 +265,6 @@ public class Lexer
 	{
 		offset += 1;
 		int begin = offset;
-		offset += 1;
 		while (str.charAt(offset) != Symbol.DOUBLE_QUOTATION_MASK.literals() && offset < str.length())
 		{
 			offset += 1;
