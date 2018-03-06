@@ -10,10 +10,12 @@ public class Lexer
 	
 	private int		offset	= 0;
 	private String	str;
+	private int		length;
 	
 	public Lexer(String str)
 	{
 		this.str = str;
+		length = str.length();
 	}
 	
 	public DsonObject parse()
@@ -45,7 +47,7 @@ public class Lexer
 		offset += 1;
 		while (offset < str.length())
 		{
-			c = str.charAt(offset);
+			c = ignoreSymbol();
 			if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
 			{
 				String value = getString(str);
@@ -109,7 +111,7 @@ public class Lexer
 			{
 				throw new IllegalArgumentException("非法字符:" + c + "当前解析剩余内容:" + str.substring(offset));
 			}
-			c = str.charAt(offset);
+			c = ignoreSymbol();
 			if (c == Symbol.RIGHT_BRACKET.literals())
 			{
 				break;
@@ -142,18 +144,18 @@ public class Lexer
 		// 每次循环都处理一个键值对
 		while (offset < str.length())
 		{
-			c = str.charAt(offset);
+			c = ignoreSymbol();
 			if (c != Symbol.DOUBLE_QUOTATION_MASK.literals())
 			{
 				throw new IllegalArgumentException();
 			}
 			String name = getString(str);
-			if ((c = str.charAt(offset)) != Symbol.COLON.literals())
+			if ((c = ignoreSymbol()) != Symbol.COLON.literals())
 			{
 				throw new IllegalArgumentException();
 			}
 			offset += 1;
-			c = str.charAt(offset);
+			c = ignoreSymbol();
 			if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
 			{
 				String value = getString(str);
@@ -215,9 +217,9 @@ public class Lexer
 			}
 			else
 			{
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("非法字符:" + c + ",当前解析进度:" + str.substring(offset));
 			}
-			c = str.charAt(offset);
+			c = ignoreSymbol();
 			if (c == Symbol.RIGHT_BRACE.literals())
 			{
 				break;
@@ -230,6 +232,24 @@ public class Lexer
 			continue;
 		}
 		return jsonCollection;
+	}
+	
+	private char ignoreSymbol()
+	{
+		char c = str.charAt(offset);
+		do
+		{
+			if (c == Symbol.BLANK.literals() || c == Symbol.RETURN.literals() || c == Symbol.NEWLINE.literals())
+			{
+				offset += 1;
+				c = str.charAt(offset);
+			}
+			else
+			{
+				return c;
+			}
+		} while (offset < length);
+		return c;
 	}
 	
 	/**
