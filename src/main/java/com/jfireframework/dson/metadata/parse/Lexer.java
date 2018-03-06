@@ -187,7 +187,7 @@ public class Lexer
 					throw new IllegalArgumentException();
 				}
 			}
-			else if (c >= '0' && c <= '9')
+			else if ((c >= '0' && c <= '9') || c == '-')
 			{
 				Number number = getNumber(str);
 				if (number instanceof Double)
