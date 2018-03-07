@@ -358,10 +358,6 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
         @Override
         public void deserialize(Object bean, Entry entry)
         {
-            if (entry.getValueType() != JsonValueType.COLLECTION)
-            {
-                return;
-            }
             setValue(bean, deserializeDescriber.deserialize(entry));
         }
     }
@@ -380,10 +376,6 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
         @Override
         public void deserialize(Object bean, Entry entry)
         {
-            if (entry.getValueType() != JsonValueType.ARRAY)
-            {
-                return;
-            }
             setValue(bean, deserializeDescriber.deserialize(entry));
         }
         

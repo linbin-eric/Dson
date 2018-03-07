@@ -265,10 +265,23 @@ public class Lexer
 	{
 		offset += 1;
 		int begin = offset;
-		while (str.charAt(offset) != Symbol.DOUBLE_QUOTATION_MASK.literals() && offset < str.length())
+		char c;
+		do
 		{
-			offset += 1;
-		}
+			c = str.charAt(offset);
+			if (c == '\\')
+			{
+				offset += 2;
+			}
+			else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+			{
+				break;
+			}
+			else
+			{
+				offset += 1;
+			}
+		} while (offset < length);
 		String result = str.substring(begin, offset);
 		offset += 1;
 		return result;

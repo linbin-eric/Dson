@@ -2,6 +2,8 @@ package com.jfireframework.dson.metadata.parse;
 
 public interface Path
 {
+	Iterable<Node> nodes();
+	
 	interface Node
 	{
 		String name();
@@ -13,6 +15,6 @@ public interface Path
 		 * 
 		 * @return
 		 */
-		int index();
+		Integer index();
 	}
 }
