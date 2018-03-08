@@ -77,28 +77,50 @@ public class UnsafeBeanSerializeDescroptor implements SerializeDescriptor
 			{
 				propertySerializer = new UserDefinitionSerializer();
 			}
-			else if (fieldType == int.class //
-			        || fieldType == short.class //
-			        || fieldType == long.class//
-			        || fieldType == float.class//
-			        || fieldType == double.class//
-			        || fieldType == byte.class//
-			        || fieldType == Byte.class//
-			        || Number.class.isAssignableFrom(fieldType))
+			else if (fieldType == int.class)
 			{
-				propertySerializer = new NumberPropertySerializer();
+				propertySerializer = new IntPropertySerializer();
+			}
+			else if (fieldType == short.class)
+			{
+				propertySerializer = new ShortPropertySerializer();
+			}
+			else if (fieldType == long.class)
+			{
+				propertySerializer = new LongPropertySerializer();
+			}
+			else if (fieldType == float.class)
+			{
+				propertySerializer = new FloatPropertySerializer();
+			}
+			else if (fieldType == double.class)
+			{
+				propertySerializer = new DoublePropertySerializer();
+			}
+			else if (fieldType == boolean.class)
+			{
+				propertySerializer = new BooleanPropertySerializer();
+			}
+			else if (fieldType == char.class)
+			{
+				propertySerializer = new CharPropertySerializer();
+			}
+			else if (fieldType == byte.class)
+			{
+				propertySerializer = new BytePropertySerializer();
+			}
+			else if (Number.class.isAssignableFrom(fieldType)//
+			        || fieldType == Boolean.class)
+			{
+				propertySerializer = new DirectPropertySerializer();
 			}
 			else if (fieldType == String.class)
 			{
 				propertySerializer = new StringProeprtySerializer();
 			}
-			else if (fieldType == Character.class || fieldType == char.class)
+			else if (fieldType == Character.class)
 			{
 				propertySerializer = new CharacterPropertySerializer();
-			}
-			else if (fieldType == boolean.class || fieldType == Boolean.class)
-			{
-				propertySerializer = new BooleanPropertySerializer();
 			}
 			else if (Map.class.isAssignableFrom(fieldType))
 			{
@@ -186,6 +208,7 @@ public class UnsafeBeanSerializeDescroptor implements SerializeDescriptor
 		}
 		
 	}
+	
 	class ShortPropertySerializer extends AbstractPropertySerializer
 	{
 		
@@ -206,7 +229,127 @@ public class UnsafeBeanSerializeDescroptor implements SerializeDescriptor
 		
 	}
 	
-	class NumberPropertySerializer extends AbstractPropertySerializer
+	class LongPropertySerializer extends AbstractPropertySerializer
+	{
+		
+		@Override
+		public void serialize(Object entity, StringOutput output)
+		{
+			try
+			{
+				long propertyValue = unsafe.getLong(entity, offset);
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').append(propertyValue);
+				output.append(',');
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
+		}
+		
+	}
+	
+	class FloatPropertySerializer extends AbstractPropertySerializer
+	{
+		
+		@Override
+		public void serialize(Object entity, StringOutput output)
+		{
+			try
+			{
+				float propertyValue = unsafe.getFloat(entity, offset);
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').append(propertyValue);
+				output.append(',');
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
+		}
+		
+	}
+	
+	class DoublePropertySerializer extends AbstractPropertySerializer
+	{
+		
+		@Override
+		public void serialize(Object entity, StringOutput output)
+		{
+			try
+			{
+				double propertyValue = unsafe.getDouble(entity, offset);
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').append(propertyValue);
+				output.append(',');
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
+		}
+		
+	}
+	
+	class BooleanPropertySerializer extends AbstractPropertySerializer
+	{
+		
+		@Override
+		public void serialize(Object entity, StringOutput output)
+		{
+			try
+			{
+				boolean propertyValue = unsafe.getBoolean(entity, offset);
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').append(propertyValue);
+				output.append(',');
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
+		}
+		
+	}
+	
+	class BytePropertySerializer extends AbstractPropertySerializer
+	{
+		
+		@Override
+		public void serialize(Object entity, StringOutput output)
+		{
+			try
+			{
+				byte propertyValue = unsafe.getByte(entity, offset);
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').append(propertyValue);
+				output.append(',');
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
+		}
+		
+	}
+	
+	class CharPropertySerializer extends AbstractPropertySerializer
+	{
+		
+		@Override
+		public void serialize(Object entity, StringOutput output)
+		{
+			try
+			{
+				char propertyValue = unsafe.getChar(entity, offset);
+				output.appendDoubleQuotes().append(propertyName).appendDoubleQuotes().append(':').appendDoubleQuotes().append(propertyValue).appendDoubleQuotes();
+				output.append(',');
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
+		}
+		
+	}
+	
+	class DirectPropertySerializer extends AbstractPropertySerializer
 	{
 		
 		@Override
@@ -224,17 +367,6 @@ public class UnsafeBeanSerializeDescroptor implements SerializeDescriptor
 		protected void outputPropertyValue(Object propertyValue, StringOutput output)
 		{
 			output.appendDoubleQuotes().append((String) propertyValue).appendDoubleQuotes();
-		}
-		
-	}
-	
-	class BooleanPropertySerializer extends AbstractPropertySerializer
-	{
-		
-		@Override
-		protected void outputPropertyValue(Object propertyValue, StringOutput output)
-		{
-			output.append(propertyValue);
 		}
 		
 	}
