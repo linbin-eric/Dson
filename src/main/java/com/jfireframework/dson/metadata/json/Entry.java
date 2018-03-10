@@ -18,9 +18,10 @@ public class Entry
 		return name;
 	}
 	
-	public Object getValue()
+	@SuppressWarnings("unchecked")
+	public <T> T getValue()
 	{
-		return value;
+		return (T) value;
 	}
 	
 	public JsonValueType getValueType()
