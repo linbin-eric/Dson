@@ -218,7 +218,7 @@ public class Benchmark
     @Test
     public void bigParse() throws JsonParseException, JsonMappingException, IOException
     {
-        int count = 3000000;
+        int count = 300000;
         String value = Dson.toJsonString(bigData);
         BigData result = JSON.parseObject(value, BigData.class);
         System.out.println(result.equal(bigData));

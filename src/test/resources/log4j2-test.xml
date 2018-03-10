@@ -33,7 +33,7 @@
 		<Root level="error">
 			<AppenderRef ref="AllFile" />
 		</Root>
-		<Logger name="com.jfireframework.dson" level="debug">
+		<Logger name="com.jfireframework" level="debug">
 			<AppenderRef ref="Console" />
 		</Logger>
 	</Loggers>

@@ -50,18 +50,18 @@ public class SpeedTest
         nanoTimeWatch.start();
         for (int i = 0; i < count; i++)
         {
-            JsonTool.write(person);
-        }
-        nanoTimeWatch.end();
-        long t1 = nanoTimeWatch.getTatol() / 1000000;
-        System.out.println("Codejson:" + t1);
-        nanoTimeWatch.start();
-        for (int i = 0; i < count; i++)
-        {
             Dson.toJsonString(person);
         }
         nanoTimeWatch.end();
         long t0 = nanoTimeWatch.getTatol() / 1000000;
+        nanoTimeWatch.start();
+        for (int i = 0; i < count; i++)
+        {
+        	JsonTool.write(person);
+        }
+        nanoTimeWatch.end();
+        long t1 = nanoTimeWatch.getTatol() / 1000000;
+        System.out.println("Codejson:" + t1);
         System.out.println("    Dson:" + t0);
         int rate = (int) (((float) t0 / t1) * 100);
         System.out.println(rate);
