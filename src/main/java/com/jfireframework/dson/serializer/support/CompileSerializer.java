@@ -27,7 +27,7 @@ import com.jfireframework.dson.serializer.impl.EnumSerializeDescriptor;
 import com.jfireframework.dson.serializer.impl.MapSerializeDescriptor;
 import com.jfireframework.dson.util.StringOutput;
 
-public class CompileSerializer implements Serializer
+public class CompileSerializer extends AbstractSerializer implements Serializer
 {
 	private ConcurrentHashMap<Type, SerializeDescriptor> store = new ConcurrentHashMap<Type, SerializeDescriptor>();
 	
@@ -147,4 +147,5 @@ public class CompileSerializer implements Serializer
 		SerializeDescriptor serializeDescriptor = describe(entity.getClass());
 		serializeDescriptor.serializeWithoutDoubleQuotes(entity, output);
 	}
+	
 }

@@ -1,5 +1,6 @@
 package com.jfireframework.dson.serializer.impl;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -13,6 +14,7 @@ import com.jfireframework.baseutil.smc.model.FieldModel;
 import com.jfireframework.baseutil.smc.model.MethodModel;
 import com.jfireframework.dson.serializer.SerializeDescriptor;
 import com.jfireframework.dson.serializer.Serializer;
+import com.jfireframework.dson.strategy.SerializeDefinition;
 import com.jfireframework.dson.util.StringOutput;
 
 public class CompilerBeanSerializeDescriptor implements SerializeDescriptor
@@ -69,6 +71,32 @@ public class CompilerBeanSerializeDescriptor implements SerializeDescriptor
 						continue;
 					}
 					Class<?> returnType = each.getReturnType();
+					try
+					{
+						Field field = beanType.getDeclaredField(propertyName);
+						if (field.isAnnotationPresent(SerializeDefinition.class))
+						{
+							SerializeDescriptor serializeDescriptor = field.getAnnotation(SerializeDefinition.class).value().newInstance();
+							serializeDescriptor.initialize(serializer, beanType, map);
+							int index = serializer.registerSerializeDescriptor(serializeDescriptor);
+							String fieldName = "field_" + (count++);
+							FieldModel fieldModel = new FieldModel(fieldName, SerializeDescriptor.class);
+							compilerModel.addField(fieldModel);
+							constructorBody += fieldName + " = $0.get(" + index + ");\r\n";
+							String name = "tmp_" + (count++);
+							body += SmcHelper.getTypeName(returnType) + " " + name + " = target." + each.getName() + "();\r\n";
+							body += "if(" + name + "!=null){\r\n";
+							body += "\t$1.append(\"\\\"" + propertyName + "\\\":\");\r\n";
+							body += fieldName + ".serialize(" + name + ",$1);\r\n";
+							body += "$1.append(',');\r\n";
+							body += "}\r\n";
+							continue;
+						}
+					}
+					catch (Exception e)
+					{
+						break;
+					}
 					if (returnType == char.class)
 					{
 						body += "$1.append(\"\\\"" + propertyName + "\\\":\\\"\")"//

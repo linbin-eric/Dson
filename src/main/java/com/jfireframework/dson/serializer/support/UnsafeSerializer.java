@@ -27,7 +27,7 @@ import com.jfireframework.dson.serializer.impl.MapSerializeDescriptor;
 import com.jfireframework.dson.serializer.impl.UnsafeBeanSerializeDescroptor;
 import com.jfireframework.dson.util.StringOutput;
 
-public class UnsafeSerializer implements Serializer
+public class UnsafeSerializer extends AbstractSerializer implements Serializer
 {
 	private ConcurrentHashMap<Type, SerializeDescriptor> store = new ConcurrentHashMap<Type, SerializeDescriptor>();
 	

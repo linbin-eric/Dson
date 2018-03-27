@@ -10,6 +10,7 @@ import com.jfireframework.codejson.util.NameTool;
 import com.jfireframework.dson.model.FunData16;
 import com.jfireframework.dson.model.FunctionData10;
 import com.jfireframework.dson.model.FunctionData13;
+import com.jfireframework.dson.model.FunctionData16;
 import com.jfireframework.dson.model.FunctionData7;
 import com.jfireframework.dson.model.TestEnum;
 
@@ -120,5 +121,13 @@ public class FunctionTest extends Support
 		FunData16 data16 = new FunData16();
 		data16.setTest(TestEnum.PUSH);
 		assertEquals("{\"test\":\"PUSH\"}", Dson.toJsonString(data16));
+	}
+	
+	@Test
+	public void definitionTest()
+	{
+		FunctionData16 data16 = new FunctionData16();
+		data16.setName("111");
+		assertEquals("{\"name\":\"123\"}", Dson.toJsonString(data16));
 	}
 }
