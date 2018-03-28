@@ -112,6 +112,7 @@ public class CompilerBeanSerializeDescriptor implements SerializeDescriptor
 						String name = "tmp_" + (count++);
 						body += SmcHelper.getTypeName(returnType) + " " + name + " = target." + each.getName() + "();\r\n";
 						body += "if(" + name + "!=null){\r\n";
+						body += "\t" + name + "=" + name + ".replace(\"\\\"\", \"\\\\\\\"\");\r\n";
 						body += "\t$1.append(\"\\\"" + propertyName + "\\\":\\\"\").append(" + name + ").append(\"\\\",\");\r\n";
 						body += "}\r\n";
 					}

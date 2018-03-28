@@ -252,6 +252,7 @@ public class ArraySerializeDescriptor implements SerializeDescriptor
 			{
 				if (each != null)
 				{
+					each = each.replace("\"", "\\\"");
 					output.appendDoubleQuotes().append(each).appendDoubleQuotes().append(',');
 				}
 			}

@@ -3,6 +3,7 @@ package com.jfireframework.dson.deserializer.impl;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,6 +83,10 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 			{
 				propertyDeserializeDescriptor = new StringPropertyDescriptor();
 			}
+			else if (fieldType == BigDecimal.class)
+			{
+				propertyDeserializeDescriptor = new BigDecimalPropertyDescriptor();
+			}
 			else if (Enum.class.isAssignableFrom(fieldType))
 			{
 				propertyDeserializeDescriptor = new EnumPropertyDescriptor();
@@ -150,7 +155,7 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 	{
 		if (entry.getValueType() != JsonValueType.COLLECTION)
 		{
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(entry.getValueType().name());
 		}
 		return deserialize((JsonCollection) entry.getValue());
 	}
@@ -298,6 +303,24 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 			}
 			setValue(bean, (entry.getValue()));
 		}
+	}
+	
+	class BigDecimalPropertyDescriptor extends BasePropertyDeserializeDescriber
+	{
+		
+		@Override
+		public void deserialize(Object bean, Entry entry)
+		{
+			if (entry.getValueType() == JsonValueType.NUMBER_LONG)
+			{
+				setValue(bean, BigDecimal.valueOf((Long) entry.getValue()));
+			}
+			else if (entry.getValueType() == JsonValueType.NUMBER_DOUBLE)
+			{
+				setValue(bean, BigDecimal.valueOf((Double) entry.getValue()));
+			}
+		}
+		
 	}
 	
 	class CharacterPropertyDescriptor extends BasePropertyDeserializeDescriber

@@ -15,7 +15,9 @@ public class StringSerializeDescriptor implements SerializeDescriptor
 		{
 			return;
 		}
-		output.appendDoubleQuotes().append((String) entity).appendDoubleQuotes();
+		String value = (String) entity;
+		value = value.replace("\"", "\\\"");
+		output.appendDoubleQuotes().append(value).appendDoubleQuotes();
 	}
 	
 	@Override
@@ -25,7 +27,9 @@ public class StringSerializeDescriptor implements SerializeDescriptor
 		{
 			return;
 		}
-		output.append((String) entity);
+		String value = (String) entity;
+		value = value.replace("\"", "\\\"");
+		output.append(value);
 	}
 	
 	@Override
