@@ -95,7 +95,8 @@ public class CompilerBeanSerializeDescriptor implements SerializeDescriptor
 					}
 					catch (Exception e)
 					{
-						break;
+						// 如果无法找到对应的field，则放弃本次的自定义序列化
+						;
 					}
 					if (returnType == char.class)
 					{
