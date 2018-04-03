@@ -125,23 +125,24 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 	
 	private Object deserialize(JsonCollection collection)
 	{
+		Object instance;
 		try
 		{
-			Object instance = type.newInstance();
-			for (Entry entry : collection.getEntries())
-			{
-				PropertyDeserializeDescriptor propertyDeserializeDescriber = store.get(entry.getName());
-				if (propertyDeserializeDescriber != null)
-				{
-					propertyDeserializeDescriber.deserialize(instance, entry);
-				}
-			}
-			return instance;
+			instance = type.newInstance();
 		}
 		catch (Exception e)
 		{
 			throw new JustThrowException(e);
 		}
+		for (Entry entry : collection.getEntries())
+		{
+			PropertyDeserializeDescriptor propertyDeserializeDescriber = store.get(entry.getName());
+			if (propertyDeserializeDescriber != null)
+			{
+				propertyDeserializeDescriber.deserialize(instance, entry);
+			}
+		}
+		return instance;
 	}
 	
 	@Override
@@ -417,7 +418,16 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 		protected void initialize(Field field, Map<Type, DeserializeDescriptor> map)
 		{
 			super.initialize(field, map);
-			deserializeDescriptor = deserializer.describe(field.getGenericType());
+			Class<? extends DeserializeDescriptor> value = field.getAnnotation(DeSerializeDefinition.class).value();
+			try
+			{
+				deserializeDescriptor = value.newInstance();
+				deserializeDescriptor.initialize(field.getGenericType(), deserializer, map);
+			}
+			catch (Exception e)
+			{
+				throw new JustThrowException(e);
+			}
 		}
 		
 		@Override
