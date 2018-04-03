@@ -113,8 +113,14 @@ public class CompilerBeanSerializeDescriptor implements SerializeDescriptor
 						String name = "tmp_" + (count++);
 						body += SmcHelper.getTypeName(returnType) + " " + name + " = target." + each.getName() + "();\r\n";
 						body += "if(" + name + "!=null){\r\n";
-						body += "\t" + name + "=" + name + ".replace(\"\\\"\", \"\\\\\\\"\");\r\n";
-						body += "\t$1.append(\"\\\"" + propertyName + "\\\":\\\"\").append(" + name + ").append(\"\\\",\");\r\n";
+						// body += "\t" + name + "=" + name +
+						// ".replace(\"\\\"\", \"\\\\\\\"\");\r\n";
+						// body += "\t$1.append(\"\\\"" + propertyName +
+						// "\\\":\\\"\").append(" + name +
+						// ").append(\"\\\",\");\r\n";
+						body += "\t$1.append(\"\\\"" + propertyName + "\\\":\\\"\");\r\n";
+						body += "com.jfireframework.dson.util.WriterUtil.writeString($1," + name + ");\r\n";
+						body += "\t$1.append(\"\\\",\");\r\n";
 						body += "}\r\n";
 					}
 					else if (Number.class.isAssignableFrom(returnType) || returnType == Boolean.class)
@@ -199,6 +205,7 @@ public class CompilerBeanSerializeDescriptor implements SerializeDescriptor
 		}
 		
 		public abstract void serialize(Object entity, StringOutput output);
+		
 	}
 	
 }

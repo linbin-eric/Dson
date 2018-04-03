@@ -5,6 +5,7 @@ import java.util.Map;
 import com.jfireframework.dson.serializer.SerializeDescriptor;
 import com.jfireframework.dson.serializer.Serializer;
 import com.jfireframework.dson.util.StringOutput;
+import com.jfireframework.dson.util.WriterUtil;
 
 public class StringSerializeDescriptor implements SerializeDescriptor
 {
@@ -15,9 +16,9 @@ public class StringSerializeDescriptor implements SerializeDescriptor
 		{
 			return;
 		}
-		String value = (String) entity;
-		value = value.replace("\"", "\\\"");
-		output.appendDoubleQuotes().append(value).appendDoubleQuotes();
+		output.appendDoubleQuotes();
+		WriterUtil.writeString(output, (String) entity);
+		output.appendDoubleQuotes();
 	}
 	
 	@Override
@@ -27,9 +28,7 @@ public class StringSerializeDescriptor implements SerializeDescriptor
 		{
 			return;
 		}
-		String value = (String) entity;
-		value = value.replace("\"", "\\\"");
-		output.append(value);
+		WriterUtil.writeString(output, (String) entity);
 	}
 	
 	@Override
