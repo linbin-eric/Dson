@@ -1,5 +1,6 @@
 package com.jfireframework.dson.metadata.parse;
 
+import com.jfireframework.baseutil.collection.StringCache;
 import com.jfireframework.dson.metadata.json.DsonObject;
 import com.jfireframework.dson.metadata.json.JsonArray;
 import com.jfireframework.dson.metadata.json.JsonCollection;
@@ -8,14 +9,22 @@ import com.jfireframework.dson.metadata.json.JsonValueType;
 public class Lexer
 {
 	
-	private int		offset	= 0;
-	private String	str;
-	private int		length;
+	private int										offset	= 0;
+	private String									str;
+	private int										length;
+	private static final ThreadLocal<StringCache>	LOCAL	= new ThreadLocal<StringCache>() {
+																protected StringCache initialValue()
+																{
+																	return new StringCache();
+																};
+															};
+	private StringCache								cache;
 	
 	public Lexer(String str)
 	{
 		this.str = str;
 		length = str.length();
+		cache = LOCAL.get();
 	}
 	
 	public DsonObject parse()
@@ -45,7 +54,7 @@ public class Lexer
 			throw new IllegalArgumentException();
 		}
 		offset += 1;
-		while (offset < str.length())
+		while (offset < length)
 		{
 			c = ignoreSymbol();
 			if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
@@ -142,7 +151,7 @@ public class Lexer
 		}
 		offset += 1;
 		// 每次循环都处理一个键值对
-		while (offset < str.length())
+		while (offset < length)
 		{
 			c = ignoreSymbol();
 			if (c != Symbol.DOUBLE_QUOTATION_MASK.literals())
@@ -264,14 +273,29 @@ public class Lexer
 	private String getString(String str)
 	{
 		offset += 1;
-		int begin = offset;
 		char c;
+		cache.clear();
 		do
 		{
 			c = str.charAt(offset);
 			if (c == '\\')
 			{
-				offset += 2;
+				if (offset++ < length)
+				{
+					if ((c = str.charAt(offset)) == '"')
+					{
+						cache.append('"');
+					}
+					else
+					{
+						cache.append('\\').append(c);
+					}
+					offset += 1;
+				}
+				else
+				{
+					cache.append(c);
+				}
 			}
 			else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
 			{
@@ -279,12 +303,14 @@ public class Lexer
 			}
 			else
 			{
+				cache.append(c);
 				offset += 1;
 			}
 		} while (offset < length);
-		String result = str.substring(begin, offset);
+		// String result = str.substring(begin, offset);
 		offset += 1;
-		return result;
+		// return result;
+		return cache.toString();
 	}
 	
 	/**
