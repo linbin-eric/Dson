@@ -74,7 +74,7 @@ public class Lexer
 					jsonArray.add(number, JsonValueType.NUMBER_LONG);
 				}
 			}
-			else if (c == 'T' || c == 't')
+			else if (c == 't' || c == 'T')
 			{
 				String value = str.substring(offset, offset + 4);
 				if ("TRUE".equals(value) || "true".equals(value))
@@ -84,10 +84,10 @@ public class Lexer
 				}
 				else
 				{
-					throw new IllegalArgumentException();
+					throw new IllegalArgumentException("无法识别的json内容：" + value);
 				}
 			}
-			else if (c == 'F' || c == 'f')
+			else if (c == 'f' || c == 'F')
 			{
 				String value = str.substring(offset, offset + 5);
 				if ("false".equals(value) || "FALSE".equals(value))
@@ -97,7 +97,20 @@ public class Lexer
 				}
 				else
 				{
-					throw new IllegalArgumentException();
+					throw new IllegalArgumentException("无法识别的json内容：" + value);
+				}
+			}
+			else if (c == 'N' || c == 'n')
+			{
+				String value = str.substring(offset, offset + 4);
+				if ("null".equals(value) || "NULL".equals(value))
+				{
+					jsonArray.add(null, JsonValueType.NULL);
+					offset += 4;
+				}
+				else
+				{
+					throw new IllegalArgumentException("无法识别的json内容：" + value);
 				}
 			}
 			else if (c == Symbol.LEFT_BRACE.literals())
@@ -194,6 +207,18 @@ public class Lexer
 				else
 				{
 					throw new IllegalArgumentException();
+				}
+			}
+			else if (c == 'n' || c == 'N')
+			{
+				String value = str.substring(offset, offset + 4);
+				if ("null".equals(value) || "NULL".equals(value))
+				{
+					jsonCollection.add(name, null, JsonValueType.NULL);
+				}
+				else
+				{
+					
 				}
 			}
 			else if ((c >= '0' && c <= '9') || c == '-')
