@@ -77,8 +77,12 @@ public class MapDeserializeDescriptor implements DeserializeDescriptor
 			Map<Object, Object> instance = (Map<Object, Object>) instanceType.newInstance();
 			for (Entry entry : collection.getEntries())
 			{
+				if (entry.getValueType() == JsonValueType.NULL)
+				{
+					continue;
+				}
 				Object key = keyDescriber.deserialize(entry.getName());
-				Object value = entry.getValueType() == JsonValueType.NULL ? null : valueDescriber.deserialize(entry);
+				Object value = valueDescriber.deserialize(entry);
 				instance.put(key, value);
 			}
 			return instance;

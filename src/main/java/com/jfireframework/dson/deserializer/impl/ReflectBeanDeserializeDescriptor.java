@@ -387,7 +387,11 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 		@Override
 		public void deserialize(Object bean, Entry entry)
 		{
-			setValue(bean, entry.getValueType() == JsonValueType.NULL ? null : deserializeDescriber.deserialize(entry));
+			if (entry.getValueType() == JsonValueType.NULL)
+			{
+				return;
+			}
+			setValue(bean, deserializeDescriber.deserialize(entry));
 		}
 	}
 	
@@ -405,7 +409,11 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 		@Override
 		public void deserialize(Object bean, Entry entry)
 		{
-			setValue(bean, entry.getValueType() == JsonValueType.NULL ? null : deserializeDescriber.deserialize(entry));
+			if (entry.getValueType() == JsonValueType.NULL)
+			{
+				return;
+			}
+			setValue(bean, deserializeDescriber.deserialize(entry));
 		}
 		
 	}
@@ -433,7 +441,7 @@ public class ReflectBeanDeserializeDescriptor implements DeserializeDescriptor
 		@Override
 		public void deserialize(Object bean, Entry entry)
 		{
-			setValue(bean, entry.getValueType() == JsonValueType.NULL ? null : deserializeDescriptor.deserialize(entry));
+			setValue(bean, deserializeDescriptor.deserialize(entry));
 		}
 		
 	}
