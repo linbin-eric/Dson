@@ -47,7 +47,7 @@ public class ArrayDeserializeDescriptor implements DeserializeDescriptor
         int index = 0;
         for (Element element : jsonArray.getElements())
         {
-            array[index] = elementDescriber.deserialize(element);
+            array[index] = element.getValueType()==JsonValueType.NULL? null: elementDescriber.deserialize(element);
             index += 1;
         }
         return array;
