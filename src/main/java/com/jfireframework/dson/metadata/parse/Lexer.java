@@ -215,10 +215,11 @@ public class Lexer
 				if ("null".equals(value) || "NULL".equals(value))
 				{
 					jsonCollection.add(name, null, JsonValueType.NULL);
+					offset += 4;
 				}
 				else
 				{
-					
+					throw new IllegalArgumentException();
 				}
 			}
 			else if ((c >= '0' && c <= '9') || c == '-')
