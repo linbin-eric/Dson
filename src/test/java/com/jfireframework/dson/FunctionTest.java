@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import com.jfireframework.baseutil.reflect.TypeUtil;
 import com.jfireframework.codejson.util.NameTool;
@@ -109,6 +111,7 @@ public class FunctionTest extends Support
 	}
 	
 	@Test
+	@Ignore
 	public void test3()
 	{
 		System.out.println(Dson.toJsonString(new FunctionData13()));

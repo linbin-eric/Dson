@@ -36,4 +36,10 @@ public interface StringOutput
 	String toString();
 	
 	StringOutput clear();
+
+	/**
+	 * 超过该上限则缩小
+	 * @return
+	 */
+	StringOutput compact(int size);
 }

@@ -107,4 +107,10 @@ public class StringCacheAdaptStringOutput implements StringOutput
 		cache.clear();
 		return this;
 	}
+
+	@Override
+	public StringOutput compact(int size)
+	{
+		throw new UnsupportedOperationException();
+	}
 }

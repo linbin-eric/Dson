@@ -100,7 +100,17 @@ public class StringBuilderAdaptStringOutput implements StringOutput
 		builder.delete(0, builder.length());
 		return this;
 	}
-	
+
+	@Override
+	public StringOutput compact(int size)
+	{
+		if (builder.length()>size)
+		{
+			builder.trimToSize();
+		}
+		return this;
+	}
+
 	public String toString()
 	{
 		return builder.toString();
