@@ -92,8 +92,10 @@ public class DefaultJsonWriter extends AbstractSerializer implements JsonWriter
                 }
                 else
                 {
-                    typeWriter = new ObjectWriter();
+//                    typeWriter = new ObjectWriter();
+                    typeWriter = new CompileObjectWriter();
                 }
+
             }
             typeWriter.initialize(this, type);
             store.put(type, typeWriter);

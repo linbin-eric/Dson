@@ -200,17 +200,17 @@ public class Benchmark
         timewatch.start();
         for (int i = 0; i < count; i++)
         {
-            Dson.toJsonString(bigData);
-        }
-        timewatch.end();
-        logger.info("dson大对象序列化耗时：{}", timewatch.getTotal());
-        timewatch.start();
-        for (int i = 0; i < count; i++)
-        {
             JSON.toJSONString(bigData, SerializerFeature.DisableCircularReferenceDetect);
         }
         timewatch.end();
         logger.info("fastjson大对象序列化耗时：{}", timewatch.getTotal());
+        timewatch.start();
+        for (int i = 0; i < count; i++)
+        {
+            Dson.toJsonString(bigData);
+        }
+        timewatch.end();
+        logger.info("dson大对象序列化耗时：{}", timewatch.getTotal());
         timewatch.start();
         for (int i = 0; i < count; i++)
         {
