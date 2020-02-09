@@ -5,7 +5,8 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.Map;
-import com.jfireframework.baseutil.exception.JustThrowException;
+
+import com.jfireframework.baseutil.reflect.ReflectUtil;
 import com.jfireframework.dson.deserializer.DeserializeDescriptor;
 import com.jfireframework.dson.deserializer.Deserializer;
 import com.jfireframework.dson.metadata.json.DsonObject;
@@ -73,7 +74,8 @@ public class CollectionDeserializeDecriptor implements DeserializeDescriptor
 		}
 		catch (Exception e)
 		{
-			throw new JustThrowException(e);
+			ReflectUtil.throwException(e);
+			return null;
 		}
 	}
 	

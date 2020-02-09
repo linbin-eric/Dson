@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.jfireframework.codejson.methodinfo.MethodInfoBuilder;
 
 public class Support
 {
@@ -14,7 +13,6 @@ public class Support
     
     public Support()
     {
-        new MethodInfoBuilder();
         data = new Data();
         data.setA(12);
         data.setB(2.36f);

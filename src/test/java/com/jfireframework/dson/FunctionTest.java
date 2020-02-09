@@ -8,7 +8,6 @@ import java.util.HashMap;
 import org.junit.Ignore;
 import org.junit.Test;
 import com.jfireframework.baseutil.reflect.TypeUtil;
-import com.jfireframework.codejson.util.NameTool;
 import com.jfireframework.dson.model.FunData16;
 import com.jfireframework.dson.model.FunctionData10;
 import com.jfireframework.dson.model.FunctionData13;
@@ -106,12 +105,10 @@ public class FunctionTest extends Support
 	@Test
 	public void test2()
 	{
-		new NameTool();
 		System.out.println(Dson.toJsonString(new FunctionData10()));
 	}
 	
 	@Test
-	@Ignore
 	public void test3()
 	{
 		System.out.println(Dson.toJsonString(new FunctionData13()));

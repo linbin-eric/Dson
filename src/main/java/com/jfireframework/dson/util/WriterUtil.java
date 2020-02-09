@@ -2,7 +2,7 @@ package com.jfireframework.dson.util;
 
 public class WriterUtil
 {
-	public static void writeString(StringOutput output, String value)
+	public static void writeString(StringBuilder output, String value)
 	{
 		int len = value.length();
 		char c;

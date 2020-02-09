@@ -1,10 +1,9 @@
 package com.jfireframework.dson.model;
 
-import com.jfireframework.codejson.annotation.JsonRename;
 
 public class FunctionData10
 {
-    @JsonRename("name2")
+//    @JsonRename("name2")
     private String name = "林斌";
     private int    age  = 23;
     
@@ -23,7 +22,7 @@ public class FunctionData10
         this.name = name;
     }
     
-    @JsonRename("a")
+//    @JsonRename("a")
     public int getAge()
     {
         return age;

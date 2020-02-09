@@ -1,33 +1,31 @@
 package com.jfireframework.dson;
 
-import java.lang.reflect.Type;
-
 import com.jfireframework.dson.deserializer.Deserializer;
 import com.jfireframework.dson.deserializer.support.DefaultDeserializer;
-import com.jfireframework.dson.serializer.Serializer;
-import com.jfireframework.dson.serializer.support.CompileSerializer;
-import com.jfireframework.dson.util.StringBuilderAdaptStringOutput;
-import com.jfireframework.dson.util.StringCacheAdaptStringOutput;
-import com.jfireframework.dson.util.StringOutput;
+import com.jfireframework.dson.serializer.JsonWriter;
+import com.jfireframework.dson.serializer.support.DefaultJsonWriter;
+
+import java.lang.reflect.Type;
 
 public class Dson
 {
-    private static       Serializer                serializer   = new CompileSerializer();
-    private static       Deserializer              deserializer = new DefaultDeserializer();
-    private static final ThreadLocal<StringOutput> LOCAL        = new ThreadLocal<StringOutput>()
+
+    private static       Deserializer               deserializer = new DefaultDeserializer();
+    private static       JsonWriter                 jsonWriter   = new DefaultJsonWriter();
+    private static final ThreadLocal<StringBuilder> LOCAL        = new ThreadLocal<StringBuilder>()
     {
-        protected StringOutput initialValue()
+        protected StringBuilder initialValue()
         {
-            return new StringBuilderAdaptStringOutput();
+            return new StringBuilder();
         }
     };
 
     public static String toJsonString(Object entity)
     {
-        StringOutput output = LOCAL.get();
-        serializer.serialize(entity, output);
+        StringBuilder output     = LOCAL.get();
+        jsonWriter.toJson(entity, output);
         String result = output.toString();
-        output.clear().compact(1024);
+        output.setLength(0);
         return result;
     }
 

@@ -4,8 +4,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.Map;
-import com.jfireframework.baseutil.exception.JustThrowException;
 import com.jfireframework.baseutil.exception.UnSupportException;
+import com.jfireframework.baseutil.reflect.ReflectUtil;
 import com.jfireframework.dson.deserializer.DeserializeDescriptor;
 import com.jfireframework.dson.deserializer.Deserializer;
 import com.jfireframework.dson.metadata.json.DsonObject;
@@ -89,7 +89,8 @@ public class MapDeserializeDescriptor implements DeserializeDescriptor
 		}
 		catch (Exception e)
 		{
-			throw new JustThrowException(e);
+			ReflectUtil.throwException(e);
+			return null;
 		}
 	}
 	

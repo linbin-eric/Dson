@@ -1,13 +1,5 @@
 package com.jfireframework.dson.benchmark;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -15,17 +7,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfireframework.baseutil.time.Timewatch;
-import com.jfireframework.codejson.function.WriteStrategy;
 import com.jfireframework.dson.Dson;
 import com.jfireframework.dson.NestData;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 public class Benchmark
 {
-    
+
     private Logger      logger = LoggerFactory.getLogger(Benchmark.class);
     private SmallObject smallData;
     private BigData     bigData;
-    
+
     @Before
     public void Before()
     {
@@ -82,14 +82,14 @@ public class Benchmark
         map.put("恁大", "dasdasd");
         map.put("dsada", "你好");
         bigData.setMap(map);
-        bigData.setArray2(new int[][] { { 1, 2, 3, 4 }, { 10, 12 } });
-        bigData.setStrs(new String[] { "231231", "sdadsasdasd" });
-        bigData.setArray1(new int[] { 1, 2, 3, 4, 5, 65 });
-        bigData.setChars(new char[] { 'a', 'b' });
-        bigData.setArray3(new Integer[] { 1, 2, 3, 4, 5, 6, 7 });
-        bigData.setArray4(new Integer[][] { { 1, 2, 3, 4, 5, 56 }, { 10, 11, 12, 14 } });
+        bigData.setArray2(new int[][]{{1, 2, 3, 4}, {10, 12}});
+        bigData.setStrs(new String[]{"231231", "sdadsasdasd"});
+        bigData.setArray1(new int[]{1, 2, 3, 4, 5, 65});
+        bigData.setChars(new char[]{'a', 'b'});
+        bigData.setArray3(new Integer[]{1, 2, 3, 4, 5, 6, 7});
+        bigData.setArray4(new Integer[][]{{1, 2, 3, 4, 5, 56}, {10, 11, 12, 14}});
         NestData[] nestDatas2 = new NestData[2];
-        NestData tmp = new NestData();
+        NestData   tmp        = new NestData();
         tmp.setAge(12);
         tmp.setName("das");
         nestDatas2[0] = tmp;
@@ -100,8 +100,7 @@ public class Benchmark
         bigData.setNestDatas(nestDatas2);
         HashMap<Date, NestData> map2 = new HashMap<Date, NestData>();
         map2.put(new Date(), tmp);
-        @SuppressWarnings("unchecked")
-        ArrayList<String>[] lists = new ArrayList[] { new ArrayList<String>(), new ArrayList<String>() };
+        @SuppressWarnings("unchecked") ArrayList<String>[] lists = new ArrayList[]{new ArrayList<String>(), new ArrayList<String>()};
         lists[0].add("dasdasda");
         lists[0].add("dasdasdasdasdasd");
         lists[1].add("1212121dasdasdasdasdasd");
@@ -110,11 +109,11 @@ public class Benchmark
         bigData.setData(nestDatas2);
         System.out.println("=======================");
     }
-    
+
     @Test
     public void small() throws JsonProcessingException
     {
-        int count = 1000000;
+        int          count  = 1000000;
         ObjectMapper mapper = new ObjectMapper();
         Dson.toJsonString(smallData);
         JSON.toJSONString(smallData);
@@ -142,11 +141,11 @@ public class Benchmark
         timewatch.end();
         logger.info("jackson2小对象序列化耗时：{}", timewatch.getTotal());
     }
-    
+
     @Test
     public void smallParse() throws JsonParseException, JsonMappingException, IOException
     {
-        int count = 1000000;
+        int    count = 1000000;
         String value = Dson.toJsonString(smallData);
         Dson.fromString(SmallObject.class, value);
         JSON.parseObject(value, SmallObject.class);
@@ -178,19 +177,33 @@ public class Benchmark
         timewatch.end();
         logger.info("jackson2小json反序列化耗时：{}", timewatch.getTotal());
     }
-    
+
+    @Test
+    public void longrun()
+    {
+        int count = 1000000000;
+        for (int i = 0; i < count; i++)
+        {
+            Dson.toJsonString(bigData);
+        }
+    }
+
     @Test
     public void big() throws JsonProcessingException
     {
-        int count = 1000000;
+        int          count  = 1000000;
         ObjectMapper mapper = new ObjectMapper();
         JSON.toJSONString(bigData);
         Dson.toJsonString(bigData);
-        WriteStrategy writeStrategy = new WriteStrategy();
-        writeStrategy.setUseTracker(true);
-        writeStrategy.write(bigData);
         mapper.writeValueAsString(bigData);
         Timewatch timewatch = new Timewatch();
+        timewatch.start();
+        for (int i = 0; i < count; i++)
+        {
+            Dson.toJsonString(bigData);
+        }
+        timewatch.end();
+        logger.info("dson大对象序列化耗时：{}", timewatch.getTotal());
         timewatch.start();
         for (int i = 0; i < count; i++)
         {
@@ -201,25 +214,17 @@ public class Benchmark
         timewatch.start();
         for (int i = 0; i < count; i++)
         {
-            Dson.toJsonString(bigData);
-            // writeStrategy.write(bigData);
-        }
-        timewatch.end();
-        logger.info("codejson大对象序列化耗时：{}", timewatch.getTotal());
-        timewatch.start();
-        for (int i = 0; i < count; i++)
-        {
             mapper.writeValueAsString(bigData);
         }
         timewatch.end();
         logger.info("jackson2大对象序列化耗时：{}", timewatch.getTotal());
     }
-    
+
     @Test
     public void bigParse() throws JsonParseException, JsonMappingException, IOException
     {
-        int count = 300000;
-        String value = Dson.toJsonString(bigData);
+        int     count  = 300000;
+        String  value  = Dson.toJsonString(bigData);
         BigData result = JSON.parseObject(value, BigData.class);
         System.out.println(result.equal(bigData));
         result = Dson.fromString(BigData.class, value);

@@ -1,6 +1,5 @@
 package com.jfireframework.dson.metadata.parse;
 
-import com.jfireframework.baseutil.collection.StringCache;
 import com.jfireframework.dson.metadata.json.DsonObject;
 import com.jfireframework.dson.metadata.json.JsonArray;
 import com.jfireframework.dson.metadata.json.JsonCollection;
@@ -12,13 +11,13 @@ public class Lexer
 	private int										offset	= 0;
 	private String									str;
 	private int										length;
-	private static final ThreadLocal<StringCache>	LOCAL	= new ThreadLocal<StringCache>() {
-																protected StringCache initialValue()
+	private static final ThreadLocal<StringBuilder>	LOCAL	= new ThreadLocal<StringBuilder>() {
+																protected StringBuilder initialValue()
 																{
-																	return new StringCache();
+																	return new StringBuilder();
 																};
 															};
-	private StringCache								cache;
+	private StringBuilder								cache;
 	
 	public Lexer(String str)
 	{
@@ -150,8 +149,6 @@ public class Lexer
 	/**
 	 * 此时offset所在位置为{
 	 * 
-	 * @param str
-	 * @param offset
 	 * @return
 	 */
 	private JsonCollection parseCollection()
@@ -300,7 +297,7 @@ public class Lexer
 	{
 		offset += 1;
 		char c;
-		cache.clear();
+		cache.setLength(0);
 		do
 		{
 			c = str.charAt(offset);
