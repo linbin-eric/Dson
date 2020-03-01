@@ -3,13 +3,13 @@ package com.jfireframework.dson.deserializer.impl;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
-import com.jfireframework.baseutil.reflect.ReflectUtil;
 import com.jfireframework.dson.deserializer.DeserializeDescriptor;
 import com.jfireframework.dson.deserializer.Deserializer;
 import com.jfireframework.dson.metadata.json.DsonObject;
 import com.jfireframework.dson.metadata.json.Element;
 import com.jfireframework.dson.metadata.json.Entry;
 import com.jfireframework.dson.metadata.json.JsonValueType;
+import com.jfirer.baseutil.reflect.ReflectUtil;
 
 public class EnumDeserializeDescriptor implements DeserializeDescriptor
 {

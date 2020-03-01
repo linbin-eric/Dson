@@ -1,11 +1,12 @@
 package com.jfireframework.dson.serializer.impl;
 
-import com.jfireframework.baseutil.reflect.ReflectUtil;
-import com.jfireframework.baseutil.reflect.ValueAccessor;
 import com.jfireframework.dson.serializer.JsonWriter;
 import com.jfireframework.dson.serializer.TypeWriter;
 import com.jfireframework.dson.strategy.SerializeDefinition;
 import com.jfireframework.dson.util.WriterUtil;
+import com.jfirer.baseutil.reflect.ReflectUtil;
+import com.jfirer.baseutil.reflect.ValueAccessor;
+import com.jfirer.baseutil.smc.compiler.CompileHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -48,6 +49,7 @@ public class ObjectWriter implements TypeWriter
                     output.append('"').append(each.name).append("\":");
                     output.append('"').append(each.valueAccessor.getChar(entity));
                     output.append('"').append(',');
+                    break;
                 }
                 case BOOL:
                 {
@@ -185,6 +187,8 @@ public class ObjectWriter implements TypeWriter
         INT, BYTE, SHORT, LONG, FLOAT, DOUBLE, BOOL, CHAR,//
         CUSTOM, NOT_FINAL_OBJECT, FINAL_OBJECT
     }
+
+    private CompileHelper compileHelper = new CompileHelper();
 
     @Override
     public void initialize(JsonWriter jsonWriter, Type type)

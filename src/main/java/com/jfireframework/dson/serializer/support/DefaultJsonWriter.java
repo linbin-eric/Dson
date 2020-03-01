@@ -14,10 +14,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * 非线程安全
- */
-public class DefaultJsonWriter extends AbstractSerializer implements JsonWriter
+public class DefaultJsonWriter implements JsonWriter
 {
     private ConcurrentHashMap<Type, TypeWriter> store = new ConcurrentHashMap<Type, TypeWriter>(256);
 
@@ -92,10 +89,8 @@ public class DefaultJsonWriter extends AbstractSerializer implements JsonWriter
                 }
                 else
                 {
-//                    typeWriter = new ObjectWriter();
                     typeWriter = new CompileObjectWriter();
                 }
-
             }
             typeWriter.initialize(this, type);
             store.put(type, typeWriter);

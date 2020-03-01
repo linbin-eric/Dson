@@ -4,10 +4,6 @@ import java.lang.reflect.Type;
 
 public interface JsonWriter
 {
-    int registerSerializeDescriptor(TypeWriter serializeDescriptor);
-
-    TypeWriter get(int index);
-
     /**
      * 获取某一个类型的序列化描述器
      *

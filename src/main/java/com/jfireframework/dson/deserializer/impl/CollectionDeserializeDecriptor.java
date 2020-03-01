@@ -6,7 +6,6 @@ import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.Map;
 
-import com.jfireframework.baseutil.reflect.ReflectUtil;
 import com.jfireframework.dson.deserializer.DeserializeDescriptor;
 import com.jfireframework.dson.deserializer.Deserializer;
 import com.jfireframework.dson.metadata.json.DsonObject;
@@ -15,6 +14,7 @@ import com.jfireframework.dson.metadata.json.Entry;
 import com.jfireframework.dson.metadata.json.JsonArray;
 import com.jfireframework.dson.metadata.json.JsonValueType;
 import com.jfireframework.dson.metadata.parse.Lexer;
+import com.jfirer.baseutil.reflect.ReflectUtil;
 
 public class CollectionDeserializeDecriptor implements DeserializeDescriptor
 {

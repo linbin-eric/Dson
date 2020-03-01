@@ -51,9 +51,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jfireframework</groupId>
+            <groupId>com.jfirer</groupId>
             <artifactId>baseutil</artifactId>
-            <version>aegean-1.2</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
