@@ -1,12 +1,12 @@
 package com.jfirer.dson.serializer.impl;
 
+import com.jfirer.baseutil.reflect.ReflectUtil;
+import com.jfirer.baseutil.reflect.ValueAccessor;
+import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.serializer.JsonWriter;
 import com.jfirer.dson.serializer.TypeWriter;
 import com.jfirer.dson.strategy.SerializeDefinition;
 import com.jfirer.dson.util.WriterUtil;
-import com.jfirer.baseutil.reflect.ReflectUtil;
-import com.jfirer.baseutil.reflect.ValueAccessor;
-import com.jfirer.baseutil.smc.compiler.CompileHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -116,12 +116,13 @@ public class ObjectWriter implements TypeWriter
                     Object o = each.valueAccessor.get(entity);
                     if (o != null)
                     {
-                        if (each.typeWriter == null)
+                        TypeWriter typeWriter = each.typeWriter;
+                        if (typeWriter == null)
                         {
-                            each.typeWriter = jsonWriter.get(each.field.getGenericType());
+                            each.typeWriter = typeWriter = jsonWriter.get(each.field.getGenericType());
                         }
                         output.append('"').append(each.name).append("\":");
-                        each.typeWriter.toJson(o, output);
+                        typeWriter.toJson(o, output);
                         output.append(',');
                     }
                     break;

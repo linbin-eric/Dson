@@ -2,8 +2,6 @@ package com.jfirer.dson.serializer.support;
 
 import com.jfirer.dson.serializer.JsonWriter;
 import com.jfirer.dson.serializer.TypeWriter;
-import com.jfireframework.dson.serializer.buildin.*;
-import com.jfireframework.dson.serializer.impl.*;
 import com.jfirer.dson.serializer.buildin.*;
 import com.jfirer.dson.serializer.impl.*;
 

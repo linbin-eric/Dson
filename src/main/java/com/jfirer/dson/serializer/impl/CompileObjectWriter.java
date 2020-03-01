@@ -114,10 +114,12 @@ public class CompileObjectWriter implements TypeWriter
                 methodBody.append(SmcHelper.getReferenceName(each.getType(), classModel)).append(" ").append(argName).append(" = _target.").append(getMethodName(each)).append("();\r\n");
                 methodBody.append("if(").append(argName).append(" != null){\r\n");
                 methodBody.append("output.append(\"\\\"" + each.getName() + "\\\":\");\r\n");
-                methodBody.append("\tif(").append(typeWriterName).append("==null){\r\n");
-                methodBody.append(typeWriterName).append(" = jsonWriter.get(").append(SmcHelper.getReferenceName(each.getType(), classModel)).append(".class);\r\n");
+                String tmpName = "writer_"+count++;
+                methodBody.append("TypeWriter ").append(tmpName).append(" = ").append(typeWriterName).append(";\r\n");
+                methodBody.append("\tif(").append(tmpName).append("==null){\r\n");
+                methodBody.append(typeWriterName).append("=").append(tmpName).append(" = jsonWriter.get(").append(SmcHelper.getReferenceName(each.getType(), classModel)).append(".class);\r\n");
                 methodBody.append("\t}\r\n");
-                methodBody.append(typeWriterName).append(".toJson(" + argName + ",output);\r\n");
+                methodBody.append(tmpName).append(".toJson(" + argName + ",output);\r\n");
                 methodBody.append("output.append(',');\r\n");
                 methodBody.append("}\r\n");
             }
