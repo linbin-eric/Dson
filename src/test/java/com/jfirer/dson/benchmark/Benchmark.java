@@ -145,12 +145,15 @@ public class Benchmark
     @Test
     public void smallParse() throws JsonParseException, JsonMappingException, IOException
     {
-        int    count = 1000000;
-        String value = Dson.toJsonString(smallData);
-        Dson.fromString(SmallObject.class, value);
-        JSON.parseObject(value, SmallObject.class);
+        int          count  = 1000000;
         ObjectMapper mapper = new ObjectMapper();
-        mapper.readValue(value, SmallObject.class);
+        String       value  = Dson.toJsonString(smallData);
+        for (int i = 0; i < 100; i++)
+        {
+            Dson.fromString(SmallObject.class, value);
+            JSON.parseObject(value, SmallObject.class);
+            mapper.readValue(value, SmallObject.class);
+        }
         Timewatch timewatch = new Timewatch();
         timewatch.start();
         for (int i = 0; i < count; i++)

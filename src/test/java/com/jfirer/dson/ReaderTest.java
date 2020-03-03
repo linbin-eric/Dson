@@ -5,11 +5,93 @@ import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ReaderTest
 {
     public static class SimpleData
     {
-        private int age;
+        private int                     age;
+        private int[]                   nums;
+        private int[][]                 twoDims;
+        private List<String>            list;
+        private Map<String, String>     map;
+        private Map<String, SimpleData> innerMap;
+        private String                  name;
+        private Object                  unknowType;
+
+        public Object getUnknowType()
+        {
+            return unknowType;
+        }
+
+        public void setUnknowType(Object unknowType)
+        {
+            this.unknowType = unknowType;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public void setName(String name)
+        {
+            this.name = name;
+        }
+
+        public Map<String, SimpleData> getInnerMap()
+        {
+            return innerMap;
+        }
+
+        public void setInnerMap(Map<String, SimpleData> innerMap)
+        {
+            this.innerMap = innerMap;
+        }
+
+        public Map<String, String> getMap()
+        {
+            return map;
+        }
+
+        public void setMap(Map<String, String> map)
+        {
+            this.map = map;
+        }
+
+        public List<String> getList()
+        {
+            return list;
+        }
+
+        public void setList(List<String> list)
+        {
+            this.list = list;
+        }
+
+        public int[][] getTwoDims()
+        {
+            return twoDims;
+        }
+
+        public void setTwoDims(int[][] twoDims)
+        {
+            this.twoDims = twoDims;
+        }
+
+        public int[] getNums()
+        {
+            return nums;
+        }
+
+        public void setNums(int[] nums)
+        {
+            this.nums = nums;
+        }
 
         public int getAge()
         {
@@ -25,10 +107,31 @@ public class ReaderTest
     @Test
     public void test()
     {
-        String     content    = "{\"age\":12,\"name\":\"lr\",\"sex\":0}";
+        SimpleData data = new SimpleData();
+        data.setAge(12);
+        data.setNums(new int[]{1, 2, 3, 4});
+        data.setTwoDims(new int[][]{{1, 2,}, {3, 4}});
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("abc", "anc");
+        data.setMap(map);
+        Map<String, SimpleData> innerMap = new HashMap<String, SimpleData>();
+        SimpleData              data2    = new SimpleData();
+        data2.setAge(12);
+        data2.setName("data2");
+        innerMap.put("fir", data2);
+        data.setInnerMap(innerMap);
+        List<String> list = new ArrayList<String>();
+        list.add("12");
+        list.add("34");
+        data.setList(list);
+        Map map2 = new HashMap();
+        map2.put("121", 12);
+        data.setUnknowType(map2);
+        String s = Dson.toJsonString(data);
+        System.out.println(s);
         JsonReader jsonReader = new JsonReader();
         TypeReader typeReader = jsonReader.get(SimpleData.class);
-        SimpleData instance   = (SimpleData) typeReader.fromString(new Stream(content));
-        System.out.println(instance.getAge());
+        Object     o          = typeReader.fromString(new Stream(s));
+        System.out.println(Dson.toJsonString(o));
     }
 }

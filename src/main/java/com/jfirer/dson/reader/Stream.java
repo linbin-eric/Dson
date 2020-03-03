@@ -6,6 +6,11 @@ import com.jfirer.dson.metadata.json.JsonCollection;
 import com.jfirer.dson.metadata.json.JsonValueType;
 import com.jfirer.dson.metadata.parse.Symbol;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 public class Stream
 {
     private              int                        offset = 0;
@@ -413,7 +418,17 @@ public class Stream
         char c = ignoreSymbol();
         if (c != Symbol.LEFT_BRACE.literals())
         {
-            throw new IllegalArgumentException();
+            throwExecption();
+        }
+        offset += 1;
+    }
+
+    public void startParseArray()
+    {
+        char c = ignoreSymbol();
+        if (c != Symbol.LEFT_BRACKET.literals())
+        {
+            throwExecption();
         }
         offset += 1;
     }
@@ -423,6 +438,21 @@ public class Stream
         char c = ignoreSymbol();
         if (c == Symbol.RIGHT_BRACE.literals())
         {
+            offset += 1;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public boolean parseArrayEnd()
+    {
+        char c = ignoreSymbol();
+        if (c == Symbol.RIGHT_BRACKET.literals())
+        {
+            offset += 1;
             return true;
         }
         else
@@ -436,7 +466,7 @@ public class Stream
         char c = str.charAt(offset);
         if (c != Symbol.DOUBLE_QUOTATION_MASK.literals())
         {
-            throw new IllegalArgumentException(String.valueOf(offset));
+            throwExecption();
         }
         String name = getString();
         return name;
@@ -451,7 +481,23 @@ public class Stream
         offset += 1;
     }
 
+    public char getChar()
+    {
+        return getStringValue().charAt(0);
+    }
+
+    public long getLong()
+    {
+        return Long.parseLong(getNumberString());
+    }
+
     public int getInt()
+    {
+        String value = getNumberString();
+        return Integer.parseInt(value);
+    }
+
+    private String getNumberString()
     {
         int begin = offset;
         offset += 1;
@@ -464,7 +510,7 @@ public class Stream
             }
             else if (c == '.')
             {
-                throw new IllegalStateException(String.valueOf(offset));
+                offset += 1;
             }
             else
             {
@@ -475,8 +521,7 @@ public class Stream
         {
             throw new IllegalArgumentException();
         }
-        String value = str.substring(begin, offset);
-        return Integer.parseInt(value);
+        return str.substring(begin, offset);
     }
 
     public void skipComma()
@@ -485,6 +530,87 @@ public class Stream
         if (c == Symbol.COMMA.literals())
         {
             offset += 1;
+        }
+    }
+
+    public Object readUnKnowType()
+    {
+        char c = ignoreSymbol();
+        if (c == Symbol.LEFT_BRACE.literals())
+        {
+            offset += 1;
+            Map map = new HashMap();
+            while (parseObjectEnd() == false)
+            {
+                String name = getName();
+                skipColon();
+                map.put(name, readUnKnowType());
+                skipComma();
+            }
+            return map;
+        }
+        else if (c == Symbol.LEFT_BRACKET.literals())
+        {
+            offset += 1;
+            List list = new LinkedList();
+            while (parseArrayEnd() == false)
+            {
+                list.add(readUnKnowType());
+                skipComma();
+            }
+            return list;
+        }
+        else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+        {
+            String value = getString();
+            return value;
+        }
+        else if (c == 'T' || c == 't')
+        {
+            String value = str.substring(offset, offset + 4);
+            if ("TRUE".equals(value) || "true".equals(value))
+            {
+                offset += 4;
+                return true;
+            }
+            else
+            {
+                throw new IllegalArgumentException();
+            }
+        }
+        else if (c == 'F' || c == 'f')
+        {
+            String value = str.substring(offset, offset + 5);
+            if ("false".equals(value) || "FALSE".equals(value))
+            {
+                offset += 5;
+                return false;
+            }
+            else
+            {
+                throw new IllegalArgumentException();
+            }
+        }
+        else if (c == 'n' || c == 'N')
+        {
+            String value = str.substring(offset, offset + 4);
+            if ("null".equals(value) || "NULL".equals(value))
+            {
+                offset += 4;
+                return null;
+            }
+            else
+            {
+                throw new IllegalArgumentException();
+            }
+        }
+        else if ((c >= '0' && c <= '9') || c == '-')
+        {
+            return getNumber();
+        }
+        else
+        {
+            throw new IllegalArgumentException("非法字符:" + c + ",当前解析进度:" + str.substring(offset));
         }
     }
 
@@ -552,5 +678,72 @@ public class Stream
         {
             skipNumber();
         }
+    }
+
+    private void throwExecption()
+    {
+        throw new IllegalStateException(String.valueOf(offset) + " : " + str.substring(offset));
+    }
+
+    public String getStringValue()
+    {
+        if (ignoreSymbol() != Symbol.DOUBLE_QUOTATION_MASK.literals())
+        {
+            throwExecption();
+        }
+        return getString();
+    }
+
+    public short getShort()
+    {
+        return Short.parseShort(getNumberString());
+    }
+
+    public byte getByte()
+    {
+        return Byte.parseByte(getNumberString());
+    }
+
+    public boolean getBoolean()
+    {
+        char c = ignoreSymbol();
+        if (c == 'T' || c == 't')
+        {
+            String value = str.substring(offset, offset + 4);
+            if ("TRUE".equals(value) || "true".equals(value))
+            {
+                offset += 4;
+                return true;
+            }
+            else
+            {
+                throwExecption();
+            }
+        }
+        else if (c == 'F' || c == 'f')
+        {
+            String value = str.substring(offset, offset + 5);
+            if ("false".equals(value) || "FALSE".equals(value))
+            {
+                offset += 5;
+                return false;
+            }
+            else
+            {
+                throwExecption();
+            }
+        }
+        throwExecption();
+        return false;
+    }
+
+    public float getFloat()
+    {
+        return Float.parseFloat(getNumberString());
+    }
+
+    public double getDouble()
+    {
+        return Double.parseDouble(getNumberString());
     }
 }

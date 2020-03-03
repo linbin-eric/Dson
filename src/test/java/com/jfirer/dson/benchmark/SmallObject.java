@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.openjdk.jmh.annotations.State;
 
 public class SmallObject
 {
@@ -239,5 +240,6 @@ public class SmallObject
 	{
 		this.h1 = h1;
 	}
+
 	
 }
