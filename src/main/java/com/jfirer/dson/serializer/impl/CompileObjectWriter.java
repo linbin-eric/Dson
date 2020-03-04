@@ -1,14 +1,14 @@
 package com.jfirer.dson.serializer.impl;
 
-import com.jfirer.dson.serializer.JsonWriter;
-import com.jfirer.dson.serializer.TypeWriter;
-import com.jfirer.dson.strategy.SerializeDefinition;
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.smc.SmcHelper;
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.baseutil.smc.model.ClassModel;
 import com.jfirer.baseutil.smc.model.FieldModel;
 import com.jfirer.baseutil.smc.model.MethodModel;
+import com.jfirer.dson.serializer.JsonWriter;
+import com.jfirer.dson.serializer.TypeWriter;
+import com.jfirer.dson.strategy.SerializeDefinition;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class CompileObjectWriter implements TypeWriter
         {
             Method toJson = CompileOutput.class.getDeclaredMethod("toJson", StringBuilder.class, Object.class);
             methodModel = new MethodModel(toJson, classModel);
-            methodModel.setParamterNames(new String[]{"output", "entity"});
+            methodModel.setParamterNames("output", "entity");
         }
         catch (NoSuchMethodException e)
         {
@@ -114,7 +114,7 @@ public class CompileObjectWriter implements TypeWriter
                 methodBody.append(SmcHelper.getReferenceName(each.getType(), classModel)).append(" ").append(argName).append(" = _target.").append(getMethodName(each)).append("();\r\n");
                 methodBody.append("if(").append(argName).append(" != null){\r\n");
                 methodBody.append("output.append(\"\\\"" + each.getName() + "\\\":\");\r\n");
-                String tmpName = "writer_"+count++;
+                String tmpName = "writer_" + count++;
                 methodBody.append("TypeWriter ").append(tmpName).append(" = ").append(typeWriterName).append(";\r\n");
                 methodBody.append("\tif(").append(tmpName).append("==null){\r\n");
                 methodBody.append(typeWriterName).append("=").append(tmpName).append(" = jsonWriter.get(").append(SmcHelper.getReferenceName(each.getType(), classModel)).append(".class);\r\n");

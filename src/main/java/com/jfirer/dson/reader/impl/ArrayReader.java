@@ -1,11 +1,8 @@
 package com.jfirer.dson.reader.impl;
 
-import com.jfirer.baseutil.reflect.ReflectUtil;
-import com.jfirer.dson.metadata.parse.Lexer;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
-import sun.awt.image.OffScreenImage;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -88,7 +85,6 @@ public class ArrayReader implements TypeReader
                     index += 1;
                     stream.skipComma();
                 }
-
                 return Arrays.copyOf(array, index);
             }
             else if (componentType == short.class)

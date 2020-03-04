@@ -1,7 +1,5 @@
 package com.jfirer.dson.reader;
 
-import com.jfirer.dson.metadata.parse.Symbol;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;

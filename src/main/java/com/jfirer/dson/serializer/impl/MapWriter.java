@@ -70,7 +70,6 @@ public class MapWriter implements TypeWriter
         }
         else if (type instanceof Class<?>)
         {
-            ;
         }
         else
         {

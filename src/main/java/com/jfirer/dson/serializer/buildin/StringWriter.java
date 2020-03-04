@@ -1,10 +1,10 @@
 package com.jfirer.dson.serializer.buildin;
 
-import java.lang.reflect.Type;
-
-import com.jfirer.dson.serializer.TypeWriter;
 import com.jfirer.dson.serializer.JsonWriter;
+import com.jfirer.dson.serializer.TypeWriter;
 import com.jfirer.dson.util.WriterUtil;
+
+import java.lang.reflect.Type;
 
 public class StringWriter implements TypeWriter
 {
@@ -24,6 +24,4 @@ public class StringWriter implements TypeWriter
 		WriterUtil.writeString(output, (String) entity);
 		output.append('"');
 	}
-	
-
 }

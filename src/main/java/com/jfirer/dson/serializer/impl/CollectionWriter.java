@@ -25,7 +25,7 @@ public class CollectionWriter implements TypeWriter
             Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
             if (elementType instanceof Class<?>)
             {
-                if (((Class<?>) elementType) == String.class)
+                if (elementType == String.class)
                 {
                     elementString = true;
                 }
@@ -61,7 +61,7 @@ public class CollectionWriter implements TypeWriter
         {
             for (Object each : collection)
             {
-                if (elementWriter ==null)
+                if (elementWriter == null)
                 {
                     elementWriter = jsonWriter.get(each.getClass());
                 }

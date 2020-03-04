@@ -230,6 +230,7 @@ public class ArrayWriter implements TypeWriter
             output.append(']');
         }
     }
+
     class UnFinalElementTypeArrayToJson implements ToJson
     {
 
@@ -303,7 +304,7 @@ public class ArrayWriter implements TypeWriter
             }
             else
             {
-               toJson =new UnFinalElementTypeArrayToJson();
+                toJson = new UnFinalElementTypeArrayToJson();
             }
         }
         else if (type instanceof GenericArrayType)
@@ -325,6 +326,4 @@ public class ArrayWriter implements TypeWriter
         }
         toJson.output(output, entity);
     }
-
-
 }

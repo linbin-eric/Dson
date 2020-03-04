@@ -47,13 +47,6 @@ public class BenchmarkSmall
     }
 
     @Benchmark
-    public void testOld(Blackhole blackhole)
-    {
-        Object o = Dson.fromString2(SmallObject.class, value);
-        blackhole.consume(o);
-    }
-
-    @Benchmark
     public void testNew(Blackhole blackhole)
     {
         Object o = Dson.fromString(SmallObject.class,value);

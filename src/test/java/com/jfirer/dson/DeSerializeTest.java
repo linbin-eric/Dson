@@ -1,7 +1,5 @@
 package com.jfirer.dson;
 
-import com.jfirer.dson.metadata.json.JsonCollection;
-import com.jfirer.dson.metadata.parse.Lexer;
 import org.junit.Test;
 
 public class DeSerializeTest
@@ -14,28 +12,10 @@ public class DeSerializeTest
 	@Test
 	public void test()
 	{
-		Lexer          lexer = new Lexer(value);
-		JsonCollection parse = (JsonCollection) lexer.parse();
-		System.out.println(parse);
+		Dson.fromString(value);
+		Dson.fromString(value1);
+		Dson.fromString(value2);
+		Dson.fromString(value3);
 	}
 	
-	@Test
-	public void test1()
-	{
-		Lexer lexer = new Lexer(value1);
-		lexer.parse();
-	}
-	
-	@Test
-	public void test2()
-	{
-		Lexer lexer = new Lexer(value2);
-		lexer.parse();
-	}
-	
-	@Test
-	public void test3()
-	{
-		new Lexer(value3).parse();
-	}
 }

@@ -11,7 +11,6 @@ public class EnumWriter implements TypeWriter
     @Override
     public void initialize(JsonWriter serializer, Type type)
     {
-        ;
     }
 
     @Override

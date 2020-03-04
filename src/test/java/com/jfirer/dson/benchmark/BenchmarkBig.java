@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 public class BenchmarkBig
 {
@@ -123,12 +122,6 @@ public class BenchmarkBig
         }
     }
 
-    @Benchmark
-    public void testOld(ForTestData forTestData, Blackhole blackhole)
-    {
-        Object o = Dson.fromString2(BigData.class, forTestData.content);
-        blackhole.consume(o);
-    }
     @Benchmark
     public void testNew(ForTestData forTestData,Blackhole blackhole){
         Object o = Dson.fromString(BigData.class, forTestData.content);

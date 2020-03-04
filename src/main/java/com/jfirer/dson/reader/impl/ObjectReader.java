@@ -7,7 +7,6 @@ import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 
-import java.beans.beancontext.BeanContext;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -123,7 +122,7 @@ public class ObjectReader implements TypeReader
     {
         this.jsonReader = jsonReader;
         this.ckass = (Class) type;
-        constructor = ValueAccessor.constructor(ckass,new CompileHelper());
+        constructor = ValueAccessor.constructor(ckass, new CompileHelper());
         Class              ckass = (Class) type;
         Map<String, Field> map   = new HashMap<String, Field>();
         while (ckass != Object.class)
