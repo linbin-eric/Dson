@@ -2,9 +2,7 @@ package com.jfirer.dson.benchmark;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jfirer.baseutil.time.Timewatch;
 import com.jfirer.dson.Dson;
-import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
@@ -20,7 +18,7 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import java.io.IOException;
 
 @State(Scope.Thread)
-public class NewBenchmark
+public class BenchmarkSmall
 {
     private SmallObject smallData;
     String       value;
@@ -58,7 +56,7 @@ public class NewBenchmark
     @Benchmark
     public void testNew(Blackhole blackhole)
     {
-        Object o = typeReader.fromString(new Stream(value));
+        Object o = Dson.fromString(SmallObject.class,value);
         blackhole.consume(o);
     }
 
@@ -85,10 +83,10 @@ public class NewBenchmark
 
     public static void main(String[] args) throws RunnerException
     {
-        Options opt = new OptionsBuilder().include(NewBenchmark.class.getSimpleName())//
-                .warmupIterations(2).warmupTime(TimeValue.seconds(3))//
-                .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(3))//
-                .threads(Runtime.getRuntime().availableProcessors()).build();
+        Options opt = new OptionsBuilder().include(BenchmarkSmall.class.getSimpleName())//
+                .warmupIterations(2).warmupTime(TimeValue.seconds(2))//
+                .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(2))//
+                .threads(1).forks(2).build();
         new Runner(opt).run();
     }
 }

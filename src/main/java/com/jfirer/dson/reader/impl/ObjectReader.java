@@ -2,6 +2,7 @@ package com.jfirer.dson.reader.impl;
 
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.ValueAccessor;
+import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
@@ -95,6 +96,10 @@ public class ObjectReader implements TypeReader
                 {
                     primitiveType = PrimitiveType.W_DOUBLE;
                 }
+                else if (fieldType == String.class)
+                {
+                    primitiveType = PrimitiveType.STRING;
+                }
                 else
                 {
                     primitiveType = PrimitiveType.NO;
@@ -105,18 +110,20 @@ public class ObjectReader implements TypeReader
 
     enum PrimitiveType
     {
-        INT, BOOL, CHAR, BYTE, SHORT, LONG, FLOAT, DOUBLE, W_INT, W_BOOL, W_CHAR, W_BYTE, W_SHORT, W_LONG, W_FLOAT, W_DOUBLE, NO
+        INT, BOOL, CHAR, BYTE, SHORT, LONG, FLOAT, DOUBLE, W_INT, W_BOOL, W_CHAR, W_BYTE, W_SHORT, W_LONG, W_FLOAT, W_DOUBLE, STRING, NO
     }
 
     private Map<String, Entry> entryMap = new HashMap<String, Entry>();
     private JsonReader         jsonReader;
     private Class              ckass;
+    private ValueAccessor      constructor;
 
     @Override
     public void init(Type type, JsonReader jsonReader)
     {
         this.jsonReader = jsonReader;
         this.ckass = (Class) type;
+        constructor = ValueAccessor.constructor(ckass,new CompileHelper());
         Class              ckass = (Class) type;
         Map<String, Field> map   = new HashMap<String, Field>();
         while (ckass != Object.class)
@@ -148,7 +155,7 @@ public class ObjectReader implements TypeReader
     {
         try
         {
-            Object instance = ckass.newInstance();
+            Object instance = constructor.newInstace();
             stream.startParseObject();
             while (stream.parseObjectEnd() == false)
             {
@@ -201,16 +208,19 @@ public class ObjectReader implements TypeReader
                             valueAccessor.set(instance, Character.valueOf(stream.getChar()));
                             break;
                         case W_LONG:
-                            valueAccessor.set(instance,stream.getWLong());
+                            valueAccessor.set(instance, stream.getWLong());
                             break;
                         case W_FLOAT:
-                            valueAccessor.set(instance,stream.getWFloat());
+                            valueAccessor.set(instance, stream.getWFloat());
                             break;
                         case W_SHORT:
-                            valueAccessor.set(instance,stream.getWShort());
+                            valueAccessor.set(instance, stream.getWShort());
                             break;
                         case W_DOUBLE:
-                            valueAccessor.set(instance,stream.getWDouble());
+                            valueAccessor.set(instance, stream.getWDouble());
+                            break;
+                        case STRING:
+                            valueAccessor.setObject(instance, stream.getStringValue());
                             break;
                         case NO:
                         {
