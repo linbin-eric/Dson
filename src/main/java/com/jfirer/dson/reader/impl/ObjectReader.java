@@ -2,11 +2,11 @@ package com.jfirer.dson.reader.impl;
 
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.ValueAccessor;
-import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 
+import java.beans.beancontext.BeanContext;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -28,52 +28,84 @@ public class ObjectReader implements TypeReader
             this.name = name;
             this.field = field;
             valueAccessor = new ValueAccessor(field);
-            if (field.getType().isPrimitive())
+            Class fieldType = field.getType();
+            if (fieldType == int.class)
             {
-                Class fieldType = field.getType();
-                if (fieldType == int.class)
-                {
-                    primitiveType = PrimitiveType.INT;
-                }
-                else if (fieldType == char.class)
-                {
-                    primitiveType = PrimitiveType.CHAR;
-                }
-                else if (fieldType == long.class)
-                {
-                    primitiveType = PrimitiveType.LONG;
-                }
-                else if (fieldType == short.class)
-                {
-                    primitiveType = PrimitiveType.SHORT;
-                }
-                else if (fieldType == byte.class)
-                {
-                    primitiveType = PrimitiveType.BYTE;
-                }
-                else if (fieldType == boolean.class)
-                {
-                    primitiveType = PrimitiveType.BOOL;
-                }
-                else if (fieldType == float.class)
-                {
-                    primitiveType = PrimitiveType.FLOAT;
-                }
-                else if (fieldType == double.class)
-                {
-                    primitiveType = PrimitiveType.DOUBLE;
-                }
+                primitiveType = PrimitiveType.INT;
+            }
+            else if (fieldType == char.class)
+            {
+                primitiveType = PrimitiveType.CHAR;
+            }
+            else if (fieldType == long.class)
+            {
+                primitiveType = PrimitiveType.LONG;
+            }
+            else if (fieldType == short.class)
+            {
+                primitiveType = PrimitiveType.SHORT;
+            }
+            else if (fieldType == byte.class)
+            {
+                primitiveType = PrimitiveType.BYTE;
+            }
+            else if (fieldType == boolean.class)
+            {
+                primitiveType = PrimitiveType.BOOL;
+            }
+            else if (fieldType == float.class)
+            {
+                primitiveType = PrimitiveType.FLOAT;
+            }
+            else if (fieldType == double.class)
+            {
+                primitiveType = PrimitiveType.DOUBLE;
             }
             else
             {
-                primitiveType = PrimitiveType.NO;
+                if (fieldType == Integer.class)
+                {
+                    primitiveType = PrimitiveType.W_INT;
+                }
+                else if (fieldType == Short.class)
+                {
+                    primitiveType = PrimitiveType.W_SHORT;
+                }
+                else if (fieldType == Byte.class)
+                {
+                    primitiveType = PrimitiveType.W_BYTE;
+                }
+                else if (fieldType == Long.class)
+                {
+                    primitiveType = PrimitiveType.W_LONG;
+                }
+                else if (fieldType == Character.class)
+                {
+                    primitiveType = PrimitiveType.W_CHAR;
+                }
+                else if (fieldType == Boolean.class)
+                {
+                    primitiveType = PrimitiveType.W_BOOL;
+                }
+                else if (fieldType == Float.class)
+                {
+                    primitiveType = PrimitiveType.W_FLOAT;
+                }
+                else if (fieldType == Double.class)
+                {
+                    primitiveType = PrimitiveType.W_DOUBLE;
+                }
+                else
+                {
+                    primitiveType = PrimitiveType.NO;
+                }
             }
         }
     }
 
     enum PrimitiveType
     {
-        INT, BOOL, CHAR, BYTE, SHORT, LONG, FLOAT, DOUBLE, NO
+        INT, BOOL, CHAR, BYTE, SHORT, LONG, FLOAT, DOUBLE, W_INT, W_BOOL, W_CHAR, W_BYTE, W_SHORT, W_LONG, W_FLOAT, W_DOUBLE, NO
     }
 
     private Map<String, Entry> entryMap = new HashMap<String, Entry>();
@@ -155,6 +187,30 @@ public class ObjectReader implements TypeReader
                             break;
                         case DOUBLE:
                             valueAccessor.set(instance, stream.getDouble());
+                            break;
+                        case W_INT:
+                            valueAccessor.set(instance, stream.getWInt());
+                            break;
+                        case W_BOOL:
+                            valueAccessor.set(instance, Boolean.valueOf(stream.getBoolean()));
+                            break;
+                        case W_BYTE:
+                            valueAccessor.set(instance, stream.getWByte());
+                            break;
+                        case W_CHAR:
+                            valueAccessor.set(instance, Character.valueOf(stream.getChar()));
+                            break;
+                        case W_LONG:
+                            valueAccessor.set(instance,stream.getWLong());
+                            break;
+                        case W_FLOAT:
+                            valueAccessor.set(instance,stream.getWFloat());
+                            break;
+                        case W_SHORT:
+                            valueAccessor.set(instance,stream.getWShort());
+                            break;
+                        case W_DOUBLE:
+                            valueAccessor.set(instance,stream.getWDouble());
                             break;
                         case NO:
                         {

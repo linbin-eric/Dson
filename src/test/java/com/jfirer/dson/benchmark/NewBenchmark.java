@@ -4,10 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfirer.baseutil.time.Timewatch;
 import com.jfirer.dson.Dson;
+import com.jfirer.dson.reader.Stream;
+import com.jfirer.dson.reader.TypeReader;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -16,15 +19,18 @@ import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.io.IOException;
 
-@State(Scope.Benchmark)
+@State(Scope.Thread)
 public class NewBenchmark
 {
     private SmallObject smallData;
-    String value;
-    ObjectMapper mapper ;
+    String       value;
+    ObjectMapper mapper;
+    TypeReader   typeReader;
+
     @Setup
     public void before()
     {
+        typeReader = Dson.get(SmallObject.class);
         smallData = new SmallObject();
         smallData.setA(1);
         smallData.setA1(12);
@@ -43,38 +49,46 @@ public class NewBenchmark
     }
 
     @Benchmark
-    public void testOld()
+    public void testOld(Blackhole blackhole)
     {
-        Dson.fromString(SmallObject.class, value);
+        Object o = Dson.fromString2(SmallObject.class, value);
+        blackhole.consume(o);
     }
 
     @Benchmark
-    public void testNew()
+    public void testNew(Blackhole blackhole)
     {
-        Dson.fromString2(SmallObject.class, value);
-    }
-    @Benchmark
-    public void testFastJson(){
-        JSON.parseObject(value, SmallObject.class);
+        Object o = typeReader.fromString(new Stream(value));
+        blackhole.consume(o);
     }
 
     @Benchmark
-    public void testJackson(){
+    public void testFastJson(Blackhole blackhole)
+    {
+        SmallObject smallObject = JSON.parseObject(value, SmallObject.class);
+        blackhole.consume(smallObject);
+    }
+
+    @Benchmark
+    public void testJackson(Blackhole blackhole)
+    {
         try
         {
-            mapper.readValue(value, SmallObject.class);
+            SmallObject smallObject = mapper.readValue(value, SmallObject.class);
+            blackhole.consume(smallObject);
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
     }
+
     public static void main(String[] args) throws RunnerException
     {
-        Options opt = new OptionsBuilder().include(NewBenchmark.class.getSimpleName()).warmupIterations(2).warmupTime(TimeValue.seconds(3))
-                .measurementIterations(3)
-                .forks(1)
-                .measurementTime(TimeValue.seconds(3)).build();
+        Options opt = new OptionsBuilder().include(NewBenchmark.class.getSimpleName())//
+                .warmupIterations(2).warmupTime(TimeValue.seconds(3))//
+                .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(3))//
+                .threads(Runtime.getRuntime().availableProcessors()).build();
         new Runner(opt).run();
     }
 }

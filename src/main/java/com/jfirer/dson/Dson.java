@@ -33,14 +33,19 @@ public class Dson
         return result;
     }
 
-    public static <T> T fromString(Type type, String json)
+    public static <T> T fromString2(Type type, String json)
     {
         return deserializer.deserialize(type, json);
     }
 
-    public static <T> T fromString2(Type type, String str)
+    public static <T> T fromString(Type type, String str)
     {
         TypeReader typeReader = jsonReader.get(type);
         return (T) typeReader.fromString(new Stream(str));
+    }
+
+    public static TypeReader get(Type type)
+    {
+        return jsonReader.get(type);
     }
 }

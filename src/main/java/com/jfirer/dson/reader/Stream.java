@@ -23,13 +23,13 @@ public class Stream
             return new StringBuilder();
         }
     };
-    private              StringBuilder              cache;
+//    private              StringBuilder              cache;
 
     public Stream(String str)
     {
         this.str = str;
         length = str.length();
-        cache = LOCAL.get();
+//        cache = LOCAL.get();
     }
 
     public DsonObject parse()
@@ -302,43 +302,30 @@ public class Stream
     {
         offset += 1;
         char c;
-        cache.setLength(0);
+        int  start = offset;
         do
         {
             c = str.charAt(offset);
-            if (c == '\\')
+            if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
             {
-                if (offset++ < length)
+                if (str.charAt(offset - 1) == '\\')
                 {
-                    if ((c = str.charAt(offset)) == '"')
-                    {
-                        cache.append('"');
-                    }
-                    else
-                    {
-                        cache.append('\\').append(c);
-                    }
                     offset += 1;
                 }
                 else
                 {
-                    cache.append(c);
+                    break;
                 }
-            }
-            else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
-            {
-                break;
             }
             else
             {
-                cache.append(c);
                 offset += 1;
             }
         } while (offset < length);
-        // String result = str.substring(begin, offset);
+        String result = str.substring(start, offset);
         offset += 1;
-        // return result;
-        return cache.toString();
+        return result;
+//        return cache.toString();
     }
 
     /**
@@ -745,5 +732,35 @@ public class Stream
     public double getDouble()
     {
         return Double.parseDouble(getNumberString());
+    }
+
+    public Integer getWInt()
+    {
+        return Integer.valueOf(getNumberString());
+    }
+
+    public Byte getWByte()
+    {
+        return Byte.valueOf(getNumberString());
+    }
+
+    public Long getWLong()
+    {
+        return Long.valueOf(getNumberString());
+    }
+
+    public Float getWFloat()
+    {
+        return Float.valueOf(getNumberString());
+    }
+
+    public Short getWShort()
+    {
+        return Short.valueOf(getNumberString());
+    }
+
+    public Double getWDouble()
+    {
+        return Double.valueOf(getNumberString());
     }
 }

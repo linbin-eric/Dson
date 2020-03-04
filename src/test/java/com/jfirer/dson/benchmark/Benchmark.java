@@ -187,7 +187,7 @@ public class Benchmark
         int count = 1000000000;
         for (int i = 0; i < count; i++)
         {
-            Dson.toJsonString(bigData);
+            Dson.toJsonString(smallData);
         }
     }
 
