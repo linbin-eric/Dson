@@ -1,8 +1,9 @@
-package com.jfirer.dson.benchmark;
+package com.jfirer.dson.benchmark.read;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfirer.dson.Dson;
+import com.jfirer.dson.benchmark.SmallObject;
 import com.jfirer.dson.reader.TypeReader;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;

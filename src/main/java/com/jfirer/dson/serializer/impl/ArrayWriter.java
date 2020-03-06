@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 public class ArrayWriter implements TypeWriter
 {
 
-    private JsonWriter serializer;
+    private JsonWriter jsonWriter;
     private ToJson     toJson;
 
     public ArrayWriter(JsonWriter serializer, Type type)
@@ -205,25 +205,31 @@ public class ArrayWriter implements TypeWriter
     class FinalElementTypeArrayToJson implements ToJson
     {
         private TypeWriter typeWriter;
+        private Type       componentType;
 
         @Override
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
-            for (Object element : (Object[]) array)
+            Object[]   elements   = (Object[]) array;
+            int        length     = elements.length;
+            TypeWriter typeWriter = this.typeWriter;
+            if (typeWriter == null)
             {
+                this.typeWriter = typeWriter = jsonWriter.get(componentType.getClass());
+            }
+            boolean hasComma = false;
+            for (int i = 0; i < length; i++)
+            {
+                Object element = elements[i];
                 if (element != null)
                 {
-                    if (typeWriter == null)
-                    {
-                        typeWriter = serializer.get(element.getClass());
-                    }
                     typeWriter.toJson(element, output);
                     output.append(',');
+                    hasComma = true;
                 }
             }
-            if (length != output.length())
+            if (hasComma)
             {
                 output.setLength(output.length() - 1);
             }
@@ -243,7 +249,7 @@ public class ArrayWriter implements TypeWriter
             {
                 if (element != null)
                 {
-                    serializer.toJson(element, output);
+                    jsonWriter.toJson(element, output);
                     output.append(',');
                 }
             }
@@ -258,7 +264,7 @@ public class ArrayWriter implements TypeWriter
     @Override
     public void initialize(JsonWriter serializer, Type type)
     {
-        this.serializer = serializer;
+        this.jsonWriter = serializer;
         if (type instanceof Class<?>)
         {
             Class<?> componentType = ((Class<?>) type).getComponentType();

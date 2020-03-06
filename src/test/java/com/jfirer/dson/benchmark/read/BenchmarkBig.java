@@ -1,9 +1,10 @@
-package com.jfirer.dson.benchmark;
+package com.jfirer.dson.benchmark.read;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfirer.dson.Dson;
 import com.jfirer.dson.NestData;
+import com.jfirer.dson.benchmark.BigData;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -26,8 +27,8 @@ public class BenchmarkBig
     @State(Scope.Benchmark)
     public static class ForTestData
     {
-        BigData      bigData;
-        String       content;
+        BigData bigData;
+        String  content;
         ObjectMapper mapper = new ObjectMapper();
 
         @Setup

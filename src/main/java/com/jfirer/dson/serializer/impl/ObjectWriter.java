@@ -37,7 +37,7 @@ public class ObjectWriter implements TypeWriter
                     Object str = each.valueAccessor.get(entity);
                     if (str != null)
                     {
-                        output.append('"').append(each.name).append("\":");
+                        output.append(each.fullName);
                         output.append('"');
                         WriterUtil.writeString(output, (String) str);
                         output.append("\",");
@@ -46,56 +46,56 @@ public class ObjectWriter implements TypeWriter
                 }
                 case CHAR:
                 {
-                    output.append('"').append(each.name).append("\":");
+                    output.append(each.fullName);
                     output.append('"').append(each.valueAccessor.getChar(entity));
                     output.append('"').append(',');
                     break;
                 }
                 case BOOL:
                 {
-                    output.append('"').append(each.name).append("\":");
+                    output.append(each.fullName);
                     output.append(each.valueAccessor.getBoolean(entity));
                     output.append(',');
                     break;
                 }
                 case INT:
                 {
-                    output.append('"').append(each.name).append("\":");
+                    output.append(each.fullName);
                     output.append(each.valueAccessor.getInt(entity));
                     output.append(',');
                     break;
                 }
                 case BYTE:
                 {
-                    output.append('"').append(each.name).append("\":");
+                    output.append(each.fullName);
                     output.append(each.valueAccessor.getByte(entity));
                     output.append(',');
                     break;
                 }
                 case LONG:
                 {
-                    output.append('"').append(each.name).append("\":");
+                    output.append(each.fullName);
                     output.append(each.valueAccessor.getLong(entity));
                     output.append(',');
                     break;
                 }
                 case FLOAT:
                 {
-                    output.append('"').append(each.name).append("\":");
+                    output.append(each.fullName);
                     output.append(each.valueAccessor.getFloat(entity));
                     output.append(',');
                     break;
                 }
                 case SHORT:
                 {
-                    output.append('"').append(each.name).append("\":");
+                    output.append(each.fullName);
                     output.append(each.valueAccessor.getShort(entity));
                     output.append(',');
                     break;
                 }
                 case DOUBLE:
                 {
-                    output.append('"').append(each.name).append("\":");
+                    output.append(each.fullName);
                     output.append(each.valueAccessor.getDouble(entity));
                     output.append(',');
                     break;
@@ -105,7 +105,7 @@ public class ObjectWriter implements TypeWriter
                     Object o = each.valueAccessor.get(entity);
                     if (o != null)
                     {
-                        output.append('"').append(each.name).append("\":");
+                        output.append(each.fullName);
                         each.typeWriter.toJson(o, output);
                         output.append(',');
                     }
@@ -121,7 +121,7 @@ public class ObjectWriter implements TypeWriter
                         {
                             each.typeWriter = typeWriter = jsonWriter.get(each.field.getGenericType());
                         }
-                        output.append('"').append(each.name).append("\":");
+                        output.append(each.fullName);
                         typeWriter.toJson(o, output);
                         output.append(',');
                     }
@@ -132,7 +132,7 @@ public class ObjectWriter implements TypeWriter
                     Object o = each.valueAccessor.get(entity);
                     if (o != null)
                     {
-                        output.append('"').append(each.name).append("\":");
+                        output.append(each.fullName);
                         jsonWriter.toJson(o, output);
                         output.append(',');
                     }
@@ -180,6 +180,7 @@ public class ObjectWriter implements TypeWriter
         TypeWriter    typeWriter;
         boolean       isString = false;
         String        name;
+        String        fullName;
     }
 
     enum PropertyType
@@ -207,6 +208,7 @@ public class ObjectWriter implements TypeWriter
             entry.valueAccessor = new ValueAccessor(field);
             entry.field = field;
             entry.name = field.getName();
+            entry.fullName = '"' + entry.name + '"' + ':';
             entries.add(entry);
             if (fieldType.isPrimitive())
             {

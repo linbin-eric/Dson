@@ -9,6 +9,7 @@ import com.jfirer.baseutil.smc.model.MethodModel;
 import com.jfirer.dson.serializer.JsonWriter;
 import com.jfirer.dson.serializer.TypeWriter;
 import com.jfirer.dson.strategy.SerializeDefinition;
+import com.jfirer.dson.util.WriterUtil;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -101,8 +102,9 @@ public class CompileObjectWriter implements TypeWriter
                 String argName = "_arg_" + count++;
                 methodBody.append("String ").append(argName).append(" = _target.").append(getMethodName(each)).append("();\r\n");
                 methodBody.append("if(").append(argName).append(" != null){\r\n");
-                methodBody.append("output.append(\"\\\"" + each.getName() + "\\\":\")");
-                methodBody.append(".append('\"').append(").append(argName).append(").append(\"\\\",\");\r\n");
+                methodBody.append("output.append(\"\\\"" + each.getName() + "\\\":\\\"\");");
+                methodBody.append(WriterUtil.class.getName()).append(".writeString(output,").append(argName).append(");\r\n");
+                methodBody.append("output.append(\"\\\",\");\r\n");
                 methodBody.append("}\r\n");
             }
             else if (Modifier.isFinal(each.getType().getModifiers()))

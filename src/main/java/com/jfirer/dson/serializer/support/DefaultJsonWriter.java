@@ -89,7 +89,7 @@ public class DefaultJsonWriter implements JsonWriter
                 }
                 else
                 {
-                    typeWriter = new CompileObjectWriter();
+                    typeWriter = new ObjectWriter();
                 }
             }
             typeWriter.initialize(this, type);
