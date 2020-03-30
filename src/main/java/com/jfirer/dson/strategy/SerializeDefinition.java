@@ -1,6 +1,6 @@
 package com.jfirer.dson.strategy;
 
-import com.jfirer.dson.serializer.TypeWriter;
+import com.jfirer.dson.writer.TypeWriter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

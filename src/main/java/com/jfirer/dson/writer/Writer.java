@@ -1,11 +1,7 @@
-package com.jfirer.dson.serializer;
+package com.jfirer.dson.writer;
 
-import java.lang.reflect.Type;
-
-public interface TypeWriter
+public interface Writer
 {
-    void initialize(JsonWriter writer, Type type);
-
     /**
      * 将对象json输出到output中
      *

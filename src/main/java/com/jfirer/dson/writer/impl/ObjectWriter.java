@@ -1,12 +1,12 @@
-package com.jfirer.dson.serializer.impl;
+package com.jfirer.dson.writer.impl;
 
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.ValueAccessor;
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
-import com.jfirer.dson.serializer.JsonWriter;
-import com.jfirer.dson.serializer.TypeWriter;
 import com.jfirer.dson.strategy.SerializeDefinition;
 import com.jfirer.dson.util.WriterUtil;
+import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.writer.TypeWriter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -18,6 +18,12 @@ public class ObjectWriter implements TypeWriter
 
     private Entry[]    entries;
     private JsonWriter jsonWriter;
+    private boolean    useCompile;
+
+    public ObjectWriter(boolean useCompile)
+    {
+        this.useCompile = useCompile;
+    }
 
     @Override
     public void toJson(Object entity, StringBuilder output)
@@ -140,9 +146,10 @@ public class ObjectWriter implements TypeWriter
                 }
             }
         }
-        if (length != output.length())
+        int newLength = output.length();
+        if (length != newLength)
         {
-            output.setLength(output.length() - 1);
+            output.setLength(newLength - 1);
         }
         output.append('}');
     }
@@ -178,7 +185,6 @@ public class ObjectWriter implements TypeWriter
         Field         field;
         PropertyType  type;
         TypeWriter    typeWriter;
-        boolean       isString = false;
         String        name;
         String        fullName;
     }
@@ -205,7 +211,14 @@ public class ObjectWriter implements TypeWriter
             }
             Class<?> fieldType = field.getType();
             Entry    entry     = new Entry();
-            entry.valueAccessor = new ValueAccessor(field);
+            if (useCompile)
+            {
+                entry.valueAccessor = ValueAccessor.create(field, new CompileHelper());
+            }
+            else
+            {
+                entry.valueAccessor = new ValueAccessor(field);
+            }
             entry.field = field;
             entry.name = field.getName();
             entry.fullName = '"' + entry.name + '"' + ':';

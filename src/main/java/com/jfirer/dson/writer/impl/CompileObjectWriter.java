@@ -1,4 +1,4 @@
-package com.jfirer.dson.serializer.impl;
+package com.jfirer.dson.writer.impl;
 
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.smc.SmcHelper;
@@ -6,8 +6,8 @@ import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.baseutil.smc.model.ClassModel;
 import com.jfirer.baseutil.smc.model.FieldModel;
 import com.jfirer.baseutil.smc.model.MethodModel;
-import com.jfirer.dson.serializer.JsonWriter;
-import com.jfirer.dson.serializer.TypeWriter;
+import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.writer.TypeWriter;
 import com.jfirer.dson.strategy.SerializeDefinition;
 import com.jfirer.dson.util.WriterUtil;
 

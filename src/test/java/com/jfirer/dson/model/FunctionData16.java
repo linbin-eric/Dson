@@ -1,7 +1,7 @@
 package com.jfirer.dson.model;
 
-import com.jfirer.dson.serializer.JsonWriter;
-import com.jfirer.dson.serializer.TypeWriter;
+import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.writer.TypeWriter;
 import com.jfirer.dson.strategy.SerializeDefinition;
 
 import java.lang.reflect.Type;

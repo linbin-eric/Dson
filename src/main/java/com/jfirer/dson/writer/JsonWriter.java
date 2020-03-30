@@ -1,9 +1,7 @@
-package com.jfirer.dson.serializer.support;
+package com.jfirer.dson.writer;
 
-import com.jfirer.dson.serializer.JsonWriter;
-import com.jfirer.dson.serializer.TypeWriter;
-import com.jfirer.dson.serializer.buildin.*;
-import com.jfirer.dson.serializer.impl.*;
+import com.jfirer.dson.writer.buildin.*;
+import com.jfirer.dson.writer.impl.*;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -14,11 +12,11 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultJsonWriter implements JsonWriter
+public class JsonWriter implements Writer
 {
     private ConcurrentHashMap<Type, TypeWriter> store = new ConcurrentHashMap<Type, TypeWriter>(256);
 
-    public DefaultJsonWriter()
+    public JsonWriter()
     {
         store.put(Integer.class, new IntegerWriter());
         store.put(Short.class, new ShortWriter());
@@ -42,7 +40,6 @@ public class DefaultJsonWriter implements JsonWriter
         store.put(String[].class, new ArrayWriter(this, String[].class));
     }
 
-    @Override
     public TypeWriter get(Type type)
     {
         TypeWriter typeWriter = store.get(type);
@@ -89,7 +86,7 @@ public class DefaultJsonWriter implements JsonWriter
                 }
                 else
                 {
-                    typeWriter = new ObjectWriter();
+                    typeWriter = new CompileObjectWriter();
                 }
             }
             typeWriter.initialize(this, type);
@@ -98,7 +95,6 @@ public class DefaultJsonWriter implements JsonWriter
         return typeWriter;
     }
 
-    @Override
     public void toJson(Object entity, StringBuilder output)
     {
         if (entity == null)

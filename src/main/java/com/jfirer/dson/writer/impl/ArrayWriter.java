@@ -1,10 +1,11 @@
-package com.jfirer.dson.serializer.impl;
+package com.jfirer.dson.writer.impl;
 
-import com.jfirer.dson.serializer.JsonWriter;
-import com.jfirer.dson.serializer.TypeWriter;
+import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.writer.TypeWriter;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 public class ArrayWriter implements TypeWriter
@@ -205,7 +206,13 @@ public class ArrayWriter implements TypeWriter
     class FinalElementTypeArrayToJson implements ToJson
     {
         private TypeWriter typeWriter;
-        private Type       componentType;
+        private Type componentType;
+
+        public FinalElementTypeArrayToJson(Type componentType)
+        {
+            this.componentType = componentType;
+        }
+
 
         @Override
         public void output(StringBuilder output, Object array)
@@ -216,7 +223,7 @@ public class ArrayWriter implements TypeWriter
             TypeWriter typeWriter = this.typeWriter;
             if (typeWriter == null)
             {
-                this.typeWriter = typeWriter = jsonWriter.get(componentType.getClass());
+                this.typeWriter = typeWriter = jsonWriter.get(componentType);
             }
             boolean hasComma = false;
             for (int i = 0; i < length; i++)
@@ -244,16 +251,17 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
+            boolean hasComma = false;
             for (Object element : (Object[]) array)
             {
                 if (element != null)
                 {
                     jsonWriter.toJson(element, output);
                     output.append(',');
+                    hasComma = true;
                 }
             }
-            if (length != output.length())
+            if (hasComma)
             {
                 output.setLength(output.length() - 1);
             }
@@ -306,7 +314,7 @@ public class ArrayWriter implements TypeWriter
             }
             else if (Modifier.isFinal(componentType.getModifiers()))
             {
-                toJson = new FinalElementTypeArrayToJson();
+                toJson = new FinalElementTypeArrayToJson(componentType);
             }
             else
             {
@@ -315,6 +323,21 @@ public class ArrayWriter implements TypeWriter
         }
         else if (type instanceof GenericArrayType)
         {
+            Type componentType = ((GenericArrayType) type).getGenericComponentType();
+            if (componentType instanceof ParameterizedType)
+            {
+                Type rawType = ((ParameterizedType) componentType).getRawType();
+                if (rawType instanceof Class && Modifier.isFinal(((Class) rawType).getModifiers()))
+                {
+                    toJson = new FinalElementTypeArrayToJson(componentType);
+                    return;
+                }
+            }
+            else if (componentType instanceof GenericArrayType)
+            {
+                toJson = new FinalElementTypeArrayToJson(componentType);
+                return;
+            }
             toJson = new UnFinalElementTypeArrayToJson();
         }
         else

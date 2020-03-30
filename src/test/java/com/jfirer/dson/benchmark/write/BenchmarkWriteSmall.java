@@ -3,8 +3,9 @@ package com.jfirer.dson.benchmark.write;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jfirer.dson.Dson;
 import com.jfirer.dson.benchmark.SmallObject;
+import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.writer.TypeWriter;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -21,8 +22,10 @@ public class BenchmarkWriteSmall
     @State(Scope.Benchmark)
     public static class Fortest
     {
-        SmallObject  smallData;
-        ObjectMapper mapper = new ObjectMapper();
+        SmallObject   smallData;
+        ObjectMapper  mapper     = new ObjectMapper();
+        JsonWriter    jsonWriter = new JsonWriter();
+        StringBuilder builder    = new StringBuilder();
 
         @Setup
         public void set()
@@ -67,8 +70,14 @@ public class BenchmarkWriteSmall
     @Benchmark
     public void testDson(Fortest fortest, Blackhole blackhole)
     {
-        String s = Dson.toJsonString(fortest.smallData);
-        blackhole.consume(s);
+        JsonWriter    jsonWriter = fortest.jsonWriter;
+        StringBuilder builder    = fortest.builder;
+        SmallObject   smallData  = fortest.smallData;
+        TypeWriter    typeWriter = jsonWriter.get(smallData.getClass());
+        typeWriter.toJson(smallData, builder);
+        String s1 = builder.toString();
+        builder.setLength(0);
+        blackhole.consume(s1);
     }
 
     public static void main(String[] args) throws RunnerException
@@ -76,7 +85,7 @@ public class BenchmarkWriteSmall
         Options opt = new OptionsBuilder().include(BenchmarkWriteSmall.class.getSimpleName())//
                 .warmupIterations(3).warmupTime(TimeValue.seconds(3))//
                 .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(3))//
-                .threads(1).forks(2).build();
+                .build();
         new Runner(opt).run();
     }
 }

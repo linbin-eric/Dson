@@ -1,7 +1,7 @@
-package com.jfirer.dson.serializer.impl;
+package com.jfirer.dson.writer.impl;
 
-import com.jfirer.dson.serializer.JsonWriter;
-import com.jfirer.dson.serializer.TypeWriter;
+import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.writer.TypeWriter;
 
 import java.lang.reflect.Type;
 

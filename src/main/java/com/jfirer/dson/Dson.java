@@ -3,8 +3,7 @@ package com.jfirer.dson;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
-import com.jfirer.dson.serializer.JsonWriter;
-import com.jfirer.dson.serializer.support.DefaultJsonWriter;
+import com.jfirer.dson.writer.JsonWriter;
 
 import java.lang.reflect.Type;
 
@@ -18,7 +17,7 @@ public class Dson
             return new StringBuilder();
         }
     };
-    private static       JsonWriter                 jsonWriter = new DefaultJsonWriter();
+    private static       JsonWriter                 jsonWriter = new JsonWriter();
     private static       JsonReader                 jsonReader = new JsonReader();
 
     public static String toJsonString(Object entity)
