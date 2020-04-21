@@ -98,7 +98,7 @@ public class BenchmarkBig
             lists[1].add("dasdasd1212121212asdasdasd");
             bigData.setLists(lists);
             bigData.setData(nestDatas2);
-            content = Dson.toJsonString(bigData);
+            content = Dson.toJson(bigData);
         }
     }
 
@@ -128,12 +128,19 @@ public class BenchmarkBig
         Object o = Dson.fromString(BigData.class, forTestData.content);
         blackhole.consume(o);
     }
+
+    @Benchmark
+    public void testCompile(ForTestData forTestData, Blackhole blackhole)
+    {
+        Object o = Dson.fromStringByCompile(BigData.class, forTestData.content);
+        blackhole.consume(o);
+    }
     public static void main(String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder().include(BenchmarkBig.class.getSimpleName())//
                 .warmupIterations(2).warmupTime(TimeValue.seconds(2))//
                 .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(2))//
-                .threads(1).forks(2).result("result.json").resultFormat(ResultFormatType.JSON).build();
+                .threads(1).forks(1).result("result.json").resultFormat(ResultFormatType.JSON).build();
         new Runner(opt).run();
     }
 }

@@ -115,7 +115,7 @@ public class Benchmark
     {
         int          count  = 1000000;
         ObjectMapper mapper = new ObjectMapper();
-        Dson.toJsonString(smallData);
+        Dson.toJson(smallData);
         JSON.toJSONString(smallData);
         mapper.writeValueAsString(smallData);
         Timewatch timewatch = new Timewatch();
@@ -129,7 +129,7 @@ public class Benchmark
         timewatch.start();
         for (int i = 0; i < count; i++)
         {
-            Dson.toJsonString(smallData);
+            Dson.toJson(smallData);
         }
         timewatch.end();
         logger.info("dson小对象序列化耗时：{}", timewatch.getTotal());
@@ -147,7 +147,7 @@ public class Benchmark
     {
         int          count  = 1000000;
         ObjectMapper mapper = new ObjectMapper();
-        String       value  = Dson.toJsonString(smallData);
+        String       value  = Dson.toJson(smallData);
         for (int i = 0; i < 100; i++)
         {
             Dson.fromString(SmallObject.class, value);
@@ -187,7 +187,7 @@ public class Benchmark
         int count = 1000000000;
         for (int i = 0; i < count; i++)
         {
-            Dson.toJsonString(smallData);
+            Dson.toJson(smallData);
         }
     }
 
@@ -197,7 +197,7 @@ public class Benchmark
         int          count  = 1000000;
         ObjectMapper mapper = new ObjectMapper();
         JSON.toJSONString(bigData);
-        Dson.toJsonString(bigData);
+        Dson.toJson(bigData);
         mapper.writeValueAsString(bigData);
         Timewatch timewatch = new Timewatch();
         timewatch.start();
@@ -210,7 +210,7 @@ public class Benchmark
         timewatch.start();
         for (int i = 0; i < count; i++)
         {
-            Dson.toJsonString(bigData);
+            Dson.toJson(bigData);
         }
         timewatch.end();
         logger.info("dson大对象序列化耗时：{}", timewatch.getTotal());
@@ -227,7 +227,7 @@ public class Benchmark
     public void bigParse() throws JsonParseException, JsonMappingException, IOException
     {
         int     count  = 300000;
-        String  value  = Dson.toJsonString(bigData);
+        String  value  = Dson.toJson(bigData);
         BigData result = JSON.parseObject(value, BigData.class);
         System.out.println(result.equal(bigData));
         result = Dson.fromString(BigData.class, value);

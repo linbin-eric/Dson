@@ -12,10 +12,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class JsonReader
 {
-    private ConcurrentHashMap<Type, TypeReader> readers = new ConcurrentHashMap<Type, TypeReader>();
+    private       ConcurrentHashMap<Type, TypeReader> readers = new ConcurrentHashMap<Type, TypeReader>();
+    private final boolean                             useCompile;
 
     public JsonReader()
     {
+        this(false);
+    }
+
+    public JsonReader(boolean useCompile)
+    {
+        this.useCompile = useCompile;
         readers.put(String.class, new StringReader());
         readers.put(Integer.class, new IntegerReader());
         readers.put(Long.class, new LongReader());
@@ -73,7 +80,14 @@ public class JsonReader
                 }
                 else
                 {
-                    typeReader = new ObjectReader();
+                    if (useCompile)
+                    {
+                        typeReader = new CompileObjectReader();
+                    }
+                    else
+                    {
+                        typeReader = new ObjectReader();
+                    }
                 }
             }
             typeReader.init(type, this);

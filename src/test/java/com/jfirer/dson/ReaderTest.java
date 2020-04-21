@@ -127,11 +127,11 @@ public class ReaderTest
         Map map2 = new HashMap();
         map2.put("121", 12);
         data.setUnknowType(map2);
-        String s = Dson.toJsonString(data);
+        String s = Dson.toJson(data);
         System.out.println(s);
         JsonReader jsonReader = new JsonReader();
         TypeReader typeReader = jsonReader.get(SimpleData.class);
         Object     o          = typeReader.fromString(new Stream(s));
-        System.out.println(Dson.toJsonString(o));
+        System.out.println(Dson.toJson(o));
     }
 }

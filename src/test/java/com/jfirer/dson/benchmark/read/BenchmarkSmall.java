@@ -44,13 +44,20 @@ public class BenchmarkSmall
         smallData.setE1("2ewaedasdas");
         smallData.setF(true);
         mapper = new ObjectMapper();
-        value = Dson.toJsonString(smallData);
+        value = Dson.toJson(smallData);
     }
 
     @Benchmark
     public void testNew(Blackhole blackhole)
     {
-        Object o = Dson.fromString(SmallObject.class,value);
+        Object o = Dson.fromString(SmallObject.class, value);
+        blackhole.consume(o);
+    }
+
+    @Benchmark
+    public void testCompile(Blackhole blackhole)
+    {
+        Object o = Dson.fromStringByCompile(SmallObject.class, value);
         blackhole.consume(o);
     }
 
@@ -80,7 +87,7 @@ public class BenchmarkSmall
         Options opt = new OptionsBuilder().include(BenchmarkSmall.class.getSimpleName())//
                 .warmupIterations(2).warmupTime(TimeValue.seconds(2))//
                 .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(2))//
-                .threads(1).forks(2).build();
+                .threads(1).forks(1).build();
         new Runner(opt).run();
     }
 }

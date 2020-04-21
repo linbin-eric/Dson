@@ -14,10 +14,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class JsonWriter implements Writer
 {
-    private ConcurrentHashMap<Type, TypeWriter> store = new ConcurrentHashMap<Type, TypeWriter>(256);
+    private       ConcurrentHashMap<Type, TypeWriter> store = new ConcurrentHashMap<Type, TypeWriter>(256);
+    private final boolean                             useCompile;
 
     public JsonWriter()
     {
+        this(false);
+    }
+
+    public JsonWriter(boolean useCompile)
+    {
+        this.useCompile = useCompile;
         store.put(Integer.class, new IntegerWriter());
         store.put(Short.class, new ShortWriter());
         store.put(Long.class, new LongWriter());
@@ -86,7 +93,14 @@ public class JsonWriter implements Writer
                 }
                 else
                 {
-                    typeWriter = new CompileObjectWriter();
+                    if (useCompile)
+                    {
+                        typeWriter = new CompileObjectWriter();
+                    }
+                    else
+                    {
+                        typeWriter = new ObjectWriter(false);
+                    }
                 }
             }
             typeWriter.initialize(this, type);
