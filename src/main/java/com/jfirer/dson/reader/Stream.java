@@ -290,6 +290,92 @@ public class Stream
         }
     }
 
+    /**
+     * 读取一个完整的值的内容体，但是以字符串的形式返回。所以返回的可能是数字，布尔，json数组，json结构体
+     *
+     * @return
+     */
+    public String getValueAsString()
+    {
+        char c     = ignoreSymbol();
+        int  start = offset;
+        if (c == Symbol.LEFT_BRACE.literals())
+        {
+            offset += 1;
+            while (parseObjectEnd() == false)
+            {
+                String name = getName();
+                skipColon();
+                map.put(name, readUnKnowType());
+                skipComma();
+            }
+            return map;
+        }
+        else if (c == Symbol.LEFT_BRACKET.literals())
+        {
+            offset += 1;
+            List list = new LinkedList();
+            while (parseArrayEnd() == false)
+            {
+                list.add(readUnKnowType());
+                skipComma();
+            }
+            return list;
+        }
+        else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+        {
+            String value = getString();
+            return value;
+        }
+        else if (c == 'T' || c == 't')
+        {
+            String value = new String(this.value, offset, 4);
+            if ("TRUE".equals(value) || "true".equals(value))
+            {
+                offset += 4;
+                return true;
+            }
+            else
+            {
+                throw new IllegalArgumentException();
+            }
+        }
+        else if (c == 'F' || c == 'f')
+        {
+            String value = new String(this.value, offset, 5);
+            if ("false".equals(value) || "FALSE".equals(value))
+            {
+                offset += 5;
+                return false;
+            }
+            else
+            {
+                throw new IllegalArgumentException();
+            }
+        }
+        else if (c == 'n' || c == 'N')
+        {
+            String value = new String(this.value, offset, 4);
+            if ("null".equals(value) || "NULL".equals(value))
+            {
+                offset += 4;
+                return null;
+            }
+            else
+            {
+                throw new IllegalArgumentException();
+            }
+        }
+        else if ((c >= '0' && c <= '9') || c == '-')
+        {
+            return getNumber();
+        }
+        else
+        {
+            throw new IllegalArgumentException("非法字符:" + c + ",当前解析进度:" + new String(this.value, offset, length - offset));
+        }
+    }
+
     public Object readUnKnowType()
     {
         char c = ignoreSymbol();
@@ -380,13 +466,22 @@ public class Stream
         {
             int numOfLeftBrace = 1;
             offset += 1;
+            boolean inStringState = false;
             while ((c = value[offset]) == Symbol.RIGHT_BRACE.literals() && numOfLeftBrace == 1)
             {
-                if (c == Symbol.LEFT_BRACKET.literals())
+                if (c == Symbol.DOUBLE_QUOTATION_MASK.literals() && inStringState == false)
+                {
+                    inStringState = true;
+                }
+                else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals() && inStringState)
+                {
+                    inStringState = false;
+                }
+                else if (inStringState==false && c == Symbol.LEFT_BRACKET.literals())
                 {
                     numOfLeftBrace++;
                 }
-                else if (c == Symbol.RIGHT_BRACE.literals())
+                else if (inStringState==false && c == Symbol.RIGHT_BRACE.literals())
                 {
                     numOfLeftBrace -= 1;
                 }
