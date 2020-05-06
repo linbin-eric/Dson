@@ -9,6 +9,7 @@ import com.jfirer.baseutil.smc.model.MethodModel;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
+import com.jfirer.dson.strategy.DeSerializeDefinition;
 import com.jfirer.dson.util.GetFieldType;
 
 import java.io.IOException;
@@ -138,8 +139,18 @@ public class CompileObjectReader implements TypeReader
                         FieldModel fieldModel = new FieldModel(fieldName, TypeReader.class, classModel);
                         classModel.addField(fieldModel);
                         body.append(SmcHelper.getReferenceName(TypeReader.class, classModel) + " typeReader = ").append(fieldName).append(";\r\n");
-                        body.append("if(typeReader==null){").append(fieldName).append("=").append("typeReader=jsonReader.get(GetFieldType.get("+SmcHelper.getReferenceName((Class<?>) type,classModel)+".class,\"").append(each.getName()).append("\"));}");
-                        body.append(hostName).append('.').append(method.getName()).append("(("+SmcHelper.getReferenceName(each.getType(),classModel)+")typeReader.fromString(stream));break;}\r\n");
+                        if (each.isAnnotationPresent(DeSerializeDefinition.class))
+                        {
+                            Class<? extends TypeReader> value = each.getAnnotation(DeSerializeDefinition.class).value();
+                            body.append("if(typeReader==null){\r\n").append("typeReader = new ").append(value.getName()).append("();\r\n");
+                            body.append("typeReader.init(GetFieldType.get(" + SmcHelper.getReferenceName((Class<?>) type, classModel) + ".class,\"").append(each.getName()).append("\"),jsonReader);\r\n");
+                            body.append(fieldName).append("=typeReader;\r\n}\r\n");
+                        }
+                        else
+                        {
+                            body.append("if(typeReader==null){").append(fieldName).append("=").append("typeReader=jsonReader.get(GetFieldType.get(" + SmcHelper.getReferenceName((Class<?>) type, classModel) + ".class,\"").append(each.getName()).append("\"));}");
+                        }
+                        body.append(hostName).append('.').append(method.getName()).append("((" + SmcHelper.getReferenceName(each.getType(), classModel) + ")typeReader.fromString(stream));break;}\r\n");
                     }
                     body.append("\r\n");
                 }

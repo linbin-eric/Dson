@@ -117,12 +117,24 @@ public class FunctionTestByCompile extends Support
 		data16.setTest(TestEnum.PUSH);
 		assertEquals("{\"test\":\"PUSH\"}", Dson.toJsonByCompile(data16));
 	}
-	
+
 	@Test
 	public void definitionTest()
 	{
 		FunctionData16 data16 = new FunctionData16();
 		data16.setName("111");
 		assertEquals("{\"name\":\"123\"}", Dson.toJsonByCompile(data16));
+	}
+
+	@Test
+	public void readStringTest()
+	{
+		FunctionData17 data17   = new FunctionData17();
+		BaseData       baseData = new BaseData();
+		data17.setValue(baseData);
+		String         json  = Dson.toJson(data17);
+		FunctionData17 o     = Dson.fromStringByCompile(FunctionData17.class, json);
+		String         value = (String) o.getValue();
+		assertEquals(value, Dson.toJson(baseData));
 	}
 }

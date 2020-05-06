@@ -6,6 +6,7 @@ import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
+import com.jfirer.dson.strategy.DeSerializeDefinition;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -102,6 +103,19 @@ public class ObjectReader implements TypeReader
                 else
                 {
                     primitiveType = PrimitiveType.NO;
+                    if (field.isAnnotationPresent(DeSerializeDefinition.class))
+                    {
+                        DeSerializeDefinition annotation = field.getAnnotation(DeSerializeDefinition.class);
+                        try
+                        {
+                            typeReader = annotation.value().newInstance();
+                            typeReader.init(field.getType(), jsonReader);
+                        }
+                        catch (Exception e)
+                        {
+                            ReflectUtil.throwException(e);
+                        }
+                    }
                 }
             }
         }
