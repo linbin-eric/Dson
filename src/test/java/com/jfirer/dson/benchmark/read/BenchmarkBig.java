@@ -10,7 +10,6 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.infra.Blackhole;
-import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -140,7 +139,7 @@ public class BenchmarkBig
         Options opt = new OptionsBuilder().include(BenchmarkBig.class.getSimpleName())//
                 .warmupIterations(2).warmupTime(TimeValue.seconds(2))//
                 .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(2))//
-                .threads(1).forks(1).result("result.json").resultFormat(ResultFormatType.JSON).build();
+                .threads(1).forks(1).build();
         new Runner(opt).run();
     }
 }

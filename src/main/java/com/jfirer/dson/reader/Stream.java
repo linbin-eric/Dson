@@ -1,5 +1,8 @@
 package com.jfirer.dson.reader;
 
+import com.jfirer.dson.reader.support.Entry;
+import com.jfirer.dson.reader.support.Node;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,14 +10,26 @@ import java.util.Map;
 
 public class Stream
 {
-    private       int    offset = 0;
-    private final int    length;
-    private final char[] value;
+    private       int                 offset = 0;
+    private final int                 length;
+    private final char[]              value;
+    static        ThreadLocal<char[]> buf    = ThreadLocal.withInitial(() -> new char[128]);
 
     public Stream(String str)
     {
         length = str.length();
-        value = str.toCharArray();
+        char[] value = buf.get();
+        if (str.length() < value.length)
+        {
+            str.getChars(0, str.length(), value, 0);
+        }
+        else
+        {
+            value = new char[str.length()];
+            buf.set(value);
+            str.getChars(0, str.length(), value, 0);
+        }
+        this.value = value;
     }
 
     public char ignoreSymbol()
@@ -24,9 +39,9 @@ public class Stream
         do
         {
             if (c == Symbol.BLANK.literals() //
-                    || c == Symbol.RETURN.literals()//
-                    || c == Symbol.NEWLINE.literals()//
-                    || c == Symbol.TAB.literals())
+                || c == Symbol.RETURN.literals()//
+                || c == Symbol.NEWLINE.literals()//
+                || c == Symbol.TAB.literals())
             {
                 offset += 1;
                 c = value[offset];
@@ -35,7 +50,8 @@ public class Stream
             {
                 return c;
             }
-        } while (offset < length);
+        }
+        while (offset < length);
         return c;
     }
 
@@ -70,7 +86,8 @@ public class Stream
             {
                 offset += 1;
             }
-        } while (offset < length);
+        }
+        while (offset < length);
         String result = new String(value, start, offset - start);
         offset += 1;
         this.offset = offset;
@@ -106,7 +123,8 @@ public class Stream
             {
                 break;
             }
-        } while (offset < length);
+        }
+        while (offset < length);
         if (offset == length)
         {
             throw new IllegalArgumentException();
@@ -148,7 +166,8 @@ public class Stream
             {
                 break;
             }
-        } while (offset < length);
+        }
+        while (offset < length);
         if (offset == length)
         {
             throw new IllegalArgumentException();
@@ -202,6 +221,41 @@ public class Stream
         {
             return false;
         }
+    }
+
+    public Entry getName(Node node)
+    {
+        char c = value[offset];
+        if (c != Symbol.DOUBLE_QUOTATION_MASK.literals())
+        {
+            throwExecption();
+        }
+        offset += 1;
+        int start = offset;
+        do
+        {
+            c = value[offset];
+            if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+            {
+                if (value[offset - 1] == '\\')
+                {
+                    node = node.getNext(c);
+                    offset += 1;
+                }
+                else
+                {
+                    offset += 1;
+                    return node.getEntry();
+                }
+            }
+            else
+            {
+                node = node.getNext(c);
+                offset += 1;
+            }
+        }
+        while (offset < length);
+        return null;
     }
 
     public String getName()
@@ -272,7 +326,8 @@ public class Stream
             {
                 break;
             }
-        } while (offset < length);
+        }
+        while (offset < length);
         if (offset == length)
         {
             throwExecption();
@@ -281,13 +336,15 @@ public class Stream
         return new String(value, begin, offset - begin);
     }
 
-    public void skipComma()
+    public boolean skipComma()
     {
         char c = ignoreSymbol();
         if (c == Symbol.COMMA.literals())
         {
             offset += 1;
+            return true;
         }
+        return false;
     }
 
     public Object readUnKnowType()

@@ -1,11 +1,11 @@
 package com.jfirer.dson.benchmark;
 
-import java.io.IOException;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.openjdk.jmh.annotations.State;
+
+import java.io.IOException;
 
 public class SmallObject
 {
@@ -13,11 +13,11 @@ public class SmallObject
 	private String	name;
 	private String	location;
 	private short	s;
-	private int		a;
-	private float	b;
 	private double	c;
 	private long	d;
 	private char	e;
+	private int		a;
+	private float	b;
 	private boolean	f;
 	private short	g;
 	private byte	h;

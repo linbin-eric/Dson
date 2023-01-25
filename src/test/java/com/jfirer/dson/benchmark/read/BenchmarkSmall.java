@@ -4,11 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfirer.dson.Dson;
 import com.jfirer.dson.benchmark.SmallObject;
+import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -18,62 +16,68 @@ import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.io.IOException;
 
-@State(Scope.Thread)
 public class BenchmarkSmall
 {
-    private SmallObject smallData;
-    String       value;
-    ObjectMapper mapper;
-    TypeReader   typeReader;
-
-    @Setup
-    public void before()
+    @State(Scope.Benchmark)
+    public static class SmallData
     {
-        typeReader = Dson.get(SmallObject.class);
-        smallData = new SmallObject();
-        smallData.setA(1);
-        smallData.setA1(12);
-        smallData.setAge(12);
-        smallData.setB(5.6f);
-        smallData.setB1(2.36f);
-        smallData.setC(2.3659);
-        smallData.setC1(2.3656);
-        smallData.setD(56676416847694l);
-        smallData.setD1(12312312l);
-        smallData.setE('e');
-        smallData.setE1("2ewaedasdas");
-        smallData.setF(true);
-        mapper = new ObjectMapper();
-        value = Dson.toJson(smallData);
+        private SmallObject smallData;
+        String       value;
+        ObjectMapper mapper;
+        TypeReader   typeReader;
+
+        @Setup(Level.Trial)
+        public void before()
+        {
+            typeReader = Dson.get(SmallObject.class);
+            smallData = new SmallObject();
+            smallData.setA(1);
+            smallData.setA1(12);
+            smallData.setAge(12);
+            smallData.setB(5.6f);
+            smallData.setB1(2.36f);
+            smallData.setC(2.3659);
+            smallData.setC1(2.3656);
+            smallData.setD(56676416847694l);
+            smallData.setD1(12312312l);
+            smallData.setE('e');
+            smallData.setE1("2ewaedasdas");
+            smallData.setF(true);
+            mapper = new ObjectMapper();
+            value = """
+                       {"s":0,"a1":12,"a":1,"age":12,"b":5.6,"b1":2.36,"c":2.3659,"c1":2.3656,"d":56676416847694,"d1":12312312,"e":"e","e1":"2ewaedasdas","f":true,"g":0,"h":0}
+                       """;
+        }
     }
 
     @Benchmark
-    public void testNew(Blackhole blackhole)
+    public void testNew(Blackhole blackhole, SmallData smallData)
     {
-        Object o = Dson.fromString(SmallObject.class, value);
+//        Object o = Dson.fromString(SmallObject.class, smallData.value);
+        Object o = smallData.typeReader.fromString(new Stream(smallData.value));
         blackhole.consume(o);
     }
 
     @Benchmark
-    public void testCompile(Blackhole blackhole)
+    public void testCompile(Blackhole blackhole, SmallData smallData)
     {
-        Object o = Dson.fromStringByCompile(SmallObject.class, value);
+        Object o = Dson.fromStringByCompile(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
     @Benchmark
-    public void testFastJson(Blackhole blackhole)
+    public void testFastJson(Blackhole blackhole, SmallData smallData)
     {
-        SmallObject smallObject = JSON.parseObject(value, SmallObject.class);
+        SmallObject smallObject = JSON.parseObject(smallData.value, SmallObject.class);
         blackhole.consume(smallObject);
     }
 
     @Benchmark
-    public void testJackson(Blackhole blackhole)
+    public void testJackson(Blackhole blackhole, SmallData smallData)
     {
         try
         {
-            SmallObject smallObject = mapper.readValue(value, SmallObject.class);
+            SmallObject smallObject = smallData.mapper.readValue(smallData.value, SmallObject.class);
             blackhole.consume(smallObject);
         }
         catch (IOException e)
@@ -85,9 +89,10 @@ public class BenchmarkSmall
     public static void main(String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder().include(BenchmarkSmall.class.getSimpleName())//
-                .warmupIterations(2).warmupTime(TimeValue.seconds(2))//
-                .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(2))//
-                .threads(1).forks(1).build();
+                                          .warmupIterations(2).warmupTime(TimeValue.seconds(2))//
+                                          .measurementIterations(3).forks(1)//
+                                          .measurementTime(TimeValue.seconds(2))//
+                                          .threads(1).forks(1).build();
         new Runner(opt).run();
     }
 }

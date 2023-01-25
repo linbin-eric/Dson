@@ -24,7 +24,7 @@ public class BenchmarkWriteSmall
     {
         SmallObject   smallData;
         ObjectMapper  mapper     = new ObjectMapper();
-        JsonWriter    jsonWriter = new JsonWriter();
+        JsonWriter    jsonWriter = new JsonWriter(true);
         StringBuilder builder    = new StringBuilder();
 
         @Setup

@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jfirer.baseutil.time.Timewatch;
 import com.jfirer.dson.Dson;
 import com.jfirer.dson.NestData;
-import com.jfirer.baseutil.time.Timewatch;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -181,15 +181,6 @@ public class Benchmark
         logger.info("jackson2小json反序列化耗时：{}", timewatch.getTotal());
     }
 
-    @Test
-    public void longrun()
-    {
-        int count = 1000000000;
-        for (int i = 0; i < count; i++)
-        {
-            Dson.toJson(smallData);
-        }
-    }
 
     @Test
     public void big() throws JsonProcessingException

@@ -3,6 +3,7 @@ package com.jfirer.dson;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -133,5 +134,6 @@ public class ReaderTest
         TypeReader typeReader = jsonReader.get(SimpleData.class);
         Object     o          = typeReader.fromString(new Stream(s));
         System.out.println(Dson.toJson(o));
+        Assert.assertEquals(s,Dson.toJson(o));
     }
 }
