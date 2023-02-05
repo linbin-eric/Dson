@@ -231,7 +231,6 @@ public class Stream
             throwExecption();
         }
         offset += 1;
-        int start = offset;
         do
         {
             c = value[offset];
@@ -251,6 +250,31 @@ public class Stream
             else
             {
                 node = node.getNext(c);
+                offset += 1;
+            }
+        }
+        while (offset < length && node != null);
+        if (offset == length)
+        {
+            return null;
+        }
+        do
+        {
+            c = value[offset];
+            if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+            {
+                if (value[offset - 1] == '\\')
+                {
+                    offset += 1;
+                }
+                else
+                {
+                    offset += 1;
+                    return null;
+                }
+            }
+            else
+            {
                 offset += 1;
             }
         }
@@ -306,6 +330,7 @@ public class Stream
 
     private String getNumberString()
     {
+        ignoreSymbol();
         char[] value  = this.value;
         int    length = this.length;
         int    offset = this.offset;
@@ -342,6 +367,7 @@ public class Stream
         if (c == Symbol.COMMA.literals())
         {
             offset += 1;
+            ignoreSymbol();
             return true;
         }
         return false;
@@ -461,7 +487,7 @@ public class Stream
                     {
                         inStringState = true;
                     }
-                    else if (c == Symbol.LEFT_BRACKET.literals())
+                    else if (c == Symbol.LEFT_BRACE.literals())
                     {
                         numOfLeftBrace++;
                     }

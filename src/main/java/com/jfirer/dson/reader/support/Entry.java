@@ -69,6 +69,10 @@ public class Entry
         {
             methodModel.setBody(instanceName + "set" + fieldName.toUpperCase().charAt(0) + fieldName.substring(1) + "(stream.getDouble());");
         }
+        else if (fieldType == String.class)
+        {
+            methodModel.setBody(instanceName + "set" + fieldName.toUpperCase().charAt(0) + fieldName.substring(1) + "(stream.getStringValue());");
+        }
         else
         {
             if (field.isAnnotationPresent(DeSerializeDefinition.class))
@@ -150,6 +154,10 @@ public class Entry
         else if (fieldType == double.class || fieldType == Double.class)
         {
             primitiveType = PrimitiveType.DOUBLE;
+        }
+        else if (fieldType == String.class)
+        {
+            primitiveType = PrimitiveType.STRING;
         }
         else
         {

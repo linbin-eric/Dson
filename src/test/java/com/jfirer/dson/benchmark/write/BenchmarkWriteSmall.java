@@ -3,6 +3,7 @@ package com.jfirer.dson.benchmark.write;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jfirer.dson.Dson;
 import com.jfirer.dson.benchmark.SmallObject;
 import com.jfirer.dson.writer.JsonWriter;
 import com.jfirer.dson.writer.TypeWriter;
@@ -80,12 +81,19 @@ public class BenchmarkWriteSmall
         blackhole.consume(s1);
     }
 
+    @Benchmark
+    public String testDsonCompile(Fortest fortest)
+    {
+        String s = Dson.toJsonByCompile(fortest.smallData);
+        return s;
+    }
+
     public static void main(String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder().include(BenchmarkWriteSmall.class.getSimpleName())//
-                .warmupIterations(3).warmupTime(TimeValue.seconds(3))//
-                .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(3))//
-                .build();
+                                          .warmupIterations(3).warmupTime(TimeValue.seconds(3))//
+                                          .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(3))//
+                                          .build();
         new Runner(opt).run();
     }
 }

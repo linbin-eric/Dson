@@ -53,8 +53,7 @@ public class BenchmarkSmall
     @Benchmark
     public void testNew(Blackhole blackhole, SmallData smallData)
     {
-//        Object o = Dson.fromString(SmallObject.class, smallData.value);
-        Object o = smallData.typeReader.fromString(new Stream(smallData.value));
+        Object o = Dson.fromString(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
