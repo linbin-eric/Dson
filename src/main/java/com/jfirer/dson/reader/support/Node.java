@@ -82,6 +82,31 @@ public class Node
         }
     }
 
+    public static Node generateLambdaRoot(Class ckass, JsonReader jsonReader)
+    {
+        Map<String, Field> map = new HashMap<String, Field>();
+        while (ckass != Object.class)
+        {
+            Field[] fields = ckass.getDeclaredFields();
+            for (Field each : fields)
+            {
+                int modifiers = each.getModifiers();
+                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers))
+                {
+                    continue;
+                }
+                map.putIfAbsent(each.getName(), each);
+            }
+            ckass = ckass.getSuperclass();
+        }
+        Node rootNode = new Node();
+        for (Map.Entry<String, Field> each : map.entrySet())
+        {
+            rootNode.put(each.getKey(), new Entry( each.getValue(), jsonReader));
+        }
+        return rootNode;
+    }
+
     public static Node generateRoot(Class ckass, JsonReader jsonReader, CompileHelper compileHelper)
     {
         Map<String, Field> map = new HashMap<String, Field>();
@@ -121,5 +146,4 @@ public class Node
         }
         return rootNode;
     }
-
 }

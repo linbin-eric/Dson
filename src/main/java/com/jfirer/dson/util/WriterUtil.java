@@ -14,6 +14,14 @@ public class WriterUtil
             {
                 output.append("\\\"");
             }
+            else if (c == '\r')
+            {
+                output.append("\\r");
+            }
+            else if (c == '\n')
+            {
+                output.append("\\n");
+            }
             else if (c == '\\')
             {
                 output.append('\\').append('\\');

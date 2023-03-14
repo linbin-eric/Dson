@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfirer.dson.Dson;
 import com.jfirer.dson.benchmark.SmallObject;
-import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -45,8 +44,8 @@ public class BenchmarkSmall
             smallData.setF(true);
             mapper = new ObjectMapper();
             value = """
-                       {"s":0,"a1":12,"a":1,"age":12,"b":5.6,"b1":2.36,"c":2.3659,"c1":2.3656,"d":56676416847694,"d1":12312312,"e":"e","e1":"2ewaedasdas","f":true,"g":0,"h":0}
-                       """;
+                    {"s":0,"a1":12,"a":1,"age":12,"b":5.6,"b1":2.36,"c":2.3659,"c1":2.3656,"d":56676416847694,"d1":12312312,"e":"e","e1":"2ewaedasdas","f":true,"g":0,"h":0}
+                    """;
         }
     }
 
@@ -61,6 +60,13 @@ public class BenchmarkSmall
     public void testCompile(Blackhole blackhole, SmallData smallData)
     {
         Object o = Dson.fromStringByCompile(SmallObject.class, smallData.value);
+        blackhole.consume(o);
+    }
+
+    @Benchmark
+    public void testLambda(Blackhole blackhole, SmallData smallData)
+    {
+        Object o = Dson.fromStringByLambda(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 

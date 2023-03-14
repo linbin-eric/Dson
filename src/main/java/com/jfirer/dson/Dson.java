@@ -10,12 +10,12 @@ import java.util.function.BiConsumer;
 
 public class Dson
 {
-
     private static final ThreadLocal<StringBuilder> LOCAL               = ThreadLocal.withInitial(() -> new StringBuilder());
     private static final JsonWriter                 JSONWRITER          = new JsonWriter();
     private static final JsonWriter                 JSON_WRITER_COMPILE = new JsonWriter(true);
     private static final JsonReader                 JSONREADER          = new JsonReader();
     private static final JsonReader                 JSON_READER_COMPILE = new JsonReader(true);
+    private static final JsonReader                 JSON_READER_LAMBDA  = new JsonReader(1);
 
     public static String toJson(Object entity)
     {
@@ -45,6 +45,11 @@ public class Dson
     public static <T> T fromStringByCompile(Type type, String str)
     {
         return (T) JSON_READER_COMPILE.get(type).fromString(new Stream(str));
+    }
+
+    public static <T> T fromStringByLambda(Type type, String str)
+    {
+        return (T) JSON_READER_LAMBDA.get(type).fromString(new Stream(str));
     }
 
     public static Object fromString(String str)

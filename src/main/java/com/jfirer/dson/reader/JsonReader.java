@@ -12,8 +12,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class JsonReader
 {
-    private       ConcurrentHashMap<Type, TypeReader> readers = new ConcurrentHashMap<Type, TypeReader>();
+    private       ConcurrentHashMap<Type, TypeReader> readers   = new ConcurrentHashMap<Type, TypeReader>();
     private final boolean                             useCompile;
+    private       int                                 useLambda = 0;
+
+    public JsonReader(int useLambda)
+    {
+        this(false);
+        this.useLambda = useLambda;
+    }
 
     public JsonReader()
     {
@@ -74,6 +81,10 @@ public class JsonReader
                 {
                     typeReader = new MapReader();
                 }
+                else if (Enum.class.isAssignableFrom(rawType))
+                {
+                    typeReader = new EnumNameReader();
+                }
                 else if (rawType == Object.class)
                 {
                     typeReader = new UnKnowTypeReader();
@@ -86,7 +97,14 @@ public class JsonReader
                     }
                     else
                     {
-                        typeReader = new ObjectReader();
+                        if (useLambda == 1)
+                        {
+                            typeReader = new LambdaObjectReader();
+                        }
+                        else
+                        {
+                            typeReader = new ObjectReader();
+                        }
                     }
                 }
             }
