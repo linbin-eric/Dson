@@ -357,7 +357,21 @@ public class Entry
         this.name = name;
         valueAccessor = new ValueAccessor(field);
         Class fieldType = field.getType();
-        if (fieldType == int.class || fieldType == Integer.class)
+        if (field.isAnnotationPresent(DeSerializeDefinition.class))
+        {
+            primitiveType = PrimitiveType.NO;
+            DeSerializeDefinition annotation = field.getAnnotation(DeSerializeDefinition.class);
+            try
+            {
+                typeReader = annotation.value().newInstance();
+                typeReader.init(field.getType(), jsonReader);
+            }
+            catch (Exception e)
+            {
+                ReflectUtil.throwException(e);
+            }
+        }
+        else if (fieldType == int.class || fieldType == Integer.class)
         {
             primitiveType = PrimitiveType.INT;
         }
@@ -396,23 +410,7 @@ public class Entry
         else
         {
             primitiveType = PrimitiveType.NO;
-            if (field.isAnnotationPresent(DeSerializeDefinition.class))
-            {
-                DeSerializeDefinition annotation = field.getAnnotation(DeSerializeDefinition.class);
-                try
-                {
-                    typeReader = annotation.value().newInstance();
-                    typeReader.init(field.getType(), jsonReader);
-                }
-                catch (Exception e)
-                {
-                    ReflectUtil.throwException(e);
-                }
-            }
-            else
-            {
-                typeReader = jsonReader.get(field.getGenericType());
-            }
+            typeReader = jsonReader.get(field.getGenericType());
         }
     }
 

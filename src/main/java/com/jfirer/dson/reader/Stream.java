@@ -466,7 +466,6 @@ public class Stream
     {
         char   c      = ignoreSymbol();
         char[] value  = this.value;
-        int    offset = this.offset;
         if (c == Symbol.LEFT_BRACE.literals())
         {
             int numOfLeftBrace = 1;
@@ -558,7 +557,6 @@ public class Stream
         {
             skipNumber();
         }
-        this.offset = offset;
     }
 
     private void throwExecption()
