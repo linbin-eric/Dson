@@ -1,5 +1,6 @@
 package com.jfirer.dson.writer.impl;
 
+import com.jfirer.baseutil.reflect.CompileValueAccessor;
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.ValueAccessor;
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
@@ -15,7 +16,6 @@ import java.util.*;
 
 public class ObjectWriter implements TypeWriter
 {
-
     private Entry[]    entries;
     private JsonWriter jsonWriter;
     private boolean    useCompile;
@@ -38,7 +38,7 @@ public class ObjectWriter implements TypeWriter
         {
             switch (each.type)
             {
-                case STRING:
+                case STRING ->
                 {
                     Object str = each.valueAccessor.get(entity);
                     if (str != null)
@@ -48,65 +48,56 @@ public class ObjectWriter implements TypeWriter
                         WriterUtil.writeString(output, (String) str);
                         output.append("\",");
                     }
-                    break;
                 }
-                case CHAR:
+                case CHAR ->
                 {
                     output.append(each.fullName);
                     output.append('"').append(each.valueAccessor.getChar(entity));
                     output.append('"').append(',');
-                    break;
                 }
-                case BOOL:
+                case BOOL ->
                 {
                     output.append(each.fullName);
                     output.append(each.valueAccessor.getBoolean(entity));
                     output.append(',');
-                    break;
                 }
-                case INT:
+                case INT ->
                 {
                     output.append(each.fullName);
                     output.append(each.valueAccessor.getInt(entity));
                     output.append(',');
-                    break;
                 }
-                case BYTE:
+                case BYTE ->
                 {
                     output.append(each.fullName);
                     output.append(each.valueAccessor.getByte(entity));
                     output.append(',');
-                    break;
                 }
-                case LONG:
+                case LONG ->
                 {
                     output.append(each.fullName);
                     output.append(each.valueAccessor.getLong(entity));
                     output.append(',');
-                    break;
                 }
-                case FLOAT:
+                case FLOAT ->
                 {
                     output.append(each.fullName);
                     output.append(each.valueAccessor.getFloat(entity));
                     output.append(',');
-                    break;
                 }
-                case SHORT:
+                case SHORT ->
                 {
                     output.append(each.fullName);
                     output.append(each.valueAccessor.getShort(entity));
                     output.append(',');
-                    break;
                 }
-                case DOUBLE:
+                case DOUBLE ->
                 {
                     output.append(each.fullName);
                     output.append(each.valueAccessor.getDouble(entity));
                     output.append(',');
-                    break;
                 }
-                case CUSTOM:
+                case CUSTOM ->
                 {
                     Object o = each.valueAccessor.get(entity);
                     if (o != null)
@@ -115,9 +106,8 @@ public class ObjectWriter implements TypeWriter
                         each.typeWriter.toJson(o, output);
                         output.append(',');
                     }
-                    break;
                 }
-                case FINAL_OBJECT:
+                case FINAL_OBJECT ->
                 {
                     Object o = each.valueAccessor.get(entity);
                     if (o != null)
@@ -131,9 +121,8 @@ public class ObjectWriter implements TypeWriter
                         typeWriter.toJson(o, output);
                         output.append(',');
                     }
-                    break;
                 }
-                case NOT_FINAL_OBJECT:
+                case NOT_FINAL_OBJECT ->
                 {
                     Object o = each.valueAccessor.get(entity);
                     if (o != null)
@@ -142,7 +131,6 @@ public class ObjectWriter implements TypeWriter
                         jsonWriter.toJson(o, output);
                         output.append(',');
                     }
-                    break;
                 }
             }
         }
@@ -192,8 +180,17 @@ public class ObjectWriter implements TypeWriter
     enum PropertyType
     {
         STRING,//
-        INT, BYTE, SHORT, LONG, FLOAT, DOUBLE, BOOL, CHAR,//
-        CUSTOM, NOT_FINAL_OBJECT, FINAL_OBJECT
+        INT,
+        BYTE,
+        SHORT,
+        LONG,
+        FLOAT,
+        DOUBLE,
+        BOOL,
+        CHAR,//
+        CUSTOM,
+        NOT_FINAL_OBJECT,
+        FINAL_OBJECT
     }
 
     private CompileHelper compileHelper = new CompileHelper();
@@ -213,7 +210,7 @@ public class ObjectWriter implements TypeWriter
             Entry    entry     = new Entry();
             if (useCompile)
             {
-                entry.valueAccessor = ValueAccessor.create(field, new CompileHelper());
+                entry.valueAccessor = CompileValueAccessor.create(field, new CompileHelper());
             }
             else
             {

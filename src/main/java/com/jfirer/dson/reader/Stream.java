@@ -456,6 +456,7 @@ public class Stream
 
     public String getWholeValueAsString()
     {
+        ignoreSymbol();
         int start = this.offset;
         skipWholeValue();
         int end = this.offset;
@@ -464,14 +465,14 @@ public class Stream
 
     public void skipWholeValue()
     {
-        char   c      = ignoreSymbol();
-        char[] value  = this.value;
+        char   c     = ignoreSymbol();
+        char[] value = this.value;
         if (c == Symbol.LEFT_BRACE.literals())
         {
             int numOfLeftBrace = 1;
             offset += 1;
             boolean inStringState = false;
-            while (((c = value[offset]) == Symbol.RIGHT_BRACE.literals() && numOfLeftBrace == 1) == false)
+            while (((c = value[offset]) == Symbol.RIGHT_BRACE.literals() && numOfLeftBrace == 1 && inStringState == false) == false)
             {
                 if (inStringState)
                 {
@@ -504,7 +505,7 @@ public class Stream
             int numOfLeftBracket = 1;
             offset += 1;
             boolean inStringState = false;
-            while (((c = value[offset]) == Symbol.RIGHT_BRACKET.literals() && numOfLeftBracket == 1) == false)
+            while (((c = value[offset]) == Symbol.RIGHT_BRACKET.literals() && inStringState == false && numOfLeftBracket == 1) == false)
             {
                 if (inStringState)
                 {
