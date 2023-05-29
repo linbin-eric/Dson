@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -273,6 +274,9 @@ public class FunctionTest extends Support
                          }
                          """;
         Dson.fromString(Data.class, content);
+        List<String> list = (List<String>) Dson.fromStringByAttribute("list", new TypeUtil<ArrayList<String>>() {}.getType(), content);
+        assertEquals(2, list.size());
+        assertEquals("siudsan", list.get(1));
     }
 
     @Test
@@ -281,6 +285,6 @@ public class FunctionTest extends Support
         String content = """
                          {"csss":"hhh"}
                          """;
-        Dson.fromString(BaseData.class,content);
+        Dson.fromString(BaseData.class, content);
     }
 }

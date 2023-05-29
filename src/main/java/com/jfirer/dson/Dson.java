@@ -57,6 +57,29 @@ public class Dson
         return JSONREADER.get(Object.class).fromString(new Stream(str));
     }
 
+    public static Object fromStringByAttribute(String attribute, Type type, String str)
+    {
+        TypeReader typeReader = JSONREADER.get(type);
+        Stream     stream     = new Stream(str);
+        stream.startParseObject();
+        boolean skipComma = false;
+        while (skipComma || stream.parseObjectEnd() == false)
+        {
+            String name = stream.getName();
+            stream.skipColon();
+            if (name.equals(attribute))
+            {
+                return typeReader.fromString(stream);
+            }
+            else
+            {
+                stream.skipWholeValue();
+            }
+            skipComma = stream.skipComma();
+        }
+        return null;
+    }
+
     public static TypeReader get(Type type)
     {
         return JSONREADER.get(type);
