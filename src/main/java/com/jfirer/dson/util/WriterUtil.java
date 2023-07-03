@@ -26,6 +26,10 @@ public class WriterUtil
             {
                 output.append('\\').append('\\');
             }
+            else if (c == '\t')
+            {
+                output.append("\\t");
+            }
             else
             {
                 output.append(c);
