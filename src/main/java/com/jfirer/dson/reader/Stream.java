@@ -50,8 +50,7 @@ public class Stream
             {
                 return c;
             }
-        }
-        while (offset < length);
+        } while (offset < length);
         return c;
     }
 
@@ -86,8 +85,7 @@ public class Stream
             {
                 offset += 1;
             }
-        }
-        while (offset < length);
+        } while (offset < length);
         String result = new String(value, start, offset - start);
         offset += 1;
         this.offset = offset;
@@ -123,8 +121,7 @@ public class Stream
             {
                 break;
             }
-        }
-        while (offset < length);
+        } while (offset < length);
         if (offset == length)
         {
             throw new IllegalArgumentException();
@@ -166,8 +163,7 @@ public class Stream
             {
                 break;
             }
-        }
-        while (offset < length);
+        } while (offset < length);
         if (offset == length)
         {
             throw new IllegalArgumentException();
@@ -252,8 +248,7 @@ public class Stream
                 node = node.getNext(c);
                 offset += 1;
             }
-        }
-        while (offset < length && node != null);
+        } while (offset < length && node != null);
         if (offset == length)
         {
             return null;
@@ -277,8 +272,7 @@ public class Stream
             {
                 offset += 1;
             }
-        }
-        while (offset < length);
+        } while (offset < length);
         return null;
     }
 
@@ -351,8 +345,7 @@ public class Stream
             {
                 break;
             }
-        }
-        while (offset < length);
+        } while (offset < length);
         if (offset == length)
         {
             throwExecption();
@@ -536,7 +529,7 @@ public class Stream
         else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
         {
             offset += 1;
-            while (value[offset] != Symbol.DOUBLE_QUOTATION_MASK.literals())
+            while (value[offset] != Symbol.DOUBLE_QUOTATION_MASK.literals() || value[offset - 1] == '\\')
             {
                 offset += 1;
             }
@@ -655,5 +648,10 @@ public class Stream
     public Double getWDouble()
     {
         return Double.valueOf(getNumberString());
+    }
+
+    public String errorPosition()
+    {
+        return offset + 20 > length ? new String(value, offset, length - offset) : new String(value, offset, 20);
     }
 }

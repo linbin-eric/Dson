@@ -1,6 +1,5 @@
 package com.jfirer.dson.reader.impl;
 
-import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
@@ -19,7 +18,7 @@ public class ObjectReader implements TypeReader
     public void init(Type type, JsonReader jsonReader)
     {
         this.ckass = (Class) type;
-        rootNode = Node.generateRoot(ckass, jsonReader, null);
+        rootNode   = Node.generateRoot(ckass, jsonReader, null);
     }
 
     @Override
@@ -48,8 +47,7 @@ public class ObjectReader implements TypeReader
         }
         catch (Exception e)
         {
-            ReflectUtil.throwException(e);
-            return null;
+            throw new IllegalStateException("当前出错的位置是:" + stream.errorPosition(), e);
         }
     }
 }
