@@ -447,4 +447,10 @@ public class Entry
             case NO -> valueAccessor.setObject(instance, typeReader.fromString(stream));
         }
     }
+
+    @Override
+    public String toString()
+    {
+        return name;
+    }
 }

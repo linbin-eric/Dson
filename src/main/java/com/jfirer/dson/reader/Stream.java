@@ -562,7 +562,7 @@ public class Stream
     {
         if (ignoreSymbol() != Symbol.DOUBLE_QUOTATION_MASK.literals())
         {
-            throwExecption();
+            throw new IllegalStateException("在"+offset + "位置，类型应该为字符串，当前不是，需要检查 : " + new String(value, 0, offset));
         }
         return getString();
     }
