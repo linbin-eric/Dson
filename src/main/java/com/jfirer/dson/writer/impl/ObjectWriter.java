@@ -5,6 +5,7 @@ import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.ValueAccessor;
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.strategy.SerializeDefinition;
+import com.jfirer.dson.util.JsonIgnore;
 import com.jfirer.dson.util.WriterUtil;
 import com.jfirer.dson.writer.JsonWriter;
 import com.jfirer.dson.writer.TypeWriter;
@@ -150,7 +151,10 @@ public class ObjectWriter implements TypeWriter
         {
             for (Field each : type.getDeclaredFields())
             {
-                tmp.add(each);
+                if (!each.isAnnotationPresent(JsonIgnore.class))
+                {
+                    tmp.add(each);
+                }
             }
             Collections.sort(tmp, new Comparator<Field>()
             {
@@ -180,17 +184,8 @@ public class ObjectWriter implements TypeWriter
     enum PropertyType
     {
         STRING,//
-        INT,
-        BYTE,
-        SHORT,
-        LONG,
-        FLOAT,
-        DOUBLE,
-        BOOL,
-        CHAR,//
-        CUSTOM,
-        NOT_FINAL_OBJECT,
-        FINAL_OBJECT
+        INT, BYTE, SHORT, LONG, FLOAT, DOUBLE, BOOL, CHAR,//
+        CUSTOM, NOT_FINAL_OBJECT, FINAL_OBJECT
     }
 
     private CompileHelper compileHelper = new CompileHelper();
@@ -216,8 +211,8 @@ public class ObjectWriter implements TypeWriter
             {
                 entry.valueAccessor = new ValueAccessor(field);
             }
-            entry.field = field;
-            entry.name = field.getName();
+            entry.field    = field;
+            entry.name     = field.getName();
             entry.fullName = '"' + entry.name + '"' + ':';
             entries.add(entry);
             if (fieldType.isPrimitive())
@@ -275,7 +270,7 @@ public class ObjectWriter implements TypeWriter
             {
                 try
                 {
-                    entry.type = PropertyType.CUSTOM;
+                    entry.type       = PropertyType.CUSTOM;
                     entry.typeWriter = field.getAnnotation(SerializeDefinition.class).value().newInstance();
                     entry.typeWriter.initialize(jsonWriter, field.getGenericType());
                 }

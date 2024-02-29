@@ -2,6 +2,7 @@ package com.jfirer.dson.reader.support;
 
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.reader.JsonReader;
+import com.jfirer.dson.util.JsonIgnore;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -91,7 +92,7 @@ public class Node
             for (Field each : fields)
             {
                 int modifiers = each.getModifiers();
-                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers))
+                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)|| each.isAnnotationPresent(JsonIgnore.class))
                 {
                     continue;
                 }
@@ -116,7 +117,7 @@ public class Node
             for (Field each : fields)
             {
                 int modifiers = each.getModifiers();
-                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers))
+                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)|| each.isAnnotationPresent(JsonIgnore.class))
                 {
                     continue;
                 }
