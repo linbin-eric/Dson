@@ -3,6 +3,7 @@ package com.jfirer.dson.reader.support;
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.util.JsonIgnore;
+import com.jfirer.dson.util.JsonRename;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -92,18 +93,18 @@ public class Node
             for (Field each : fields)
             {
                 int modifiers = each.getModifiers();
-                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)|| each.isAnnotationPresent(JsonIgnore.class))
+                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers) || each.isAnnotationPresent(JsonIgnore.class))
                 {
                     continue;
                 }
-                map.putIfAbsent(each.getName(), each);
+                map.putIfAbsent(each.isAnnotationPresent(JsonRename.class) ? each.getAnnotation(JsonRename.class).value() : each.getName(), each);
             }
             ckass = ckass.getSuperclass();
         }
         Node rootNode = new Node();
         for (Map.Entry<String, Field> each : map.entrySet())
         {
-            rootNode.put(each.getKey(), new Entry( each.getValue(), jsonReader));
+            rootNode.put(each.getKey(), new Entry(each.getValue(), jsonReader));
         }
         return rootNode;
     }
@@ -117,11 +118,11 @@ public class Node
             for (Field each : fields)
             {
                 int modifiers = each.getModifiers();
-                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)|| each.isAnnotationPresent(JsonIgnore.class))
+                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers) || each.isAnnotationPresent(JsonIgnore.class))
                 {
                     continue;
                 }
-                map.putIfAbsent(each.getName(), each);
+                map.putIfAbsent(each.isAnnotationPresent(JsonRename.class) ? each.getAnnotation(JsonRename.class).value() : each.getName(), each);
             }
             ckass = ckass.getSuperclass();
         }
@@ -138,8 +139,7 @@ public class Node
                 {
                     rootNode.put(each.getKey(), Entry.createSpecial(each.getValue(), jsonReader, compileHelper));
                 }
-                catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
-                       InstantiationException | IllegalAccessException e)
+                catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e)
                 {
                     throw new RuntimeException(e);
                 }

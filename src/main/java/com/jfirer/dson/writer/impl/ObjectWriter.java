@@ -6,6 +6,7 @@ import com.jfirer.baseutil.reflect.ValueAccessor;
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.strategy.SerializeDefinition;
 import com.jfirer.dson.util.JsonIgnore;
+import com.jfirer.dson.util.JsonRename;
 import com.jfirer.dson.util.WriterUtil;
 import com.jfirer.dson.writer.JsonWriter;
 import com.jfirer.dson.writer.TypeWriter;
@@ -212,7 +213,7 @@ public class ObjectWriter implements TypeWriter
                 entry.valueAccessor = new ValueAccessor(field);
             }
             entry.field    = field;
-            entry.name     = field.getName();
+            entry.name     = field.isAnnotationPresent(JsonRename.class) ? field.getAnnotation(JsonRename.class).value() : field.getName();
             entry.fullName = '"' + entry.name + '"' + ':';
             entries.add(entry);
             if (fieldType.isPrimitive())
