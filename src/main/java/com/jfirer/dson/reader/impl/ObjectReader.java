@@ -37,6 +37,10 @@ public class ObjectReader implements TypeReader
                 {
                     stream.skipWholeValue();
                 }
+                else if (stream.isNextNullAndSkip())
+                {
+                    ;
+                }
                 else
                 {
                     entry.setValue(instance, stream);

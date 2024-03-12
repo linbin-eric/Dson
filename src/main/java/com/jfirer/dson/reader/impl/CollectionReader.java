@@ -20,7 +20,7 @@ public class CollectionReader implements TypeReader
     public void init(Type type, JsonReader jsonReader)
     {
         this.jsonReader = jsonReader;
-        this.type = type;
+        this.type       = type;
         if (type instanceof Class)
         {
             ckass = (Class) type;
@@ -65,20 +65,27 @@ public class CollectionReader implements TypeReader
             {
                 if (type instanceof Class)
                 {
-                    ckass = (Class) type;
+                    ckass           = (Class) type;
                     this.typeReader = typeReader = jsonReader.get(Object.class);
                 }
                 else if (type instanceof ParameterizedType)
                 {
                     Type actualTypeArgument = ((ParameterizedType) type).getActualTypeArguments()[0];
-                    typeReader = jsonReader.get(actualTypeArgument);
+                    typeReader      = jsonReader.get(actualTypeArgument);
                     this.typeReader = typeReader;
                 }
             }
             stream.startParseArray();
             while (stream.parseArrayEnd() == false)
             {
-                collection.add(typeReader.fromString(stream));
+                if (stream.isNextNullAndSkip())
+                {
+                    ;
+                }
+                else
+                {
+                    collection.add(typeReader.fromString(stream));
+                }
                 stream.skipComma();
             }
             return collection;

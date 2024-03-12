@@ -23,7 +23,7 @@ public class LambdaObjectReader implements TypeReader
     public void init(Type type, JsonReader jsonReader)
     {
         this.ckass = (Class) type;
-        rootNode = Node.generateLambdaRoot(ckass, jsonReader);
+        rootNode   = Node.generateLambdaRoot(ckass, jsonReader);
         try
         {
             supplier = getSupplier(ckass);
@@ -44,7 +44,7 @@ public class LambdaObjectReader implements TypeReader
                                                            MethodType.methodType(Object.class),//前面的apple的方法签名
                                                            lookup.findConstructor(ckass, MethodType.methodType(void.class)),//这个函数接口需要引用的类的实例方法
                                                            MethodType.methodType(ckass)//这个函数式接口实际实现的时候，方法签名。对比前前一个，这个方法签名是将泛型的信息提供出来了，前面那个泛型的信息都被抹掉了
-                                                          ).getTarget().invoke();
+        ).getTarget().invoke();
     }
 
     @Override
@@ -62,6 +62,10 @@ public class LambdaObjectReader implements TypeReader
                 if (entry == null)
                 {
                     stream.skipWholeValue();
+                }
+                else if (stream.isNextNullAndSkip())
+                {
+                    ;
                 }
                 else
                 {

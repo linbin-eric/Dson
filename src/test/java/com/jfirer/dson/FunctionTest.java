@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class FunctionTest extends Support
 {
@@ -283,8 +282,16 @@ public class FunctionTest extends Support
     public void test5()
     {
         String content = """
-                         {"csss":"hhh"}
+                         {
+                         "csss":"hhh",
+                           "testNull":null,
+                           "testNullList":["abc",null,"cde"]
+                         }
                          """;
-        Dson.fromString(BaseData.class, content);
+        BaseData data1 = Dson.fromString(BaseData.class, content);
+        assertNull(data1.getTestNull());
+        assertEquals(2, data1.getTestNullList().size());
+        assertEquals("abc", data1.getTestNullList().get(0));
+        assertEquals("cde", data1.getTestNullList().get(1));
     }
 }

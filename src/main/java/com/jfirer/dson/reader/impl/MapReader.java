@@ -20,7 +20,7 @@ public class MapReader implements TypeReader
     @Override
     public void init(Type type, JsonReader jsonReader)
     {
-        this.type = type;
+        this.type       = type;
         this.jsonReader = jsonReader;
         if (type instanceof Class)
         {
@@ -69,7 +69,14 @@ public class MapReader implements TypeReader
             {
                 String name = stream.getName();
                 stream.skipColon();
-                map.put(name, valueReader.fromString(stream));
+                if (stream.isNextNullAndSkip())
+                {
+                    ;
+                }
+                else
+                {
+                    map.put(name, valueReader.fromString(stream));
+                }
                 stream.skipComma();
             }
             return map;

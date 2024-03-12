@@ -55,6 +55,7 @@ public class CompileObjectReader implements TypeReader
         body.append(SmcHelper.getReferenceName(Entry.class, classModel) + " entry = stream.getName(_rootNode_);\r\n");
         body.append("stream.skipColon();\r\n");
         body.append("if(entry==null){stream.skipWholeValue();}\r\n");
+        body.append("else if(stream.isNextNullAndSkip()){;}\r\n");
         body.append("else{entry.setValue("+hostName+",stream);}\r\n");
         body.append("\r\n");
         body.append("stream.skipComma();");

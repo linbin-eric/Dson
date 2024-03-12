@@ -25,7 +25,7 @@ public class ArrayReader implements TypeReader
 
         public DimInfo(int[] dims, Class componentType)
         {
-            this.dims = dims;
+            this.dims          = dims;
             this.componentType = componentType;
         }
     }
@@ -66,6 +66,7 @@ public class ArrayReader implements TypeReader
     public Object fromString(Stream stream)
     {
         stream.startParseArray();
+        //未知具体的数组长度，每次数组增长长度为 8
         int step   = 8;
         int length = step;
         if (componentTypePrimitive)
@@ -81,8 +82,15 @@ public class ArrayReader implements TypeReader
                         length += step;
                         array = Arrays.copyOf(array, length);
                     }
-                    array[index] = stream.getInt();
-                    index += 1;
+                    if (stream.isNextNullAndSkip())
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        array[index] = stream.getInt();
+                        index += 1;
+                    }
                     stream.skipComma();
                 }
                 return Arrays.copyOf(array, index);
@@ -97,8 +105,15 @@ public class ArrayReader implements TypeReader
                         length += step;
                         array = Arrays.copyOf(array, length);
                     }
-                    array[index] = stream.getShort();
-                    index += 1;
+                    if (stream.isNextNullAndSkip())
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        array[index] = stream.getShort();
+                        index += 1;
+                    }
                     stream.skipComma();
                 }
                 return Arrays.copyOf(array, index);
@@ -113,8 +128,15 @@ public class ArrayReader implements TypeReader
                         length += step;
                         array = Arrays.copyOf(array, length);
                     }
-                    array[index] = stream.getByte();
-                    index += 1;
+                    if (stream.isNextNullAndSkip())
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        array[index] = stream.getByte();
+                        index += 1;
+                    }
                     stream.skipComma();
                 }
                 return Arrays.copyOf(array, index);
@@ -129,8 +151,15 @@ public class ArrayReader implements TypeReader
                         length += step;
                         array = Arrays.copyOf(array, length);
                     }
-                    array[index] = stream.getLong();
-                    index += 1;
+                    if (stream.isNextNullAndSkip())
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        array[index] = stream.getLong();
+                        index += 1;
+                    }
                     stream.skipComma();
                 }
                 return Arrays.copyOf(array, index);
@@ -145,8 +174,15 @@ public class ArrayReader implements TypeReader
                         length += step;
                         array = Arrays.copyOf(array, length);
                     }
-                    array[index] = stream.getChar();
-                    index += 1;
+                    if (stream.isNextNullAndSkip())
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        array[index] = stream.getChar();
+                        index += 1;
+                    }
                     stream.skipComma();
                 }
                 return Arrays.copyOf(array, index);
@@ -161,8 +197,15 @@ public class ArrayReader implements TypeReader
                         length += step;
                         array = Arrays.copyOf(array, length);
                     }
-                    array[index] = stream.getBoolean();
-                    index += 1;
+                    if (stream.isNextNullAndSkip())
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        array[index] = stream.getBoolean();
+                        index += 1;
+                    }
                     stream.skipComma();
                 }
                 return Arrays.copyOf(array, index);
@@ -177,8 +220,15 @@ public class ArrayReader implements TypeReader
                         length += step;
                         array = Arrays.copyOf(array, length);
                     }
-                    array[index] = stream.getFloat();
-                    index += 1;
+                    if (stream.isNextNullAndSkip())
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        array[index] = stream.getFloat();
+                        index += 1;
+                    }
                     stream.skipComma();
                 }
                 return Arrays.copyOf(array, index);
@@ -193,8 +243,15 @@ public class ArrayReader implements TypeReader
                         length += step;
                         array = Arrays.copyOf(array, length);
                     }
-                    array[index] = stream.getDouble();
-                    index += 1;
+                    if (stream.isNextNullAndSkip())
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        array[index] = stream.getDouble();
+                        index += 1;
+                    }
                     stream.skipComma();
                 }
                 return Arrays.copyOf(array, index);
@@ -237,13 +294,13 @@ public class ArrayReader implements TypeReader
                     dims[0] = length = step;
                     if (componentType instanceof Class)
                     {
-                        array = (Object[]) Array.newInstance((Class<?>) componentType, dims);
+                        array   = (Object[]) Array.newInstance((Class<?>) componentType, dims);
                         dimInfo = tmp = new DimInfo(dims, (Class) componentType);
                     }
                     else if (componentType instanceof ParameterizedType)
                     {
                         Type rawType = ((ParameterizedType) componentType).getRawType();
-                        array = (Object[]) Array.newInstance((Class<?>) rawType, dims);
+                        array   = (Object[]) Array.newInstance((Class<?>) rawType, dims);
                         dimInfo = tmp = new DimInfo(dims, (Class) rawType);
                     }
                     else
@@ -264,8 +321,15 @@ public class ArrayReader implements TypeReader
                     length += step;
                     array = Arrays.copyOf(array, length);
                 }
-                array[index] = typeReader.fromString(stream);
-                index += 1;
+                if (stream.isNextNullAndSkip())
+                {
+                    ;
+                }
+                else
+                {
+                    array[index] = typeReader.fromString(stream);
+                    index += 1;
+                }
                 stream.skipComma();
             }
             return Arrays.copyOf(array, index);

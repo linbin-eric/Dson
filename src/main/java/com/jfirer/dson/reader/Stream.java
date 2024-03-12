@@ -219,6 +219,23 @@ public class Stream
         }
     }
 
+    public boolean isNextNullAndSkip()
+    {
+        char c = value[offset];
+        if (offset + 3 < length)
+        {
+            char c1 = value[offset + 1];
+            char c2 = value[offset + 2];
+            char c3 = value[offset + 3];
+            if ((c == 'N' || c == 'n') && (c1 == 'U' || c1 == 'u') && (c2 == 'L' || c2 == 'l') && (c3 == 'L' || c3 == 'l'))
+            {
+                offset += 4;
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Entry getName(Node node)
     {
         char c = value[offset];
@@ -368,6 +385,10 @@ public class Stream
 
     public Object readUnKnowType()
     {
+        if (isNextNullAndSkip())
+        {
+            return null;
+        }
         char c = ignoreSymbol();
         if (c == Symbol.LEFT_BRACE.literals())
         {
@@ -562,7 +583,7 @@ public class Stream
     {
         if (ignoreSymbol() != Symbol.DOUBLE_QUOTATION_MASK.literals())
         {
-            throw new IllegalStateException("在"+offset + "位置，类型应该为字符串，当前不是，需要检查 : " + new String(value, 0, offset));
+            throw new IllegalStateException("在" + offset + "位置，类型应该为字符串，当前不是，需要检查 : " + new String(value, 0, offset));
         }
         return getString();
     }
