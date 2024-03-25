@@ -323,7 +323,7 @@ public class ArrayReader implements TypeReader
                 }
                 if (stream.isNextNullAndSkip())
                 {
-                    ;
+                    array[index] = null;
                 }
                 else
                 {
