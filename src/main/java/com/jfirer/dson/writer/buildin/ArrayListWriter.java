@@ -26,7 +26,7 @@ public class ArrayListWriter implements TypeWriter
             if (argument instanceof Class && Modifier.isFinal(((Class) argument).getModifiers()))
             {
                 elementTypeFinal = true;
-                elementType = (Class) argument;
+                elementType      = (Class) argument;
             }
         }
     }
@@ -58,8 +58,12 @@ public class ArrayListWriter implements TypeWriter
             {
                 writer.toJson(each, output);
                 output.append(',');
-                hasComma = true;
             }
+            else
+            {
+                output.append("null,");
+            }
+            hasComma = true;
         }
         if (hasComma)
         {
