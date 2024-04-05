@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 
 public class ArrayWriter implements TypeWriter
 {
-
     private JsonWriter jsonWriter;
     private ToJson     toJson;
 
@@ -30,7 +29,6 @@ public class ArrayWriter implements TypeWriter
 
     class intArrayToJson implements ToJson
     {
-
         @Override
         public void output(StringBuilder output, Object array)
         {
@@ -194,6 +192,10 @@ public class ArrayWriter implements TypeWriter
                 {
                     output.append('"').append(element).append("\",");
                 }
+                else
+                {
+                    output.append("null,");
+                }
             }
             if (length != output.length())
             {
@@ -206,13 +208,12 @@ public class ArrayWriter implements TypeWriter
     class FinalElementTypeArrayToJson implements ToJson
     {
         private TypeWriter typeWriter;
-        private Type componentType;
+        private Type       componentType;
 
         public FinalElementTypeArrayToJson(Type componentType)
         {
             this.componentType = componentType;
         }
-
 
         @Override
         public void output(StringBuilder output, Object array)
@@ -233,8 +234,12 @@ public class ArrayWriter implements TypeWriter
                 {
                     typeWriter.toJson(element, output);
                     output.append(',');
-                    hasComma = true;
                 }
+                else
+                {
+                    output.append("null,");
+                }
+                hasComma = true;
             }
             if (hasComma)
             {
@@ -246,7 +251,6 @@ public class ArrayWriter implements TypeWriter
 
     class UnFinalElementTypeArrayToJson implements ToJson
     {
-
         @Override
         public void output(StringBuilder output, Object array)
         {
@@ -258,8 +262,12 @@ public class ArrayWriter implements TypeWriter
                 {
                     jsonWriter.toJson(element, output);
                     output.append(',');
-                    hasComma = true;
                 }
+                else
+                {
+                    output.append("null,");
+                }
+                hasComma = true;
             }
             if (hasComma)
             {

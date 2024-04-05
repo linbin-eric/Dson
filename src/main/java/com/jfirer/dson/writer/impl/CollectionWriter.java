@@ -52,8 +52,15 @@ public class CollectionWriter implements TypeWriter
         }
         for (Object each : collection)
         {
-            writer.toJson(each, output);
-            output.append(',');
+            if (each != null)
+            {
+                writer.toJson(each, output);
+                output.append(',');
+            }
+            else
+            {
+                output.append("null,");
+            }
             hasComma = true;
         }
         if (hasComma)
