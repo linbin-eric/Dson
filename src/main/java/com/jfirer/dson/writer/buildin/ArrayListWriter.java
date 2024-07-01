@@ -59,10 +59,6 @@ public class ArrayListWriter implements TypeWriter
                 writer.toJson(each, output);
                 output.append(',');
             }
-            else
-            {
-                output.append("null,");
-            }
             hasComma = true;
         }
         if (hasComma)

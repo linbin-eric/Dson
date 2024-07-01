@@ -192,10 +192,6 @@ public class ArrayWriter implements TypeWriter
                 {
                     output.append('"').append(element).append("\",");
                 }
-                else
-                {
-                    output.append("null,");
-                }
             }
             if (length != output.length())
             {
@@ -235,10 +231,6 @@ public class ArrayWriter implements TypeWriter
                     typeWriter.toJson(element, output);
                     output.append(',');
                 }
-                else
-                {
-                    output.append("null,");
-                }
                 hasComma = true;
             }
             if (hasComma)
@@ -262,10 +254,6 @@ public class ArrayWriter implements TypeWriter
                 {
                     jsonWriter.toJson(element, output);
                     output.append(',');
-                }
-                else
-                {
-                    output.append("null,");
                 }
                 hasComma = true;
             }

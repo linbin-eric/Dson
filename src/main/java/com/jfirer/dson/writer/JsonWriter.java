@@ -75,7 +75,7 @@ public class JsonWriter implements Writer
                 {
                     typeWriter = new ArrayWriter();
                 }
-                else if (Map.class.isAssignableFrom(targetClass))
+                else if (Map.class.isAssignableFrom(targetClass) && targetClass.getPackageName().startsWith("java.util"))
                 {
                     typeWriter = new MapWriter();
                 }

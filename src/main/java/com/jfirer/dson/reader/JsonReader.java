@@ -7,6 +7,8 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -77,7 +79,7 @@ public class JsonReader
                 {
                     typeReader = new CollectionReader();
                 }
-                else if (Map.class.isAssignableFrom(rawType))
+                else if (Map.class.isAssignableFrom(rawType) && rawType.getPackageName().startsWith("java.util"))
                 {
                     typeReader = new MapReader();
                 }

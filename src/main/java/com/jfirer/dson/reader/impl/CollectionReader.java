@@ -80,7 +80,7 @@ public class CollectionReader implements TypeReader
             {
                 if (stream.isNextNullAndSkip())
                 {
-                    collection.add(null);
+                    ;
                 }
                 else
                 {

@@ -290,8 +290,8 @@ public class FunctionTest extends Support
                          """;
         BaseData data1 = Dson.fromString(BaseData.class, content);
         assertNull(data1.getTestNull());
-        assertEquals(3, data1.getTestNullList().size());
+        assertEquals(2, data1.getTestNullList().size());
         assertEquals("abc", data1.getTestNullList().get(0));
-        assertEquals("cde", data1.getTestNullList().get(2));
+        assertEquals("cde", data1.getTestNullList().get(1));
     }
 }
