@@ -47,6 +47,10 @@ public class CollectionReader implements TypeReader
             {
                 ckass = LinkedList.class;
             }
+            else if (Collection.class == ckass)
+            {
+                ckass = HashSet.class;
+            }
             else
             {
                 throw new IllegalArgumentException(ckass.toString());
