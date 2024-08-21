@@ -2,6 +2,8 @@ package com.jfirer.dson;
 
 import com.jfirer.baseutil.reflect.TypeUtil;
 import com.jfirer.dson.model.*;
+import com.jfirer.dson.strategy.buildin.HumpToUnderline;
+import com.jfirer.dson.util.JsonRename;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -60,7 +62,8 @@ public class FunctionTest extends Support
         list.add("sdadsasda");
         String value = Dson.toJson(list);
         ArrayList<String> result = (ArrayList<String>) Dson.fromString(new TypeUtil<ArrayList<String>>()
-        {}.getType(), value);
+        {
+        }.getType(), value);
         assertTrue(list.equals(result));
         ArrayList<NestData> arrayList = new ArrayList<NestData>();
         NestData            cdata     = new NestData();
@@ -74,7 +77,8 @@ public class FunctionTest extends Support
         value = Dson.toJson(arrayList);
         System.out.println(value);
         ArrayList<NestData> result1 = Dson.fromString(new TypeUtil<ArrayList<NestData>>()
-        {}.getType(), value);
+        {
+        }.getType(), value);
         assertTrue(arrayList.equals(result1));
         ArrayList<Data> list2 = new ArrayList<Data>();
         list2.add(data);
@@ -82,14 +86,16 @@ public class FunctionTest extends Support
         value = Dson.toJson(list2);
         System.out.println(value);
         ArrayList<Data> result3 = Dson.fromString(new TypeUtil<ArrayList<Data>>()
-        {}.getType(), value);
+        {
+        }.getType(), value);
         assertTrue(list2.get(0).equal(result3.get(0)) && list2.get(1).equal(result3.get(1)));
         HashMap<String, Data> map = new HashMap<String, Data>();
         map.put("12wq", data);
         map.put("xczc", data);
         value = Dson.toJson(map);
         HashMap<String, Data> result4 = Dson.fromString(new TypeUtil<HashMap<String, Data>>()
-        {}.getType(), value);
+        {
+        }.getType(), value);
         assertTrue(map.get("12wq").equal(result4.get("12wq")));
         assertTrue(map.get("xczc").equal(result4.get("xczc")));
     }
@@ -145,135 +151,137 @@ public class FunctionTest extends Support
     public void test4()
     {
         String content = """
-                         {
-                           "b" : 2.3599999999999999,
-                           "e1" : "sdasdasd",
-                           "c" : 5.6986999999999997,
-                           "chars" : [
-                             "a",
-                             "b"
-                           ],
-                           "h1" : 12,
-                           "d" : 121212121212,
-                           "datas" : [
-                             {
-                               "age" : 13,
-                               "name" : "sdasda"
-                             },
-                             {
-                               "age" : 20,
-                               "name" : "dasdas"
-                             }
-                           ],
-                           "lists" : [
-                             [
-                               "dasdasda",
-                               "dasdasdasdasdasd"
-                             ],
-                             [
-                               "1212121dasdasdasdasdasd",
-                               "dasdasd1212121212asdasdasd"
-                             ]
-                           ],
-                           "e" : "f",
-                           "array1" : [
-                             1,
-                             2,
-                             3,
-                             4,
-                             5,
-                             65
-                           ],
-                           "nestData" : {
-                             "age" : 26,
-                             "name" : "dsadas"
-                           },
-                           "f" : true,
-                           "c1" : 2323.34234234,
-                           "f1" : true,
-                           "g" : 5,
-                           "nestDatas" : [
-                             {
-                               "age" : 12,
-                               "name" : "das"
-                             },
-                             {
-                               "age" : 1222,
-                               "name" : "daasdadasd"
-                             }
-                           ],
-                           "array3" : [
-                             1,
-                             2,
-                             3,
-                             4,
-                             5,
-                             6,
-                             7
-                           ],
-                           "h" : 3,
-                           "map" : {
-                             "dsada" : "你好",
-                             "恁大" : "dasdasd"
-                           },
-                           "nolist" : [
-                                                  
-                           ],
-                           "a1" : 1,
-                           "d1" : 11231231231313133,
-                           "g1" : 2,
-                           "list" : [
-                             "husdasdad",
-                             "siudsan"
-                           ],
-                           "strs" : [
-                             "231231",
-                             "sdadsasdasd"
-                           ],
-                           "array2" : [
-                             [
-                               1,
-                               2,
-                               3,
-                               4
-                             ],
-                             [
-                               10,
-                               12
-                             ]
-                           ],
-                           "a" : 12,
-                           "data" : [
-                             {
-                               "age" : 12,
-                               "name" : "das"
-                             },
-                             {
-                               "age" : 1222,
-                               "name" : "daasdadasd"
-                             }
-                           ],
-                           "b1" : 2.3399999999999999,
-                           "array4" : [
-                             [
-                               1,
-                               2,
-                               3,
-                               4,
-                               5,
-                               56
-                             ],
-                             [
-                               10,
-                               11,
-                               12,
-                               14
-                             ]
-                           ]
-                         }
-                         """;
+                {
+                  "b" : 2.3599999999999999,
+                  "e1" : "sdasdasd",
+                  "c" : 5.6986999999999997,
+                  "chars" : [
+                    "a",
+                    "b"
+                  ],
+                  "h1" : 12,
+                  "d" : 121212121212,
+                  "datas" : [
+                    {
+                      "age" : 13,
+                      "name" : "sdasda"
+                    },
+                    {
+                      "age" : 20,
+                      "name" : "dasdas"
+                    }
+                  ],
+                  "lists" : [
+                    [
+                      "dasdasda",
+                      "dasdasdasdasdasd"
+                    ],
+                    [
+                      "1212121dasdasdasdasdasd",
+                      "dasdasd1212121212asdasdasd"
+                    ]
+                  ],
+                  "e" : "f",
+                  "array1" : [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    65
+                  ],
+                  "nestData" : {
+                    "age" : 26,
+                    "name" : "dsadas"
+                  },
+                  "f" : true,
+                  "c1" : 2323.34234234,
+                  "f1" : true,
+                  "g" : 5,
+                  "nestDatas" : [
+                    {
+                      "age" : 12,
+                      "name" : "das"
+                    },
+                    {
+                      "age" : 1222,
+                      "name" : "daasdadasd"
+                    }
+                  ],
+                  "array3" : [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ],
+                  "h" : 3,
+                  "map" : {
+                    "dsada" : "你好",
+                    "恁大" : "dasdasd"
+                  },
+                  "nolist" : [
+                                         
+                  ],
+                  "a1" : 1,
+                  "d1" : 11231231231313133,
+                  "g1" : 2,
+                  "list" : [
+                    "husdasdad",
+                    "siudsan"
+                  ],
+                  "strs" : [
+                    "231231",
+                    "sdadsasdasd"
+                  ],
+                  "array2" : [
+                    [
+                      1,
+                      2,
+                      3,
+                      4
+                    ],
+                    [
+                      10,
+                      12
+                    ]
+                  ],
+                  "a" : 12,
+                  "data" : [
+                    {
+                      "age" : 12,
+                      "name" : "das"
+                    },
+                    {
+                      "age" : 1222,
+                      "name" : "daasdadasd"
+                    }
+                  ],
+                  "b1" : 2.3399999999999999,
+                  "array4" : [
+                    [
+                      1,
+                      2,
+                      3,
+                      4,
+                      5,
+                      56
+                    ],
+                    [
+                      10,
+                      11,
+                      12,
+                      14
+                    ]
+                  ]
+                }
+                """;
         Dson.fromString(Data.class, content);
-        List<String> list = (List<String>) Dson.fromStringByAttribute("list", new TypeUtil<ArrayList<String>>() {}.getType(), content);
+        List<String> list = (List<String>) Dson.fromStringByAttribute("list", new TypeUtil<ArrayList<String>>()
+        {
+        }.getType(), content);
         assertEquals(2, list.size());
         assertEquals("siudsan", list.get(1));
     }
@@ -282,16 +290,35 @@ public class FunctionTest extends Support
     public void test5()
     {
         String content = """
-                         {
-                         "csss":"hhh",
-                           "testNull":null,
-                           "testNullList":["abc",null,"cde"]
-                         }
-                         """;
+                {
+                "csss":"hhh",
+                  "testNull":null,
+                  "testNullList":["abc",null,"cde"]
+                }
+                """;
         BaseData data1 = Dson.fromString(BaseData.class, content);
         assertNull(data1.getTestNull());
         assertEquals(2, data1.getTestNullList().size());
         assertEquals("abc", data1.getTestNullList().get(0));
         assertEquals("cde", data1.getTestNullList().get(1));
+    }
+
+    @JsonRename(strategy = HumpToUnderline.class)
+    @lombok.Data
+    static class ReNameTest
+    {
+        private String myName;
+    }
+
+    @Test
+    public void test6()
+    {
+        String content = """
+                {"my_name":"lin"}""";
+        ReNameTest reNameTest = new ReNameTest();
+        reNameTest.setMyName("lin");
+        assertEquals(content, Dson.toJson(reNameTest));
+        ReNameTest o = Dson.fromString(ReNameTest.class, content);
+        assertEquals("lin", o.getMyName());
     }
 }
