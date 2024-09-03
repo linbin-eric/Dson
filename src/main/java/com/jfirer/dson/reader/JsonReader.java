@@ -75,11 +75,11 @@ public class JsonReader
                 {
                     typeReader = new ArrayReader();
                 }
-                else if (Collection.class.isAssignableFrom(rawType) && rawType.getPackageName().startsWith("java.util"))
+                else if (Collection.class.isAssignableFrom(rawType))
                 {
                     typeReader = new CollectionReader();
                 }
-                else if (Map.class.isAssignableFrom(rawType) && rawType.getPackageName().startsWith("java.util"))
+                else if (Map.class.isAssignableFrom(rawType))
                 {
                     typeReader = new MapReader();
                 }
