@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jfirer</groupId>
     <artifactId>dson</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
     <name>dson</name>
     <properties>
@@ -73,7 +73,7 @@
         <dependency>
             <groupId>com.jfirer</groupId>
             <artifactId>baseutil</artifactId>
-            <version>1.1.7-SNAPSHOT</version>
+            <version>1.1.8</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
