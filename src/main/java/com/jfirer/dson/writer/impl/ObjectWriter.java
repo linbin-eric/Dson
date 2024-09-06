@@ -4,9 +4,9 @@ import com.jfirer.baseutil.reflect.CompileValueAccessor;
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.ValueAccessor;
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
+import com.jfirer.dson.strategy.JsonRenameStrategy;
 import com.jfirer.dson.strategy.SerializeDefinition;
 import com.jfirer.dson.util.JsonIgnore;
-import com.jfirer.dson.util.JsonRename;
 import com.jfirer.dson.util.WriterUtil;
 import com.jfirer.dson.writer.JsonWriter;
 import com.jfirer.dson.writer.TypeWriter;
@@ -157,14 +157,7 @@ public class ObjectWriter implements TypeWriter
                     tmp.add(each);
                 }
             }
-            Collections.sort(tmp, new Comparator<Field>()
-            {
-                @Override
-                public int compare(Field o1, Field o2)
-                {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
+            Collections.sort(tmp, Comparator.comparing(Field::getName));
             fields.addAll(tmp);
             tmp.clear();
             type = type.getSuperclass();
@@ -195,7 +188,8 @@ public class ObjectWriter implements TypeWriter
     public void initialize(JsonWriter jsonWriter, Type type)
     {
         this.jsonWriter = jsonWriter;
-        List<Entry> entries = new ArrayList<Entry>();
+        List<Entry>        entries            = new ArrayList<Entry>();
+        JsonRenameStrategy jsonRenameStrategy = JsonRenameStrategy.helpGetStrategy((Class) type);
         for (Field field : getAllSortedFields((Class<?>) type))
         {
             if (field.getName().contains("this") || Modifier.isStatic(field.getModifiers()))
@@ -213,7 +207,7 @@ public class ObjectWriter implements TypeWriter
                 entry.valueAccessor = new ValueAccessor(field);
             }
             entry.field    = field;
-            entry.name     = field.isAnnotationPresent(JsonRename.class) ? field.getAnnotation(JsonRename.class).value() : field.getName();
+            entry.name     = JsonRenameStrategy.helpGetRename(field, jsonRenameStrategy);
             entry.fullName = '"' + entry.name + '"' + ':';
             entries.add(entry);
             if (fieldType.isPrimitive())
@@ -241,10 +235,6 @@ public class ObjectWriter implements TypeWriter
                 else if (fieldType == double.class)
                 {
                     entry.type = PropertyType.DOUBLE;
-                }
-                else if (fieldType == byte.class)
-                {
-                    entry.type = PropertyType.BYTE;
                 }
                 else if (fieldType == char.class)
                 {

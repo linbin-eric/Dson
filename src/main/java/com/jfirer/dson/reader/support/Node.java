@@ -2,8 +2,8 @@ package com.jfirer.dson.reader.support;
 
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.reader.JsonReader;
+import com.jfirer.dson.strategy.JsonRenameStrategy;
 import com.jfirer.dson.util.JsonIgnore;
-import com.jfirer.dson.util.JsonRename;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -86,7 +86,8 @@ public class Node
 
     public static Node generateLambdaRoot(Class ckass, JsonReader jsonReader)
     {
-        Map<String, Field> map = new HashMap<String, Field>();
+        Map<String, Field> map                = new HashMap<String, Field>();
+        JsonRenameStrategy jsonRenameStrategy = JsonRenameStrategy.helpGetStrategy(ckass);
         while (ckass != Object.class)
         {
             Field[] fields = ckass.getDeclaredFields();
@@ -97,7 +98,7 @@ public class Node
                 {
                     continue;
                 }
-                map.putIfAbsent(each.isAnnotationPresent(JsonRename.class) ? each.getAnnotation(JsonRename.class).value() : each.getName(), each);
+                map.putIfAbsent(JsonRenameStrategy.helpGetRename(each, jsonRenameStrategy), each);
             }
             ckass = ckass.getSuperclass();
         }
@@ -111,7 +112,8 @@ public class Node
 
     public static Node generateRoot(Class ckass, JsonReader jsonReader, CompileHelper compileHelper)
     {
-        Map<String, Field> map = new HashMap<String, Field>();
+        Map<String, Field> map      = new HashMap<String, Field>();
+        JsonRenameStrategy strategy = JsonRenameStrategy.helpGetStrategy(ckass);
         while (ckass != Object.class)
         {
             Field[] fields = ckass.getDeclaredFields();
@@ -122,7 +124,7 @@ public class Node
                 {
                     continue;
                 }
-                map.putIfAbsent(each.isAnnotationPresent(JsonRename.class) ? each.getAnnotation(JsonRename.class).value() : each.getName(), each);
+                map.putIfAbsent(JsonRenameStrategy.helpGetRename(each, strategy), each);
             }
             ckass = ckass.getSuperclass();
         }
