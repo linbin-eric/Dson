@@ -1,8 +1,7 @@
 package com.jfirer.dson.writer.impl.basic;
 
-import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.writer.TypeWriter;
-import com.jfirer.dson.writer.Writer;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -11,15 +10,15 @@ import java.util.ArrayList;
 
 public class ArrayListWriter implements TypeWriter
 {
-    boolean    elementTypeFinal = false;
-    Class      elementType;
-    TypeWriter elementWriter;
-    JsonWriter jsonWriter;
+    boolean     elementTypeFinal = false;
+    Class       elementType;
+    TypeWriter  elementWriter;
+    DsonContext dsonContext;
 
     @Override
-    public void initialize(JsonWriter writer, Type type)
+    public void initialize(Type type, DsonContext dsonContext)
     {
-        jsonWriter = writer;
+        this.dsonContext = dsonContext;
         if (type instanceof ParameterizedType)
         {
             Type argument = ((ParameterizedType) type).getActualTypeArguments()[0];
@@ -27,6 +26,7 @@ public class ArrayListWriter implements TypeWriter
             {
                 elementTypeFinal = true;
                 elementType      = (Class) argument;
+                elementWriter    = dsonContext.parseWriter((Class) argument);
             }
         }
     }
@@ -34,18 +34,10 @@ public class ArrayListWriter implements TypeWriter
     @Override
     public void toJson(Object entity, StringBuilder output)
     {
-        Writer writer;
+        TypeWriter writer = null;
         if (elementTypeFinal)
         {
             writer = this.elementWriter;
-            if (elementWriter == null)
-            {
-                this.elementWriter = (TypeWriter) (writer = jsonWriter.get(elementType));
-            }
-        }
-        else
-        {
-            writer = jsonWriter;
         }
         ArrayList arrayList = (ArrayList) entity;
         int       size      = arrayList.size();
@@ -56,10 +48,17 @@ public class ArrayListWriter implements TypeWriter
             Object each = arrayList.get(i);
             if (each != null)
             {
-                writer.toJson(each, output);
+                if (elementTypeFinal)
+                {
+                    writer.toJson(each, output);
+                }
+                else
+                {
+                    dsonContext.parseWriter(each.getClass()).toJson(each, output);
+                }
                 output.append(',');
+                hasComma = true;
             }
-            hasComma = true;
         }
         if (hasComma)
         {

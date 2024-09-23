@@ -31,7 +31,6 @@ public class BenchmarkSmall
         @Setup(Level.Trial)
         public void before()
         {
-            typeReader = Dson.get(SmallObject.class);
             smallData  = new SmallObject();
             smallData.setA(1);
             smallData.setA1(12);

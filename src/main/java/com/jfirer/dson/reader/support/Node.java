@@ -1,7 +1,7 @@
 package com.jfirer.dson.reader.support;
 
 import com.jfirer.dson.DsonConfig;
-import com.jfirer.dson.reader.JsonReader;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.support.entry.ReadEntry;
 import com.jfirer.dson.util.JsonRenameStrategy;
 import com.jfirer.dson.util.JsonIgnore;
@@ -83,7 +83,7 @@ public class Node
         }
     }
 
-    public static Node generateRoot(Class ckass, JsonReader jsonReader)
+    public static Node generateRoot(Class ckass, DsonContext dsonContext)
     {
         Map<String, Field> map = new HashMap<String, Field>();
         while (ckass != Object.class)
@@ -101,10 +101,10 @@ public class Node
             ckass = ckass.getSuperclass();
         }
         Node       rootNode = new Node();
-        DsonConfig config   = jsonReader.getConfig();
+        DsonConfig config   = dsonContext.getConfig();
         for (Map.Entry<String, Field> each : map.entrySet())
         {
-            rootNode.put(each.getKey(), config.isReadUseCompile() ? ReadEntry.compile(each.getValue(), jsonReader) : ReadEntry.standard(each.getKey(), each.getValue(), jsonReader));
+            rootNode.put(each.getKey(), config.isValueAccessorUseCompile() ? ReadEntry.compile(each.getValue(), dsonContext) : ReadEntry.standard(each.getKey(), each.getValue(), dsonContext));
         }
         return rootNode;
     }

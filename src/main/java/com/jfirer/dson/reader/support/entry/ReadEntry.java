@@ -7,8 +7,8 @@ import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.baseutil.smc.model.ClassModel;
 import com.jfirer.baseutil.smc.model.FieldModel;
 import com.jfirer.baseutil.smc.model.MethodModel;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.DeSerializeDefinition;
-import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 import lombok.SneakyThrows;
@@ -19,13 +19,13 @@ public interface ReadEntry
 {
     void setValue(Object instance, Stream stream);
 
-    static ReadEntry standard(String name, Field field, JsonReader jsonReader)
+    static ReadEntry standard(String name, Field field, DsonContext dsonContext)
     {
-        return new StandardReadEntry(name, field, jsonReader);
+        return new StandardReadEntry(name, field, dsonContext);
     }
 
     @SneakyThrows
-    static ReadEntry compile(Field field, JsonReader jsonReader)
+    static ReadEntry compile(Field field, DsonContext dsonContext)
     {
         TypeReader typeReader = null;
         if (field.isAnnotationPresent(DeSerializeDefinition.class))
@@ -34,7 +34,7 @@ public interface ReadEntry
             try
             {
                 typeReader = annotation.value().newInstance();
-                typeReader.init(field.getType(), jsonReader);
+                typeReader.init(field.getType(), dsonContext);
             }
             catch (Exception e)
             {
@@ -43,7 +43,7 @@ public interface ReadEntry
         }
         else if (ReflectUtil.getClassId(field.getType()) > ReflectUtil.CLASS_STRING)
         {
-            typeReader = jsonReader.parse(field.getGenericType());
+            typeReader = dsonContext.parseReader(field.getGenericType());
         }
         ClassModel classModel = new ClassModel(STR.format("ReadEntry_{}_{}", field.getName(), CompileHelper.COMPILE_COUNTER.getAndIncrement()));
         classModel.addField(new FieldModel("typeReader", TypeReader.class, classModel));

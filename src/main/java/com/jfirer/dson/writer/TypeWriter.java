@@ -7,6 +7,7 @@ import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.baseutil.smc.model.ClassModel;
 import com.jfirer.baseutil.smc.model.FieldModel;
 import com.jfirer.baseutil.smc.model.MethodModel;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.util.JsonRenameStrategy;
 import com.jfirer.dson.writer.impl.ObjectWriter;
 import lombok.SneakyThrows;
@@ -17,21 +18,32 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface TypeWriter extends Writer
+public interface TypeWriter
 {
-    void initialize(JsonWriter writer, Type type);
+    default void initialize(Type type, DsonContext contexts)
+    {
+    }
 
-    static ObjectWriter standard(JsonWriter writer, Type type)
+    /**
+     * 将对象json输出到output中
+     *
+     * @param entity
+     * @param output
+     * @return
+     */
+    void toJson(Object entity, StringBuilder output);
+
+    static ObjectWriter standard()
     {
         return new ObjectWriter();
     }
 
     @SneakyThrows
-    static TypeWriter compile(JsonWriter writer, Type type)
+    static TypeWriter compile(Type type)
     {
         ClassModel classModel = new ClassModel(STR.format("CompileObjectWriter_{}", CompileHelper.COMPILE_COUNTER.getAndIncrement()));
         classModel.addInterface(TypeWriter.class);
-        classModel.addField(new FieldModel("jsonWriter", JsonWriter.class, classModel));
+        classModel.addField(new FieldModel("dsonContext", DsonContext.class, classModel));
         Class              ckazz = (Class) type;
         Map<String, Field> map   = new HashMap<>();
         while (ckazz != Object.class)
@@ -42,11 +54,11 @@ public interface TypeWriter extends Writer
             }
             ckazz = ckazz.getSuperclass();
         }
-        MethodModel initMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("initialize", JsonWriter.class, Type.class), classModel);
-        initMethod.setParamterNames("jsonWriter", "type");
+        MethodModel initMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("initialize", Type.class, DsonContext.class), classModel);
+        initMethod.setParamterNames( "type","dsonContext");
         StringBuilder initBody = new StringBuilder();
-        initBody.append("this.jsonWriter = jsonWriter;\r\n");
-        MethodModel toJsonMethod = new MethodModel(Writer.class.getDeclaredMethod("toJson", Object.class, StringBuilder.class), classModel);
+        initBody.append("this.dsonContext = dsonContext;\r\n");
+        MethodModel toJsonMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("toJson", Object.class, StringBuilder.class), classModel);
         toJsonMethod.setParamterNames("instance", "builder");
         StringBuilder toJsonBody = new StringBuilder("builder.append(\"{\");\r\n");
         toJsonBody.append("boolean hasOutput = false;\r\n");
@@ -72,7 +84,7 @@ public interface TypeWriter extends Writer
                                                    try{
                                                        Field field = {}.class.getDeclaredField("{}");
                                                        {}  = new {}();
-                                                       {}.initialize(jsonWriter,field.getGenericType());
+                                                       {}.initialize(field.getGenericType(),dsonContext);
                                                        }catch(Throwable e){;}
                                                    }
                                                    """, SmcHelper.getReferenceName(each.getValue().getDeclaringClass(), classModel), each.getValue().getName(), fieldname, SmcHelper.getReferenceName(annotation.value(), classModel), fieldname));
@@ -150,7 +162,7 @@ public interface TypeWriter extends Writer
                                                                {
                                                                try{
                                                                    Field field = {}.class.getDeclaredField("{}");
-                                                                   {}  = jsonWriter.get(field.getGenericType());
+                                                                   {}  = dsonContext.parseWriter(field.getGenericType());
                                                                    }catch(Throwable e){;}
                                                                }
                                                                """, SmcHelper.getReferenceName(each.getValue().getDeclaringClass(), classModel), each.getValue().getName(), fieldname));
@@ -175,7 +187,7 @@ public interface TypeWriter extends Writer
                                                                              if (reference != null)
                                                                              {
                                                                                  builder.append("\\"{}\\":");
-                                                                                 jsonWriter.toJson(reference, builder);
+                                                                                 dsonContext.parseWriter(reference.getClass()).toJson(reference, builder);
                                                                                  builder.append(',');
                                                                                  hasOutput = true;
                                                                              }

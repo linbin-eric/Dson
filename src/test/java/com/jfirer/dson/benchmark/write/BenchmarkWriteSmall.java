@@ -5,8 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfirer.dson.Dson;
 import com.jfirer.dson.benchmark.SmallObject;
-import com.jfirer.dson.writer.JsonWriter;
-import com.jfirer.dson.writer.TypeWriter;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -23,10 +21,8 @@ public class BenchmarkWriteSmall
     @State(Scope.Benchmark)
     public static class Fortest
     {
-        SmallObject   smallData;
-        ObjectMapper  mapper     = new ObjectMapper();
-        JsonWriter    jsonWriter = new JsonWriter(true);
-        StringBuilder builder    = new StringBuilder();
+        SmallObject  smallData;
+        ObjectMapper mapper = new ObjectMapper();
 
         @Setup
         public void set()
@@ -71,14 +67,8 @@ public class BenchmarkWriteSmall
     @Benchmark
     public void testDson(Fortest fortest, Blackhole blackhole)
     {
-        JsonWriter    jsonWriter = fortest.jsonWriter;
-        StringBuilder builder    = fortest.builder;
-        SmallObject   smallData  = fortest.smallData;
-        TypeWriter    typeWriter = jsonWriter.get(smallData.getClass());
-        typeWriter.toJson(smallData, builder);
-        String s1 = builder.toString();
-        builder.setLength(0);
-        blackhole.consume(s1);
+        String s = Dson.toJson(fortest.smallData);
+        blackhole.consume(s);
     }
 
     @Benchmark

@@ -1,18 +1,9 @@
 package com.jfirer.dson.writer.impl;
 
-import com.jfirer.dson.writer.JsonWriter;
 import com.jfirer.dson.writer.TypeWriter;
-
-import java.lang.reflect.Type;
 
 public class EnumWriter implements TypeWriter
 {
-
-    @Override
-    public void initialize(JsonWriter serializer, Type type)
-    {
-    }
-
     @Override
     public void toJson(Object entity, StringBuilder output)
     {

@@ -1,10 +1,7 @@
 package com.jfirer.dson.model;
 
-import com.jfirer.dson.writer.JsonWriter;
-import com.jfirer.dson.writer.TypeWriter;
 import com.jfirer.dson.writer.SerializeDefinition;
-
-import java.lang.reflect.Type;
+import com.jfirer.dson.writer.TypeWriter;
 
 public class FunctionData16
 {
@@ -23,13 +20,6 @@ public class FunctionData16
 
     public static final class NameSeri implements TypeWriter
     {
-
-        @Override
-        public void initialize(JsonWriter serializer, Type type)
-        {
-            // TODO Auto-generated method stub
-        }
-
         @Override
         public void toJson(Object entity, StringBuilder output)
         {

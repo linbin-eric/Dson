@@ -1,7 +1,7 @@
 package com.jfirer.dson.reader.impl;
 
 import com.jfirer.baseutil.reflect.ReflectUtil;
-import com.jfirer.dson.reader.JsonReader;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 
@@ -12,15 +12,11 @@ import java.util.*;
 public class CollectionReader implements TypeReader
 {
     Class      ckass;
-    TypeReader typeReader;
-    Type       type;
-    private JsonReader jsonReader;
+    TypeReader elementReader;
 
     @Override
-    public void init(Type type, JsonReader jsonReader)
+    public void init(Type type, DsonContext dsonContext)
     {
-        this.jsonReader = jsonReader;
-        this.type       = type;
         if (type instanceof Class)
         {
             ckass = (Class) type;
@@ -56,6 +52,16 @@ public class CollectionReader implements TypeReader
                 throw new IllegalArgumentException(ckass.toString());
             }
         }
+        if (type instanceof Class)
+        {
+            ckass              = (Class) type;
+            this.elementReader = dsonContext.parseReader(Object.class);
+        }
+        else if (type instanceof ParameterizedType)
+        {
+            Type actualTypeArgument = ((ParameterizedType) type).getActualTypeArguments()[0];
+            this.elementReader = dsonContext.parseReader(actualTypeArgument);
+        }
     }
 
     @Override
@@ -64,21 +70,7 @@ public class CollectionReader implements TypeReader
         try
         {
             Collection collection = (Collection) ckass.newInstance();
-            TypeReader typeReader = this.typeReader;
-            if (typeReader == null)
-            {
-                if (type instanceof Class)
-                {
-                    ckass           = (Class) type;
-                    this.typeReader = typeReader = jsonReader.parse(Object.class);
-                }
-                else if (type instanceof ParameterizedType)
-                {
-                    Type actualTypeArgument = ((ParameterizedType) type).getActualTypeArguments()[0];
-                    typeReader      = jsonReader.parse(actualTypeArgument);
-                    this.typeReader = typeReader;
-                }
-            }
+            TypeReader typeReader = this.elementReader;
             stream.startParseArray();
             while (stream.parseArrayEnd() == false)
             {

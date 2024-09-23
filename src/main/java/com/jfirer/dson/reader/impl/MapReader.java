@@ -1,7 +1,7 @@
 package com.jfirer.dson.reader.impl;
 
 import com.jfirer.baseutil.reflect.ReflectUtil;
-import com.jfirer.dson.reader.JsonReader;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 
@@ -13,15 +13,11 @@ import java.util.Map;
 public class MapReader implements TypeReader
 {
     private TypeReader valueReader;
-    private JsonReader jsonReader;
-    private Type       type;
     private Class      ckass;
 
     @Override
-    public void init(Type type, JsonReader jsonReader)
+    public void init(Type type, DsonContext dsonContext)
     {
-        this.type       = type;
-        this.jsonReader = jsonReader;
         if (type instanceof Class)
         {
             ckass = (Class) type;
@@ -43,24 +39,21 @@ public class MapReader implements TypeReader
         {
             ckass = HashMap.class;
         }
+        if (type instanceof Class)
+        {
+            this.valueReader = dsonContext.parseReader(Object.class);
+        }
+        else if (type instanceof ParameterizedType)
+        {
+            Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
+            this.valueReader = dsonContext.parseReader(typeArguments[1]);
+        }
     }
 
     @Override
     public Object fromString(Stream stream)
     {
         TypeReader valueReader = this.valueReader;
-        if (valueReader == null)
-        {
-            if (type instanceof Class)
-            {
-                this.valueReader = valueReader = jsonReader.parse(Object.class);
-            }
-            else if (type instanceof ParameterizedType)
-            {
-                Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
-                this.valueReader = valueReader = jsonReader.parse(typeArguments[1]);
-            }
-        }
         stream.startParseObject();
         try
         {

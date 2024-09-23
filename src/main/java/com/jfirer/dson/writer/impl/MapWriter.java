@@ -1,8 +1,7 @@
 package com.jfirer.dson.writer.impl;
 
-import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.writer.TypeWriter;
-import com.jfirer.dson.writer.Writer;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
@@ -13,10 +12,9 @@ import java.util.Map.Entry;
 
 public class MapWriter implements TypeWriter
 {
-    private JsonWriter jsonWriter;
-    private TypeWriter valueWriter;
-    private Type       valueType;
-    private boolean    valueTypeFinal = false;
+    private DsonContext dsonContext;
+    private TypeWriter  valueWriter;
+    private boolean     valueTypeFinal = false;
 
     @Override
     public void toJson(Object entity, StringBuilder output)
@@ -26,19 +24,15 @@ public class MapWriter implements TypeWriter
             return;
         }
         output.append('{');
-        Writer writer;
-        boolean hasComma = false;
+        TypeWriter writer   = null;
+        boolean    hasComma = false;
         if (valueTypeFinal)
         {
             writer = this.valueWriter;
-            if (writer == null)
-            {
-                this.valueWriter = (TypeWriter) (writer = jsonWriter.get(valueType));
-            }
         }
         else
         {
-            writer = jsonWriter;
+            ;
         }
         for (Entry<?, ?> entry : ((Map<?, ?>) entity).entrySet())
         {
@@ -46,7 +40,14 @@ public class MapWriter implements TypeWriter
             if (entryValue != null)
             {
                 output.append('"').append(entry.getKey()).append("\":");
-                writer.toJson(entryValue, output);
+                if (valueTypeFinal)
+                {
+                    writer.toJson(entryValue, output);
+                }
+                else
+                {
+                }
+                dsonContext.parseWriter(entryValue.getClass()).toJson(entryValue, output);
                 output.append(',');
                 hasComma = true;
             }
@@ -59,9 +60,9 @@ public class MapWriter implements TypeWriter
     }
 
     @Override
-    public void initialize(JsonWriter jsonWriter, Type type)
+    public void initialize(Type type, DsonContext dsonContext)
     {
-        this.jsonWriter = jsonWriter;
+        this.dsonContext = dsonContext;
         if (type instanceof ParameterizedType)
         {
             Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
@@ -69,7 +70,7 @@ public class MapWriter implements TypeWriter
             if (isTypeFinal(valueType))
             {
                 valueTypeFinal = true;
-                this.valueType = valueType;
+                valueWriter    = dsonContext.parseWriter(valueType);
             }
         }
         else if (type instanceof Class<?>)

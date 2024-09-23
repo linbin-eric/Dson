@@ -1,6 +1,6 @@
 package com.jfirer.dson.writer.impl;
 
-import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.writer.TypeWriter;
 
 import java.lang.reflect.GenericArrayType;
@@ -10,12 +10,12 @@ import java.lang.reflect.Type;
 
 public class ArrayWriter implements TypeWriter
 {
-    private JsonWriter jsonWriter;
-    private ToJson     toJson;
+    private DsonContext dsonContext;
+    private ToJson      toJson;
 
-    public ArrayWriter(JsonWriter serializer, Type type)
+    public ArrayWriter(DsonContext dsonContext, Type type)
     {
-        initialize(serializer, type);
+        initialize(type, dsonContext);
     }
 
     public ArrayWriter()
@@ -33,12 +33,12 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
+            int[] arr = (int[]) array;
             for (int element : (int[]) array)
             {
                 output.append(element).append(',');
             }
-            if (length != output.length())
+            if (arr.length != 0)
             {
                 output.setLength(output.length() - 1);
             }
@@ -52,12 +52,12 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
+            boolean[] arr = (boolean[]) array;
             for (boolean element : (boolean[]) array)
             {
                 output.append(element).append(',');
             }
-            if (length != output.length())
+            if (arr.length != 0)
             {
                 output.setLength(output.length() - 1);
             }
@@ -71,12 +71,12 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
+            byte[] arr = (byte[]) array;
             for (byte element : (byte[]) array)
             {
                 output.append(element).append(',');
             }
-            if (length != output.length())
+            if (arr.length != 0)
             {
                 output.setLength(output.length() - 1);
             }
@@ -90,12 +90,12 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
+            long[] arr = (long[]) array;
             for (long element : (long[]) array)
             {
                 output.append(element).append(',');
             }
-            if (length != output.length())
+            if (arr.length != 0)
             {
                 output.setLength(output.length() - 1);
             }
@@ -109,12 +109,12 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
+            short[] arr = (short[]) array;
             for (short element : (short[]) array)
             {
                 output.append(element).append(',');
             }
-            if (length != output.length())
+            if (arr.length != 0)
             {
                 output.setLength(output.length() - 1);
             }
@@ -128,12 +128,12 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
+            float[] arr = (float[]) array;
             for (float element : (float[]) array)
             {
                 output.append(element).append(',');
             }
-            if (length != output.length())
+            if (arr.length != 0)
             {
                 output.setLength(output.length() - 1);
             }
@@ -147,12 +147,12 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
+            double[] arr = (double[]) array;
             for (double element : (double[]) array)
             {
                 output.append(element).append(',');
             }
-            if (length != output.length())
+            if (arr.length != 0)
             {
                 output.setLength(output.length() - 1);
             }
@@ -166,12 +166,12 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
-            for (char element : (char[]) array)
+            char[] arr = (char[]) array;
+            for (char element : arr)
             {
                 output.append('"').append(element).append("\",");
             }
-            if (length != output.length())
+            if (arr.length != 0)
             {
                 output.setLength(output.length() - 1);
             }
@@ -185,15 +185,16 @@ public class ArrayWriter implements TypeWriter
         public void output(StringBuilder output, Object array)
         {
             output.append('[');
-            int length = output.length();
+            boolean hasComma = false;
             for (String element : (String[]) array)
             {
                 if (element != null)
                 {
                     output.append('"').append(element).append("\",");
+                    hasComma = true;
                 }
             }
-            if (length != output.length())
+            if (hasComma)
             {
                 output.setLength(output.length() - 1);
             }
@@ -204,11 +205,10 @@ public class ArrayWriter implements TypeWriter
     class FinalElementTypeArrayToJson implements ToJson
     {
         private TypeWriter typeWriter;
-        private Type       componentType;
 
         public FinalElementTypeArrayToJson(Type componentType)
         {
-            this.componentType = componentType;
+            typeWriter = dsonContext.parseWriter(componentType);
         }
 
         @Override
@@ -218,11 +218,7 @@ public class ArrayWriter implements TypeWriter
             Object[]   elements   = (Object[]) array;
             int        length     = elements.length;
             TypeWriter typeWriter = this.typeWriter;
-            if (typeWriter == null)
-            {
-                this.typeWriter = typeWriter = jsonWriter.get(componentType);
-            }
-            boolean hasComma = false;
+            boolean    hasComma   = false;
             for (int i = 0; i < length; i++)
             {
                 Object element = elements[i];
@@ -230,8 +226,8 @@ public class ArrayWriter implements TypeWriter
                 {
                     typeWriter.toJson(element, output);
                     output.append(',');
+                    hasComma = true;
                 }
-                hasComma = true;
             }
             if (hasComma)
             {
@@ -252,10 +248,10 @@ public class ArrayWriter implements TypeWriter
             {
                 if (element != null)
                 {
-                    jsonWriter.toJson(element, output);
+                    dsonContext.parseWriter(element.getClass()).toJson(element, output);
                     output.append(',');
+                    hasComma = true;
                 }
-                hasComma = true;
             }
             if (hasComma)
             {
@@ -266,9 +262,9 @@ public class ArrayWriter implements TypeWriter
     }
 
     @Override
-    public void initialize(JsonWriter serializer, Type type)
+    public void initialize(Type type, DsonContext dsonContext)
     {
-        this.jsonWriter = serializer;
+        this.dsonContext = dsonContext;
         if (type instanceof Class<?>)
         {
             Class<?> componentType = ((Class<?>) type).getComponentType();

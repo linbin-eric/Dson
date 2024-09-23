@@ -1,6 +1,5 @@
 package com.jfirer.dson;
 
-import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 import org.junit.Assert;
@@ -130,10 +129,10 @@ public class ReaderTest
         data.setUnknowType(map2);
         String s = Dson.toJson(data);
         System.out.println(s);
-        JsonReader jsonReader = new JsonReader();
-        TypeReader typeReader = jsonReader.parse(SimpleData.class);
-        Object     o          = typeReader.fromString(new Stream(s));
+        DsonContext jsonReader = new DsonContext();
+        TypeReader  typeReader = jsonReader.parseReader(SimpleData.class);
+        Object      o          = typeReader.fromString(new Stream(s));
         System.out.println(Dson.toJson(o));
-        Assert.assertEquals(s,Dson.toJson(o));
+        Assert.assertEquals(s, Dson.toJson(o));
     }
 }

@@ -2,9 +2,8 @@ package com.jfirer.dson.writer.impl;
 
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.valueaccessor.ValueAccessor;
-import com.jfirer.dson.util.JsonIgnore;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.util.JsonRenameStrategy;
-import com.jfirer.dson.writer.JsonWriter;
 import com.jfirer.dson.writer.SerializeDefinition;
 import com.jfirer.dson.writer.TypeWriter;
 import lombok.Data;
@@ -14,12 +13,14 @@ import lombok.experimental.Accessors;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class ObjectWriter implements TypeWriter
 {
-    private Entry[]    entries;
-    private JsonWriter jsonWriter;
+    private Entry[]     entries;
 
     @Override
     public void toJson(Object entity, StringBuilder output)
@@ -42,32 +43,10 @@ public class ObjectWriter implements TypeWriter
         output.append('}');
     }
 
-    public static List<Field> getAllSortedFields(Class type)
-    {
-        List<Field> fields = new LinkedList<Field>();
-        List<Field> tmp    = new ArrayList<Field>();
-        while (type != Object.class && type.isPrimitive() == false)
-        {
-            for (Field each : type.getDeclaredFields())
-            {
-                if (!each.isAnnotationPresent(JsonIgnore.class))
-                {
-                    tmp.add(each);
-                }
-            }
-            Collections.sort(tmp, Comparator.comparing(Field::getName));
-            fields.addAll(tmp);
-            tmp.clear();
-            type = type.getSuperclass();
-        }
-        return fields;
-    }
-
     @SneakyThrows
     @Override
-    public void initialize(JsonWriter jsonWriter, Type type)
+    public void initialize(Type type, DsonContext dsonContext)
     {
-        this.jsonWriter = jsonWriter;
         Class              ckazz = (Class) type;
         Map<String, Field> map   = new HashMap<>();
         while (ckazz != Object.class)
@@ -90,7 +69,7 @@ public class ObjectWriter implements TypeWriter
             if (each.getValue().isAnnotationPresent(SerializeDefinition.class))
             {
                 TypeWriter typeWriter = each.getValue().getAnnotation(SerializeDefinition.class).value().getConstructor().newInstance();
-                typeWriter.initialize(jsonWriter, each.getValue().getGenericType());
+                typeWriter.initialize(each.getValue().getGenericType(), dsonContext);
                 entry = new PreDedfinedTypeEntry().setTypeWriter(typeWriter);
             }
             else
@@ -113,12 +92,12 @@ public class ObjectWriter implements TypeWriter
                     {
                         if (Modifier.isFinal(each.getValue().getType().getModifiers()))
                         {
-                            TypeWriter typeWriter = jsonWriter.get(each.getValue().getGenericType());
+                            TypeWriter typeWriter = dsonContext.parseWriter(each.getValue().getGenericType());
                             entry = new PreDedfinedTypeEntry().setTypeWriter(typeWriter);
                         }
                         else
                         {
-                            entry = new UnPreDefinedTypeEntry().setJsonWriter(jsonWriter);
+                            entry = new UnPreDefinedTypeEntry().setDsonContext(dsonContext);
                         }
                     }
                 }
@@ -292,7 +271,7 @@ public class ObjectWriter implements TypeWriter
     @Accessors(chain = true)
     class UnPreDefinedTypeEntry extends Entry
     {
-        private JsonWriter jsonWriter;
+        private DsonContext dsonContext;
 
         @Override
         public void output(StringBuilder builder, Object instance)
@@ -301,7 +280,7 @@ public class ObjectWriter implements TypeWriter
             if (reference != null)
             {
                 builder.append(fullName);
-                jsonWriter.toJson(reference, builder);
+                dsonContext.parseWriter(reference.getClass()).toJson(reference, builder);
                 builder.append(',');
             }
         }

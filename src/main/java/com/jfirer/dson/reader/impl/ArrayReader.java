@@ -1,6 +1,6 @@
 package com.jfirer.dson.reader.impl;
 
-import com.jfirer.dson.reader.JsonReader;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 
@@ -12,11 +12,11 @@ import java.util.Arrays;
 
 public class ArrayReader implements TypeReader
 {
-    private boolean    componentTypePrimitive = false;
-    private Type       componentType;
-    private TypeReader componentReader;
-    private JsonReader jsonReader;
-    private DimInfo    dimInfo;
+    private boolean     componentTypePrimitive = false;
+    private Type        componentType;
+    private TypeReader  componentReader;
+    private DsonContext dsonContext;
+    private DimInfo     dimInfo;
 
     class DimInfo
     {
@@ -31,9 +31,9 @@ public class ArrayReader implements TypeReader
     }
 
     @Override
-    public void init(Type type, JsonReader jsonReader)
+    public void init(Type type, DsonContext dsonContext)
     {
-        this.jsonReader = jsonReader;
+        this.dsonContext = dsonContext;
         if (type instanceof GenericArrayType)
         {
             Type genericComponentType = ((GenericArrayType) type).getGenericComponentType();
@@ -266,7 +266,7 @@ public class ArrayReader implements TypeReader
             TypeReader typeReader = componentReader;
             if (typeReader == null)
             {
-                componentReader = typeReader = jsonReader.parse(componentType);
+                componentReader = typeReader = dsonContext.parseReader(componentType);
             }
             Object[] array = null;
             if (componentType instanceof Class)

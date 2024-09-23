@@ -3,7 +3,7 @@ package com.jfirer.dson.reader.support.entry;
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.valueaccessor.ValueAccessor;
 import com.jfirer.dson.DsonConfig;
-import com.jfirer.dson.reader.JsonReader;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 import com.jfirer.dson.reader.DeSerializeDefinition;
@@ -18,12 +18,12 @@ public class StandardReadEntry implements ReadEntry
     protected final int           classId;
     protected final ValueAccessor valueAccessor;
 
-    public StandardReadEntry(String name, Field field, JsonReader jsonReader)
+    public StandardReadEntry(String name, Field field, DsonContext dsonContext)
     {
         this.name      = name;
         this.fieldName = field.getName();
-        DsonConfig config = jsonReader.getConfig();
-        valueAccessor = config.isStandardReadUseCompile() ? ValueAccessor.compile(field) : ValueAccessor.standard(field);
+        DsonConfig config = dsonContext.getConfig();
+        valueAccessor = config.isValueAccessorUseCompile() ? ValueAccessor.compile(field) : ValueAccessor.standard(field);
         classId       = ReflectUtil.getClassId(field.getType());
         if (field.isAnnotationPresent(DeSerializeDefinition.class))
         {
@@ -31,7 +31,7 @@ public class StandardReadEntry implements ReadEntry
             try
             {
                 typeReader = annotation.value().newInstance();
-                typeReader.init(field.getType(), jsonReader);
+                typeReader.init(field.getType(), dsonContext);
             }
             catch (Exception e)
             {
@@ -40,7 +40,7 @@ public class StandardReadEntry implements ReadEntry
         }
         else if (ReflectUtil.isNonBoxedObject(classId) && classId != ReflectUtil.CLASS_STRING)
         {
-            typeReader = jsonReader.parse(field.getGenericType());
+            typeReader = dsonContext.parseReader(field.getGenericType());
         }
     }
 

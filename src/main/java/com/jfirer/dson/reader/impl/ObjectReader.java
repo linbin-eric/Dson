@@ -1,6 +1,6 @@
 package com.jfirer.dson.reader.impl;
 
-import com.jfirer.dson.reader.JsonReader;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 import com.jfirer.dson.reader.support.entry.ReadEntry;
@@ -16,10 +16,10 @@ public class ObjectReader implements TypeReader
     private static final Unsafe UNSAFE = Unsafe.getUnsafe();
 
     @Override
-    public void init(Type type, JsonReader jsonReader)
+    public void init(Type type, DsonContext dsonContext)
     {
         this.ckass = (Class) type;
-        rootNode   = Node.generateRoot(ckass, jsonReader);
+        rootNode   = Node.generateRoot(ckass, dsonContext);
     }
 
     @Override
