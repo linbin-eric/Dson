@@ -7,10 +7,10 @@ import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.baseutil.smc.model.ClassModel;
 import com.jfirer.baseutil.smc.model.FieldModel;
 import com.jfirer.baseutil.smc.model.MethodModel;
+import com.jfirer.dson.reader.DeSerializeDefinition;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
-import com.jfirer.dson.reader.DeSerializeDefinition;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
@@ -40,6 +40,10 @@ public interface ReadEntry
             {
                 ReflectUtil.throwException(e);
             }
+        }
+        else if (ReflectUtil.getClassId(field.getType()) > ReflectUtil.CLASS_STRING)
+        {
+            typeReader = jsonReader.parse(field.getGenericType());
         }
         ClassModel classModel = new ClassModel(STR.format("ReadEntry_{}_{}", field.getName(), CompileHelper.COMPILE_COUNTER.getAndIncrement()));
         classModel.addField(new FieldModel("typeReader", TypeReader.class, classModel));

@@ -48,10 +48,10 @@ public interface TypeWriter extends Writer
         initBody.append("this.jsonWriter = jsonWriter;\r\n");
         MethodModel toJsonMethod = new MethodModel(Writer.class.getDeclaredMethod("toJson", Object.class, StringBuilder.class), classModel);
         toJsonMethod.setParamterNames("instance", "builder");
-        StringBuilder toJsonBody    = new StringBuilder("builder.append(\"{\");\r\n");
+        StringBuilder toJsonBody = new StringBuilder("builder.append(\"{\");\r\n");
         toJsonBody.append("boolean hasOutput = false;\r\n");
-        String        referenceName = SmcHelper.getReferenceName(((Class<?>) type), classModel);
-        boolean       hasPrimitive  = false;
+        String  referenceName = SmcHelper.getReferenceName(((Class<?>) type), classModel);
+        boolean hasPrimitive  = false;
         for (Map.Entry<String, Field> each : map.entrySet())
         {
             if (Modifier.isFinal(each.getValue().getModifiers()) || Modifier.isStatic(each.getValue().getModifiers()))
@@ -66,10 +66,11 @@ public interface TypeWriter extends Writer
                 String              fieldname  = "typeWrite_" + CompileHelper.COMPILE_COUNTER.getAndIncrement();
                 classModel.addField(new FieldModel(fieldname, TypeWriter.class, classModel));
                 classModel.addImport(annotation.value());
+                classModel.addImport(Field.class);
                 initBody.append(STR.format("""
                                                    {
                                                    try{
-                                                       Field field = {}.class.getDeclaredField({});
+                                                       Field field = {}.class.getDeclaredField("{}");
                                                        {}  = new {}();
                                                        {}.initialize(jsonWriter,field.getGenericType());
                                                        }catch(Throwable e){;}
@@ -80,13 +81,13 @@ public interface TypeWriter extends Writer
                                                      {} reference = (({})instance).{}();
                                                                  if (reference != null)
                                                                  {
-                                                                     builder.append("\"{}\":");
+                                                                     builder.append("\\"{}\\":");
                                                                      {}.toJson(reference, builder);
                                                                      builder.append(',');
                                                                      hasOutput = true;
                                                                  }
                                                      }
-                                                     """, SmcHelper.getReferenceName(each.getValue().getDeclaringClass(), classModel), referenceName, methodName, each.getKey()));
+                                                     """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), referenceName, methodName, each.getKey(), fieldname));
             }
             else
             {
@@ -99,7 +100,7 @@ public interface TypeWriter extends Writer
                                                              builder.append("\\"{}\\":");
                                                                         builder.append((({})instance).{}());
                                                                         builder.append(',');
-                                                                        """, each.getKey(), referenceName, methodName));
+                                                             """, each.getKey(), referenceName, methodName));
                         hasPrimitive = true;
                     }
                     case ReflectUtil.PRIMITIVE_CHAR ->
@@ -108,7 +109,7 @@ public interface TypeWriter extends Writer
                                                              builder.append("\\"{}\\":");
                                                                          builder.append('"').append((({})instance).{}());
                                                                          builder.append('"').append(',');
-                                                                         """, each.getKey(), referenceName, methodName));
+                                                             """, each.getKey(), referenceName, methodName));
                         hasPrimitive = true;
                     }
                     case ReflectUtil.CLASS_BOOL, ReflectUtil.CLASS_BYTE, ReflectUtil.CLASS_SHORT, ReflectUtil.CLASS_INT, ReflectUtil.CLASS_LONG, ReflectUtil.CLASS_FLOAT,
@@ -148,7 +149,7 @@ public interface TypeWriter extends Writer
                             initBody.append(STR.format("""
                                                                {
                                                                try{
-                                                                   Field field = {}.class.getDeclaredField({});
+                                                                   Field field = {}.class.getDeclaredField("{}");
                                                                    {}  = jsonWriter.get(field.getGenericType());
                                                                    }catch(Throwable e){;}
                                                                }
@@ -192,7 +193,8 @@ public interface TypeWriter extends Writer
                                       builder.append('}');
                                       """);
         }
-        else{
+        else
+        {
             toJsonBody.append("""
                                       if(hasOutput){
                                       builder.setLength(builder.length()-1);
