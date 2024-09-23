@@ -11,10 +11,13 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.io.IOException;
 
+@BenchmarkMode(Mode.Throughput)
+@Warmup(iterations = 2, time = 2)
+@Measurement(iterations = 3, time = 3)
+@Fork(2)
 public class BenchmarkSmall
 {
     @State(Scope.Benchmark)
@@ -29,7 +32,7 @@ public class BenchmarkSmall
         public void before()
         {
             typeReader = Dson.get(SmallObject.class);
-            smallData = new SmallObject();
+            smallData  = new SmallObject();
             smallData.setA(1);
             smallData.setA1(12);
             smallData.setAge(12);
@@ -43,30 +46,23 @@ public class BenchmarkSmall
             smallData.setE1("2ewaedasdas");
             smallData.setF(true);
             mapper = new ObjectMapper();
-            value = """
+            value  = """
                     {"s":0,"a1":12,"a":1,"age":12,"b":5.6,"b1":2.36,"c":2.3659,"c1":2.3656,"d":56676416847694,"d1":12312312,"e":"e","e1":"2ewaedasdas","f":true,"g":0,"h":0}
                     """;
         }
     }
 
     @Benchmark
-    public void testNew(Blackhole blackhole, SmallData smallData)
+    public void testStandard(Blackhole blackhole, SmallData smallData)
     {
         Object o = Dson.fromString(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
-//    @Benchmark
+    @Benchmark
     public void testCompile(Blackhole blackhole, SmallData smallData)
     {
         Object o = Dson.fromStringByCompile(SmallObject.class, smallData.value);
-        blackhole.consume(o);
-    }
-
-//    @Benchmark
-    public void testLambda(Blackhole blackhole, SmallData smallData)
-    {
-        Object o = Dson.fromStringByLambda(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
@@ -93,11 +89,7 @@ public class BenchmarkSmall
 
     public static void main(String[] args) throws RunnerException
     {
-        Options opt = new OptionsBuilder().include(BenchmarkSmall.class.getSimpleName())//
-                                          .warmupIterations(2).warmupTime(TimeValue.seconds(2))//
-                                          .measurementIterations(3).forks(1)//
-                                          .measurementTime(TimeValue.seconds(2))//
-                                          .threads(1).forks(1).build();
+        Options opt = new OptionsBuilder().include(BenchmarkSmall.class.getSimpleName()).build();
         new Runner(opt).run();
     }
 }

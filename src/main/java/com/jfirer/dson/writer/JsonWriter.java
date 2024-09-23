@@ -1,7 +1,7 @@
 package com.jfirer.dson.writer;
 
-import com.jfirer.dson.writer.buildin.*;
 import com.jfirer.dson.writer.impl.*;
+import com.jfirer.dson.writer.impl.basic.*;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -95,16 +95,16 @@ public class JsonWriter implements Writer
                 {
                     if (useCompile)
                     {
-                        typeWriter = new CompileObjectWriter();
+                        typeWriter = TypeWriter.compile(this, type);
                     }
                     else
                     {
-                        typeWriter = new ObjectWriter(false);
+                        typeWriter = new ObjectWriter();
                     }
                 }
             }
-            typeWriter.initialize(this, type);
             store.put(type, typeWriter);
+            typeWriter.initialize(this, type);
         }
         return typeWriter;
     }

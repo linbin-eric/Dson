@@ -1,7 +1,5 @@
 package com.jfirer.dson.util;
 
-import com.jfirer.dson.strategy.JsonRenameStrategy;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -1,4 +1,4 @@
-package com.jfirer.dson.reader.buildin;
+package com.jfirer.dson.reader.impl;
 
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
@@ -6,7 +6,7 @@ import com.jfirer.dson.reader.TypeReader;
 
 import java.lang.reflect.Type;
 
-public class FloatReader implements TypeReader
+public class ReadObjectAsString implements TypeReader
 {
     @Override
     public void init(Type type, JsonReader jsonReader)
@@ -16,6 +16,6 @@ public class FloatReader implements TypeReader
     @Override
     public Object fromString(Stream stream)
     {
-        return stream.getFloat();
+        return stream.getWholeValueAsString();
     }
 }

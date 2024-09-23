@@ -1,7 +1,7 @@
 package com.jfirer.dson.model;
 
-import com.jfirer.dson.strategy.DeSerializeDefinition;
-import com.jfirer.dson.strategy.buildin.ReadObjectAsString;
+import com.jfirer.dson.reader.DeSerializeDefinition;
+import com.jfirer.dson.reader.impl.ReadObjectAsString;
 
 public class FunctionData17
 {

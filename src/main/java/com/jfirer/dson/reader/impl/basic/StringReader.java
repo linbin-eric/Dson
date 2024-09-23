@@ -1,4 +1,4 @@
-package com.jfirer.dson.reader.buildin;
+package com.jfirer.dson.reader.impl.basic;
 
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;

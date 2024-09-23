@@ -14,6 +14,7 @@ public class Dson
     private static final JsonWriter                 JSONWRITER          = new JsonWriter();
     private static final JsonWriter                 JSON_WRITER_COMPILE = new JsonWriter(true);
     private static final JsonReader                 JSONREADER          = new JsonReader();
+    private static final JsonReader                 JSONREADER_COMPILE  = new JsonReader(new DsonConfig().setReadUseCompile(true));
 
     public static String toJson(Object entity)
     {
@@ -42,12 +43,7 @@ public class Dson
 
     public static <T> T fromStringByCompile(Type type, String str)
     {
-        return (T) JSONREADER.parse(type).fromString(new Stream(str));
-    }
-
-    public static <T> T fromStringByLambda(Type type, String str)
-    {
-        return (T) JSONREADER.parse(type).fromString(new Stream(str));
+        return (T) JSONREADER_COMPILE.parse(type).fromString(new Stream(str));
     }
 
     public static Object fromString(String str)

@@ -1,13 +1,12 @@
-package com.jfirer.dson.writer.buildin;
+package com.jfirer.dson.writer.impl.basic;
 
 import com.jfirer.dson.writer.JsonWriter;
 import com.jfirer.dson.writer.TypeWriter;
 
 import java.lang.reflect.Type;
 
-public class EnumOrdinalWriter implements TypeWriter
+public class BooleanWriter implements TypeWriter
 {
-
     @Override
     public void initialize(JsonWriter writer, Type type)
     {
@@ -16,7 +15,6 @@ public class EnumOrdinalWriter implements TypeWriter
     @Override
     public void toJson(Object entity, StringBuilder output)
     {
-        int ordinal = ((Enum) entity).ordinal();
-        output.append(ordinal);
+        output.append(((Boolean) entity).booleanValue());
     }
 }

@@ -2,13 +2,14 @@ package com.jfirer.dson.writer.impl;
 
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.valueaccessor.ValueAccessor;
-import com.jfirer.baseutil.smc.compiler.CompileHelper;
-import com.jfirer.dson.strategy.JsonRenameStrategy;
-import com.jfirer.dson.strategy.SerializeDefinition;
 import com.jfirer.dson.util.JsonIgnore;
-import com.jfirer.dson.util.WriterUtil;
+import com.jfirer.dson.util.JsonRenameStrategy;
 import com.jfirer.dson.writer.JsonWriter;
+import com.jfirer.dson.writer.SerializeDefinition;
 import com.jfirer.dson.writer.TypeWriter;
+import lombok.Data;
+import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -19,12 +20,6 @@ public class ObjectWriter implements TypeWriter
 {
     private Entry[]    entries;
     private JsonWriter jsonWriter;
-    private boolean    useCompile;
-
-    public ObjectWriter(boolean useCompile)
-    {
-        this.useCompile = useCompile;
-    }
 
     @Override
     public void toJson(Object entity, StringBuilder output)
@@ -37,103 +32,7 @@ public class ObjectWriter implements TypeWriter
         int length = output.length();
         for (Entry each : entries)
         {
-            switch (each.type)
-            {
-                case STRING ->
-                {
-                    Object str = each.valueAccessor.get(entity);
-                    if (str != null)
-                    {
-                        output.append(each.fullName);
-                        output.append('"');
-                        WriterUtil.writeString(output, (String) str);
-                        output.append("\",");
-                    }
-                }
-                case CHAR ->
-                {
-                    output.append(each.fullName);
-                    output.append('"').append(each.valueAccessor.getChar(entity));
-                    output.append('"').append(',');
-                }
-                case BOOL ->
-                {
-                    output.append(each.fullName);
-                    output.append(each.valueAccessor.getBoolean(entity));
-                    output.append(',');
-                }
-                case INT ->
-                {
-                    output.append(each.fullName);
-                    output.append(each.valueAccessor.getInt(entity));
-                    output.append(',');
-                }
-                case BYTE ->
-                {
-                    output.append(each.fullName);
-                    output.append(each.valueAccessor.getByte(entity));
-                    output.append(',');
-                }
-                case LONG ->
-                {
-                    output.append(each.fullName);
-                    output.append(each.valueAccessor.getLong(entity));
-                    output.append(',');
-                }
-                case FLOAT ->
-                {
-                    output.append(each.fullName);
-                    output.append(each.valueAccessor.getFloat(entity));
-                    output.append(',');
-                }
-                case SHORT ->
-                {
-                    output.append(each.fullName);
-                    output.append(each.valueAccessor.getShort(entity));
-                    output.append(',');
-                }
-                case DOUBLE ->
-                {
-                    output.append(each.fullName);
-                    output.append(each.valueAccessor.getDouble(entity));
-                    output.append(',');
-                }
-                case CUSTOM ->
-                {
-                    Object o = each.valueAccessor.get(entity);
-                    if (o != null)
-                    {
-                        output.append(each.fullName);
-                        each.typeWriter.toJson(o, output);
-                        output.append(',');
-                    }
-                }
-                case FINAL_OBJECT ->
-                {
-                    Object o = each.valueAccessor.get(entity);
-                    if (o != null)
-                    {
-                        TypeWriter typeWriter = each.typeWriter;
-                        if (typeWriter == null)
-                        {
-                            each.typeWriter = typeWriter = jsonWriter.get(each.field.getGenericType());
-                        }
-                        output.append(each.fullName);
-                        typeWriter.toJson(o, output);
-                        output.append(',');
-                    }
-                }
-                case NOT_FINAL_OBJECT ->
-                {
-                    Object o = each.valueAccessor.get(entity);
-                    if (o != null)
-                    {
-                        output.append(each.fullName);
-                        jsonWriter.toJson(o, output);
-                        output.append(',');
-                    }
-                }
-            }
+            each.output(output, entity);
         }
         int newLength = output.length();
         if (length != newLength)
@@ -164,112 +63,247 @@ public class ObjectWriter implements TypeWriter
         return fields;
     }
 
-    class Entry
-    {
-        ValueAccessor valueAccessor;
-        Field         field;
-        PropertyType  type;
-        TypeWriter    typeWriter;
-        String        name;
-        String        fullName;
-    }
-
-    enum PropertyType
-    {
-        STRING,//
-        INT, BYTE, SHORT, LONG, FLOAT, DOUBLE, BOOL, CHAR,//
-        CUSTOM, NOT_FINAL_OBJECT, FINAL_OBJECT
-    }
-
-    private CompileHelper compileHelper = new CompileHelper();
-
+    @SneakyThrows
     @Override
     public void initialize(JsonWriter jsonWriter, Type type)
     {
         this.jsonWriter = jsonWriter;
-        List<Entry>        entries            = new ArrayList<Entry>();
-        JsonRenameStrategy jsonRenameStrategy = JsonRenameStrategy.helpGetStrategy((Class) type);
-        for (Field field : getAllSortedFields((Class<?>) type))
+        Class              ckazz = (Class) type;
+        Map<String, Field> map   = new HashMap<>();
+        while (ckazz != Object.class)
         {
-            if (field.getName().contains("this") || Modifier.isStatic(field.getModifiers()))
+            for (Field each : ckazz.getDeclaredFields())
+            {
+                map.putIfAbsent(JsonRenameStrategy.helpGetRename(each), each);
+            }
+            ckazz = ckazz.getSuperclass();
+        }
+        List<Entry> list = new LinkedList<>();
+        for (Map.Entry<String, Field> each : map.entrySet())
+        {
+            if (Modifier.isFinal(each.getValue().getModifiers()) || Modifier.isStatic(each.getValue().getModifiers()))
             {
                 continue;
             }
-            Class<?> fieldType = field.getType();
-            Entry    entry     = new Entry();
-            if (useCompile)
+            int   classId = ReflectUtil.getClassId(each.getValue().getType());
+            Entry entry   = null;
+            if (each.getValue().isAnnotationPresent(SerializeDefinition.class))
             {
-                entry.valueAccessor = ValueAccessor.compile(field);
+                TypeWriter typeWriter = each.getValue().getAnnotation(SerializeDefinition.class).value().getConstructor().newInstance();
+                typeWriter.initialize(jsonWriter, each.getValue().getGenericType());
+                entry = new PreDedfinedTypeEntry().setTypeWriter(typeWriter);
             }
             else
             {
-                entry.valueAccessor = ValueAccessor.standard(field);
-            }
-            entry.field    = field;
-            entry.name     = JsonRenameStrategy.helpGetRename(field, jsonRenameStrategy);
-            entry.fullName = '"' + entry.name + '"' + ':';
-            entries.add(entry);
-            if (fieldType.isPrimitive())
-            {
-                if (fieldType == int.class)
+                switch (classId)
                 {
-                    entry.type = PropertyType.INT;
-                }
-                else if (fieldType == byte.class)
-                {
-                    entry.type = PropertyType.BYTE;
-                }
-                else if (fieldType == short.class)
-                {
-                    entry.type = PropertyType.SHORT;
-                }
-                else if (fieldType == long.class)
-                {
-                    entry.type = PropertyType.LONG;
-                }
-                else if (fieldType == float.class)
-                {
-                    entry.type = PropertyType.FLOAT;
-                }
-                else if (fieldType == double.class)
-                {
-                    entry.type = PropertyType.DOUBLE;
-                }
-                else if (fieldType == char.class)
-                {
-                    entry.type = PropertyType.CHAR;
-                }
-                else if (fieldType == boolean.class)
-                {
-                    entry.type = PropertyType.BOOL;
+                    case ReflectUtil.PRIMITIVE_INT -> entry = new IntEntry();
+                    case ReflectUtil.PRIMITIVE_BYTE -> entry = new ByteEntry();
+                    case ReflectUtil.PRIMITIVE_CHAR -> entry = new CharEntry();
+                    case ReflectUtil.PRIMITIVE_BOOL -> entry = new BoolEntry();
+                    case ReflectUtil.PRIMITIVE_SHORT -> entry = new ShortEntry();
+                    case ReflectUtil.PRIMITIVE_LONG -> entry = new LongEntry();
+                    case ReflectUtil.PRIMITIVE_FLOAT -> entry = new FloatEntry();
+                    case ReflectUtil.PRIMITIVE_DOUBLE -> entry = new DoubleEntry();
+                    case ReflectUtil.CLASS_INT, ReflectUtil.CLASS_BYTE, ReflectUtil.CLASS_BOOL, ReflectUtil.CLASS_SHORT, ReflectUtil.CLASS_LONG, ReflectUtil.CLASS_FLOAT,
+                         ReflectUtil.CLASS_DOUBLE -> entry = new BoxedNonCharacterEntry();
+                    case ReflectUtil.CLASS_CHAR -> entry = new CharacterEntry();
+                    case ReflectUtil.CLASS_STRING -> entry = new StringEntry();
+                    default ->
+                    {
+                        if (Modifier.isFinal(each.getValue().getType().getModifiers()))
+                        {
+                            TypeWriter typeWriter = jsonWriter.get(each.getValue().getGenericType());
+                            entry = new PreDedfinedTypeEntry().setTypeWriter(typeWriter);
+                        }
+                        else
+                        {
+                            entry = new UnPreDefinedTypeEntry().setJsonWriter(jsonWriter);
+                        }
+                    }
                 }
             }
-            else if (fieldType == String.class)
+            entry.setFullName('"' + each.getKey() + '"' + ':').setValueAccessor(ValueAccessor.standard(each.getValue()));
+            list.add(entry);
+        }
+        this.entries = list.toArray(Entry[]::new);
+    }
+
+    @Data
+    @Accessors(chain = true)
+    abstract class Entry
+    {
+        protected ValueAccessor valueAccessor;
+        protected TypeWriter    typeWriter;
+        protected String        fullName;
+
+        public abstract void output(StringBuilder builder, Object instance);
+    }
+
+    class IntEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            builder.append(fullName);
+            builder.append(valueAccessor.getInt(instance));
+            builder.append(',');
+        }
+    }
+
+    class ByteEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            builder.append(fullName);
+            builder.append(valueAccessor.getByte(instance));
+            builder.append(',');
+        }
+    }
+
+    class CharEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            builder.append(fullName);
+            builder.append('"').append(valueAccessor.getChar(instance));
+            builder.append('"').append(',');
+        }
+    }
+
+    class BoolEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            builder.append(fullName);
+            builder.append(valueAccessor.getBoolean(instance));
+            builder.append(',');
+        }
+    }
+
+    class ShortEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            builder.append(fullName);
+            builder.append(valueAccessor.getShort(instance));
+            builder.append(',');
+        }
+    }
+
+    class LongEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            builder.append(fullName);
+            builder.append(valueAccessor.getLong(instance));
+            builder.append(',');
+        }
+    }
+
+    class FloatEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            builder.append(fullName);
+            builder.append(valueAccessor.getFloat(instance));
+            builder.append(',');
+        }
+    }
+
+    class DoubleEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            builder.append(fullName);
+            builder.append(valueAccessor.getDouble(instance));
+            builder.append(',');
+        }
+    }
+
+    class StringEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            String reference = (String) valueAccessor.getReference(instance);
+            if (reference != null)
             {
-                entry.type = PropertyType.STRING;
-            }
-            else if (Modifier.isFinal(fieldType.getModifiers()))
-            {
-                entry.type = PropertyType.FINAL_OBJECT;
-            }
-            else
-            {
-                entry.type = PropertyType.NOT_FINAL_OBJECT;
-            }
-            if (field.isAnnotationPresent(SerializeDefinition.class))
-            {
-                try
-                {
-                    entry.type       = PropertyType.CUSTOM;
-                    entry.typeWriter = field.getAnnotation(SerializeDefinition.class).value().newInstance();
-                    entry.typeWriter.initialize(jsonWriter, field.getGenericType());
-                }
-                catch (Exception e)
-                {
-                    ReflectUtil.throwException(e);
-                }
+                builder.append(fullName);
+                builder.append('"').append(reference);
+                builder.append('"').append(',');
             }
         }
-        this.entries = entries.toArray(new Entry[0]);
+    }
+
+    class BoxedNonCharacterEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            Object reference = valueAccessor.getReference(instance);
+            if (reference != null)
+            {
+                builder.append(fullName);
+                builder.append(reference);
+                builder.append(',');
+            }
+        }
+    }
+
+    class CharacterEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            CharacterEntry reference = (CharacterEntry) valueAccessor.getReference(instance);
+            if (reference != null)
+            {
+                builder.append(fullName);
+                builder.append('"').append(reference);
+                builder.append('"').append(',');
+            }
+        }
+    }
+
+    class PreDedfinedTypeEntry extends Entry
+    {
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            Object reference = valueAccessor.getReference(instance);
+            if (reference != null)
+            {
+                builder.append(fullName);
+                typeWriter.toJson(reference, builder);
+                builder.append(',');
+            }
+        }
+    }
+
+    @Data
+    @Accessors(chain = true)
+    class UnPreDefinedTypeEntry extends Entry
+    {
+        private JsonWriter jsonWriter;
+
+        @Override
+        public void output(StringBuilder builder, Object instance)
+        {
+            Object reference = valueAccessor.getReference(instance);
+            if (reference != null)
+            {
+                builder.append(fullName);
+                jsonWriter.toJson(reference, builder);
+                builder.append(',');
+            }
+        }
     }
 }

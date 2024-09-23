@@ -1,6 +1,6 @@
-package com.jfirer.dson.strategy.buildin;
+package com.jfirer.dson.util.impl;
 
-import com.jfirer.dson.strategy.JsonRenameStrategy;
+import com.jfirer.dson.util.JsonRenameStrategy;
 
 import java.lang.reflect.Field;
 

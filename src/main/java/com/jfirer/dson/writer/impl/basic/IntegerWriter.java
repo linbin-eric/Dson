@@ -1,4 +1,4 @@
-package com.jfirer.dson.writer.buildin;
+package com.jfirer.dson.writer.impl.basic;
 
 import com.jfirer.dson.writer.JsonWriter;
 import com.jfirer.dson.writer.TypeWriter;

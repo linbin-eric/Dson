@@ -1,11 +1,5 @@
 package com.jfirer.dson.benchmark;
 
-import com.jfirer.dson.Dson;
-
-import java.lang.invoke.LambdaMetafactory;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-
 public class SmallObject
 {
     private int     age = 12;
@@ -28,19 +22,6 @@ public class SmallObject
     private Boolean f1;
     private Short   g1;
     private Byte    h1;
-
-    interface ThisBiIntConsumer<T>
-    {
-        void accept(T data, Integer i);
-    }
-
-    public static void main(String[] args) throws Throwable
-    {
-        String value = """
-                       {"s":0,"a1":12,"a":1,"age":12,"b":5.6,"b1":2.36,"c":2.3659,"c1":2.3656,"d":56676416847694,"d1":12312312,"e":"e","e1":"2ewaedasdas","f":true,"g":0,"h":0}
-                       """;
-        Dson.fromStringByLambda(SmallObject.class, value);
-    }
 
     public int getAge()
     {

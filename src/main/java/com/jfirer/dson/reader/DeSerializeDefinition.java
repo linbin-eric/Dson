@@ -1,6 +1,4 @@
-package com.jfirer.dson.strategy;
-
-import com.jfirer.dson.writer.TypeWriter;
+package com.jfirer.dson.reader;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SerializeDefinition
+public @interface DeSerializeDefinition
 {
-    Class<? extends TypeWriter> value();
+    Class<? extends TypeReader> value();
 }

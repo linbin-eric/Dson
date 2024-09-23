@@ -1,8 +1,8 @@
 package com.jfirer.dson.reader;
 
 import com.jfirer.dson.DsonConfig;
-import com.jfirer.dson.reader.buildin.*;
 import com.jfirer.dson.reader.impl.*;
+import com.jfirer.dson.reader.impl.basic.*;
 import lombok.Getter;
 
 import java.lang.reflect.GenericArrayType;
@@ -90,8 +90,8 @@ public class JsonReader
                     typeReader = new ObjectReader();
                 }
             }
-            typeReader.init(type, this);
             readers.put(type, typeReader);
+            typeReader.init(type, this);
             return typeReader;
         }
     }

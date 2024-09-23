@@ -1,8 +1,9 @@
 package com.jfirer.dson.reader.support;
 
+import com.jfirer.dson.DsonConfig;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.support.entry.ReadEntry;
-import com.jfirer.dson.strategy.JsonRenameStrategy;
+import com.jfirer.dson.util.JsonRenameStrategy;
 import com.jfirer.dson.util.JsonIgnore;
 
 import java.lang.reflect.Field;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 public class Node
 {
-    char   c;
+    char      c;
     Node[]    next = new Node[90];
     ReadEntry readEntry;
 
@@ -84,8 +85,7 @@ public class Node
 
     public static Node generateRoot(Class ckass, JsonReader jsonReader)
     {
-        Map<String, Field> map      = new HashMap<String, Field>();
-        JsonRenameStrategy strategy = JsonRenameStrategy.helpGetStrategy(ckass);
+        Map<String, Field> map = new HashMap<String, Field>();
         while (ckass != Object.class)
         {
             Field[] fields = ckass.getDeclaredFields();
@@ -96,14 +96,15 @@ public class Node
                 {
                     continue;
                 }
-                map.putIfAbsent(JsonRenameStrategy.helpGetRename(each, strategy), each);
+                map.putIfAbsent(JsonRenameStrategy.helpGetRename(each), each);
             }
             ckass = ckass.getSuperclass();
         }
-        Node rootNode = new Node();
+        Node       rootNode = new Node();
+        DsonConfig config   = jsonReader.getConfig();
         for (Map.Entry<String, Field> each : map.entrySet())
         {
-            rootNode.put(each.getKey(), new ReadEntry(each.getKey(), each.getValue(), jsonReader));
+            rootNode.put(each.getKey(), config.isReadUseCompile() ? ReadEntry.compile(each.getValue(), jsonReader) : ReadEntry.standard(each.getKey(), each.getValue(), jsonReader));
         }
         return rootNode;
     }

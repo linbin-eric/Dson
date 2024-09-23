@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class DsonConfig
 {
-    public static final DsonConfig STANDARD       = new DsonConfig();
-    private             boolean    readUseCompile = false;
+    public static final DsonConfig STANDARD               = new DsonConfig();
+    private             boolean    readUseCompile         = false;
+    private             boolean    standardReadUseCompile = false;
 }

@@ -8,7 +8,7 @@ import com.jfirer.baseutil.smc.model.FieldModel;
 import com.jfirer.baseutil.smc.model.MethodModel;
 import com.jfirer.dson.writer.JsonWriter;
 import com.jfirer.dson.writer.TypeWriter;
-import com.jfirer.dson.strategy.SerializeDefinition;
+import com.jfirer.dson.writer.SerializeDefinition;
 import com.jfirer.dson.util.WriterUtil;
 
 import java.lang.reflect.*;
