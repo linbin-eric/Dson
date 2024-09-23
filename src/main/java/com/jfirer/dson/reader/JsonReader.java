@@ -1,37 +1,26 @@
 package com.jfirer.dson.reader;
 
+import com.jfirer.dson.DsonConfig;
 import com.jfirer.dson.reader.buildin.*;
 import com.jfirer.dson.reader.impl.*;
+import lombok.Getter;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JsonReader
 {
-    private       ConcurrentHashMap<Type, TypeReader> readers   = new ConcurrentHashMap<Type, TypeReader>();
-    private final boolean                             useCompile;
-    private       int                                 useLambda = 0;
+    private ConcurrentHashMap<Type, TypeReader> readers = new ConcurrentHashMap<Type, TypeReader>();
+    @Getter
+    private DsonConfig                          config;
 
-    public JsonReader(int useLambda)
+    public JsonReader(DsonConfig config)
     {
-        this(false);
-        this.useLambda = useLambda;
-    }
-
-    public JsonReader()
-    {
-        this(false);
-    }
-
-    public JsonReader(boolean useCompile)
-    {
-        this.useCompile = useCompile;
+        this.config = config;
         readers.put(String.class, new StringReader());
         readers.put(Integer.class, new IntegerReader());
         readers.put(Long.class, new LongReader());
@@ -43,7 +32,12 @@ public class JsonReader
         readers.put(Double.class, new DoubleReader());
     }
 
-    public TypeReader get(Type type)
+    public JsonReader()
+    {
+        this(DsonConfig.STANDARD);
+    }
+
+    public TypeReader parse(Type type)
     {
         TypeReader typeReader = readers.get(type);
         if (typeReader != null)
@@ -93,21 +87,7 @@ public class JsonReader
                 }
                 else
                 {
-                    if (useCompile)
-                    {
-                        typeReader = new CompileObjectReader();
-                    }
-                    else
-                    {
-                        if (useLambda == 1)
-                        {
-                            typeReader = new LambdaObjectReader();
-                        }
-                        else
-                        {
-                            typeReader = new ObjectReader();
-                        }
-                    }
+                    typeReader = new ObjectReader();
                 }
             }
             typeReader.init(type, this);

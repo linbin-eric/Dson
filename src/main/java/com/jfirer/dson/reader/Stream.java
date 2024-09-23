@@ -1,6 +1,6 @@
 package com.jfirer.dson.reader;
 
-import com.jfirer.dson.reader.support.Entry;
+import com.jfirer.dson.reader.support.entry.ReadEntry;
 import com.jfirer.dson.reader.support.Node;
 
 import java.util.HashMap;
@@ -236,7 +236,7 @@ public class Stream
         return false;
     }
 
-    public Entry getName(Node node)
+    public ReadEntry getName(Node node)
     {
         char c = value[offset];
         if (c != Symbol.DOUBLE_QUOTATION_MASK.literals())

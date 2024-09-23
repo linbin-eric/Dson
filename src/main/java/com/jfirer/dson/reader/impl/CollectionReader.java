@@ -70,12 +70,12 @@ public class CollectionReader implements TypeReader
                 if (type instanceof Class)
                 {
                     ckass           = (Class) type;
-                    this.typeReader = typeReader = jsonReader.get(Object.class);
+                    this.typeReader = typeReader = jsonReader.parse(Object.class);
                 }
                 else if (type instanceof ParameterizedType)
                 {
                     Type actualTypeArgument = ((ParameterizedType) type).getActualTypeArguments()[0];
-                    typeReader      = jsonReader.get(actualTypeArgument);
+                    typeReader      = jsonReader.parse(actualTypeArgument);
                     this.typeReader = typeReader;
                 }
             }

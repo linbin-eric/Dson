@@ -53,12 +53,12 @@ public class MapReader implements TypeReader
         {
             if (type instanceof Class)
             {
-                this.valueReader = valueReader = jsonReader.get(Object.class);
+                this.valueReader = valueReader = jsonReader.parse(Object.class);
             }
             else if (type instanceof ParameterizedType)
             {
                 Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
-                this.valueReader = valueReader = jsonReader.get(typeArguments[1]);
+                this.valueReader = valueReader = jsonReader.parse(typeArguments[1]);
             }
         }
         stream.startParseObject();

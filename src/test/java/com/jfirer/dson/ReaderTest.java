@@ -131,7 +131,7 @@ public class ReaderTest
         String s = Dson.toJson(data);
         System.out.println(s);
         JsonReader jsonReader = new JsonReader();
-        TypeReader typeReader = jsonReader.get(SimpleData.class);
+        TypeReader typeReader = jsonReader.parse(SimpleData.class);
         Object     o          = typeReader.fromString(new Stream(s));
         System.out.println(Dson.toJson(o));
         Assert.assertEquals(s,Dson.toJson(o));

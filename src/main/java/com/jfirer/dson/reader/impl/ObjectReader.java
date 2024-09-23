@@ -3,22 +3,23 @@ package com.jfirer.dson.reader.impl;
 import com.jfirer.dson.reader.JsonReader;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
-import com.jfirer.dson.reader.support.Entry;
+import com.jfirer.dson.reader.support.entry.ReadEntry;
 import com.jfirer.dson.reader.support.Node;
-import io.github.karlatemp.unsafeaccessor.UnsafeAccess;
+import io.github.karlatemp.unsafeaccessor.Unsafe;
 
 import java.lang.reflect.Type;
 
 public class ObjectReader implements TypeReader
 {
-    private Class ckass;
-    private Node  rootNode;
+    private              Class  ckass;
+    private              Node   rootNode;
+    private static final Unsafe UNSAFE = Unsafe.getUnsafe();
 
     @Override
     public void init(Type type, JsonReader jsonReader)
     {
         this.ckass = (Class) type;
-        rootNode   = Node.generateRoot(ckass, jsonReader, null);
+        rootNode   = Node.generateRoot(ckass, jsonReader);
     }
 
     @Override
@@ -26,14 +27,14 @@ public class ObjectReader implements TypeReader
     {
         try
         {
-            Object instance = UnsafeAccess.getInstance().getUnsafe().allocateInstance(ckass);
+            Object instance = UNSAFE.allocateInstance(ckass);
             stream.startParseObject();
             boolean skipComma = false;
             while (skipComma || stream.parseObjectEnd() == false)
             {
-                Entry entry = stream.getName(rootNode);
+                ReadEntry readEntry = stream.getName(rootNode);
                 stream.skipColon();
-                if (entry == null)
+                if (readEntry == null)
                 {
                     stream.skipWholeValue();
                 }
@@ -43,7 +44,7 @@ public class ObjectReader implements TypeReader
                 }
                 else
                 {
-                    entry.setValue(instance, stream);
+                    readEntry.setValue(instance, stream);
                 }
                 skipComma = stream.skipComma();
             }

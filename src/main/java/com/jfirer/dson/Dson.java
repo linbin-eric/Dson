@@ -14,8 +14,6 @@ public class Dson
     private static final JsonWriter                 JSONWRITER          = new JsonWriter();
     private static final JsonWriter                 JSON_WRITER_COMPILE = new JsonWriter(true);
     private static final JsonReader                 JSONREADER          = new JsonReader();
-    private static final JsonReader                 JSON_READER_COMPILE = new JsonReader(true);
-    private static final JsonReader                 JSON_READER_LAMBDA  = new JsonReader(1);
 
     public static String toJson(Object entity)
     {
@@ -38,28 +36,28 @@ public class Dson
 
     public static <T> T fromString(Type type, String str)
     {
-        TypeReader typeReader = JSONREADER.get(type);
+        TypeReader typeReader = JSONREADER.parse(type);
         return (T) typeReader.fromString(new Stream(str));
     }
 
     public static <T> T fromStringByCompile(Type type, String str)
     {
-        return (T) JSON_READER_COMPILE.get(type).fromString(new Stream(str));
+        return (T) JSONREADER.parse(type).fromString(new Stream(str));
     }
 
     public static <T> T fromStringByLambda(Type type, String str)
     {
-        return (T) JSON_READER_LAMBDA.get(type).fromString(new Stream(str));
+        return (T) JSONREADER.parse(type).fromString(new Stream(str));
     }
 
     public static Object fromString(String str)
     {
-        return JSONREADER.get(Object.class).fromString(new Stream(str));
+        return JSONREADER.parse(Object.class).fromString(new Stream(str));
     }
 
     public static Object fromStringByAttribute(String attribute, Type type, String str)
     {
-        TypeReader typeReader = JSONREADER.get(type);
+        TypeReader typeReader = JSONREADER.parse(type);
         Stream     stream     = new Stream(str);
         stream.startParseObject();
         boolean skipComma = false;
@@ -82,6 +80,6 @@ public class Dson
 
     public static TypeReader get(Type type)
     {
-        return JSONREADER.get(type);
+        return JSONREADER.parse(type);
     }
 }

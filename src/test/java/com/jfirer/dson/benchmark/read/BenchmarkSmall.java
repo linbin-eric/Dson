@@ -56,14 +56,14 @@ public class BenchmarkSmall
         blackhole.consume(o);
     }
 
-    @Benchmark
+//    @Benchmark
     public void testCompile(Blackhole blackhole, SmallData smallData)
     {
         Object o = Dson.fromStringByCompile(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
-    @Benchmark
+//    @Benchmark
     public void testLambda(Blackhole blackhole, SmallData smallData)
     {
         Object o = Dson.fromStringByLambda(SmallObject.class, smallData.value);

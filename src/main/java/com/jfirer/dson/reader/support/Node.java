@@ -1,13 +1,11 @@
 package com.jfirer.dson.reader.support;
 
-import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.reader.JsonReader;
+import com.jfirer.dson.reader.support.entry.ReadEntry;
 import com.jfirer.dson.strategy.JsonRenameStrategy;
 import com.jfirer.dson.util.JsonIgnore;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +13,8 @@ import java.util.Map;
 public class Node
 {
     char   c;
-    Node[] next = new Node[90];
-    Entry  entry;
+    Node[]    next = new Node[90];
+    ReadEntry readEntry;
 
     public Node getNext(char c)
     {
@@ -31,12 +29,12 @@ public class Node
         }
     }
 
-    public Entry getEntry()
+    public ReadEntry getEntry()
     {
-        return entry;
+        return readEntry;
     }
 
-    public void put(String name, Entry entry)
+    public void put(String name, ReadEntry readEntry)
     {
         char c = name.charAt(0);
         if (c <= 'z')
@@ -46,7 +44,7 @@ public class Node
             {
                 next[index] = new Node();
             }
-            next[index].put(name, 0, entry);
+            next[index].put(name, 0, readEntry);
         }
         else
         {
@@ -54,14 +52,14 @@ public class Node
         }
     }
 
-    public void put(String name, int i, Entry entry)
+    public void put(String name, int i, ReadEntry readEntry)
     {
         if (i < name.length())
         {
             c = name.charAt(i);
             if (i + 1 == name.length())
             {
-                this.entry = entry;
+                this.readEntry = readEntry;
             }
             else
             {
@@ -79,38 +77,12 @@ public class Node
                 {
                     next[index] = new Node();
                 }
-                next[index].put(name, i + 1, entry);
+                next[index].put(name, i + 1, readEntry);
             }
         }
     }
 
-    public static Node generateLambdaRoot(Class ckass, JsonReader jsonReader)
-    {
-        Map<String, Field> map                = new HashMap<String, Field>();
-        JsonRenameStrategy jsonRenameStrategy = JsonRenameStrategy.helpGetStrategy(ckass);
-        while (ckass != Object.class)
-        {
-            Field[] fields = ckass.getDeclaredFields();
-            for (Field each : fields)
-            {
-                int modifiers = each.getModifiers();
-                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers) || each.isAnnotationPresent(JsonIgnore.class))
-                {
-                    continue;
-                }
-                map.putIfAbsent(JsonRenameStrategy.helpGetRename(each, jsonRenameStrategy), each);
-            }
-            ckass = ckass.getSuperclass();
-        }
-        Node rootNode = new Node();
-        for (Map.Entry<String, Field> each : map.entrySet())
-        {
-            rootNode.put(each.getKey(), new Entry(each.getValue(), jsonReader));
-        }
-        return rootNode;
-    }
-
-    public static Node generateRoot(Class ckass, JsonReader jsonReader, CompileHelper compileHelper)
+    public static Node generateRoot(Class ckass, JsonReader jsonReader)
     {
         Map<String, Field> map      = new HashMap<String, Field>();
         JsonRenameStrategy strategy = JsonRenameStrategy.helpGetStrategy(ckass);
@@ -131,21 +103,7 @@ public class Node
         Node rootNode = new Node();
         for (Map.Entry<String, Field> each : map.entrySet())
         {
-            if (compileHelper == null)
-            {
-                rootNode.put(each.getKey(), new Entry(each.getKey(), each.getValue(), jsonReader));
-            }
-            else
-            {
-                try
-                {
-                    rootNode.put(each.getKey(), Entry.createSpecial(each.getValue(), jsonReader, compileHelper));
-                }
-                catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }
+            rootNode.put(each.getKey(), new ReadEntry(each.getKey(), each.getValue(), jsonReader));
         }
         return rootNode;
     }

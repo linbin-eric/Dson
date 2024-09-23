@@ -1,8 +1,7 @@
 package com.jfirer.dson.writer.impl;
 
-import com.jfirer.baseutil.reflect.CompileValueAccessor;
 import com.jfirer.baseutil.reflect.ReflectUtil;
-import com.jfirer.baseutil.reflect.ValueAccessor;
+import com.jfirer.baseutil.reflect.valueaccessor.ValueAccessor;
 import com.jfirer.baseutil.smc.compiler.CompileHelper;
 import com.jfirer.dson.strategy.JsonRenameStrategy;
 import com.jfirer.dson.strategy.SerializeDefinition;
@@ -200,11 +199,11 @@ public class ObjectWriter implements TypeWriter
             Entry    entry     = new Entry();
             if (useCompile)
             {
-                entry.valueAccessor = CompileValueAccessor.create(field, new CompileHelper());
+                entry.valueAccessor = ValueAccessor.compile(field);
             }
             else
             {
-                entry.valueAccessor = new ValueAccessor(field);
+                entry.valueAccessor = ValueAccessor.standard(field);
             }
             entry.field    = field;
             entry.name     = JsonRenameStrategy.helpGetRename(field, jsonRenameStrategy);

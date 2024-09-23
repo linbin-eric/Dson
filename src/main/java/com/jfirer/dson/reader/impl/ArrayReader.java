@@ -266,7 +266,7 @@ public class ArrayReader implements TypeReader
             TypeReader typeReader = componentReader;
             if (typeReader == null)
             {
-                componentReader = typeReader = jsonReader.get(componentType);
+                componentReader = typeReader = jsonReader.parse(componentType);
             }
             Object[] array = null;
             if (componentType instanceof Class)
