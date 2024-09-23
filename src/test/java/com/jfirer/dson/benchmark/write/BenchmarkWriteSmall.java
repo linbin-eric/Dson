@@ -5,17 +5,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfirer.dson.Dson;
 import com.jfirer.dson.benchmark.SmallObject;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.openjdk.jmh.runner.options.TimeValue;
 
+@Warmup(iterations = 3, time = 2)
+@Measurement(iterations = 3, time = 3)
+@Fork(1)
 public class BenchmarkWriteSmall
 {
     @State(Scope.Benchmark)
@@ -81,8 +80,6 @@ public class BenchmarkWriteSmall
     public static void main(String[] args) throws RunnerException
     {
         Options opt = new OptionsBuilder().include(BenchmarkWriteSmall.class.getSimpleName())//
-                                          .warmupIterations(3).warmupTime(TimeValue.seconds(3))//
-                                          .measurementIterations(3).forks(1).measurementTime(TimeValue.seconds(3))//
                                           .build();
         new Runner(opt).run();
     }
