@@ -1,16 +1,19 @@
 package com.jfirer.dson;
 
+import com.jfirer.dson.reader.DeSerializeDefinition;
 import com.jfirer.dson.reader.TypeReader;
 import com.jfirer.dson.reader.impl.*;
 import com.jfirer.dson.reader.impl.basic.*;
 import com.jfirer.dson.reader.impl.basic.array.*;
 import com.jfirer.dson.reader.impl.basic.array.boxed.*;
+import com.jfirer.dson.writer.SerializeDefinition;
 import com.jfirer.dson.writer.TypeWriter;
 import com.jfirer.dson.writer.impl.*;
 import com.jfirer.dson.writer.impl.basic.*;
 import com.jfirer.dson.writer.impl.basic.array.*;
 import com.jfirer.dson.writer.impl.basic.array.boxed.*;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -93,6 +96,7 @@ public class DsonContext
         this(DsonConfig.STANDARD);
     }
 
+    @SneakyThrows
     public TypeReader parseReader(Type type)
     {
         TypeReader typeReader = readers.get(type);
@@ -121,7 +125,11 @@ public class DsonContext
                 {
                     throw new IllegalArgumentException(type.toString());
                 }
-                if (rawType.isArray())
+                if (rawType.isAnnotationPresent(DeSerializeDefinition.class))
+                {
+                    typeReader = ((DeSerializeDefinition) rawType.getAnnotation(DeSerializeDefinition.class)).value().getConstructor().newInstance();
+                }
+                else if (rawType.isArray())
                 {
                     typeReader = new NewArrayReader();
                 }
@@ -152,6 +160,7 @@ public class DsonContext
         }
     }
 
+    @SneakyThrows
     public TypeWriter parseWriter(Type type)
     {
         TypeWriter typeWriter = writers.get(type);
@@ -176,7 +185,12 @@ public class DsonContext
                 {
                     throw new IllegalArgumentException("当前类型:" + type);
                 }
-                if (targetClass.isArray())
+                if (targetClass.isAnnotationPresent(SerializeDefinition.class))
+                {
+                    SerializeDefinition annotation = (SerializeDefinition) targetClass.getAnnotation(SerializeDefinition.class);
+                    typeWriter = annotation.value().getConstructor().newInstance();
+                }
+                else if (targetClass.isArray())
                 {
                     typeWriter = ArrayWriter.findSuitableArrayWriter(type);
                 }
