@@ -3,8 +3,13 @@ package com.jfirer.dson;
 import com.jfirer.dson.reader.TypeReader;
 import com.jfirer.dson.reader.impl.*;
 import com.jfirer.dson.reader.impl.basic.*;
+import com.jfirer.dson.reader.impl.basic.array.*;
+import com.jfirer.dson.reader.impl.basic.array.boxed.*;
 import com.jfirer.dson.writer.TypeWriter;
-import com.jfirer.dson.writer.impl.*;
+import com.jfirer.dson.writer.impl.ArrayWriter;
+import com.jfirer.dson.writer.impl.CollectionWriter;
+import com.jfirer.dson.writer.impl.EnumWriter;
+import com.jfirer.dson.writer.impl.MapWriter;
 import com.jfirer.dson.writer.impl.basic.*;
 import lombok.Getter;
 
@@ -36,6 +41,24 @@ public class DsonContext
         readers.put(Boolean.class, new BooleanReader());
         readers.put(Float.class, new FloatReader());
         readers.put(Double.class, new DoubleReader());
+        readers.put(int[].class, new IntArrayReader());
+        readers.put(short[].class, new ShortArrayReader());
+        readers.put(long[].class, new LongArrayReader());
+        readers.put(byte[].class, new ByteArrayReader());
+        readers.put(float[].class, new FloatArrayReader());
+        readers.put(double[].class, new DoubleArrayReader());
+        readers.put(boolean[].class, new BooleanArrayReader());
+        readers.put(char[].class, new CharArrayReader());
+        readers.put(String[].class, new StringArrayReader());
+        readers.put(Integer[].class, new ClassIntArrayReader());
+        readers.put(Long[].class, new ClassLongArrayReader());
+        readers.put(Float[].class, new ClassFloatArrayReader());
+        readers.put(Double[].class, new ClassDoubleArrayReader());
+        readers.put(Boolean[].class, new ClassBooleanArrayReader());
+        readers.put(Character[].class, new ClassCharArrayReader());
+        readers.put(Short[].class, new ClassShortArrayReader());
+        readers.put(Byte[].class, new ClassByteArrayReader());
+        ////
         writers.put(Integer.class, new IntegerWriter());
         writers.put(Short.class, new ShortWriter());
         writers.put(Long.class, new LongWriter());
@@ -74,7 +97,7 @@ public class DsonContext
         {
             if (type instanceof GenericArrayType)
             {
-                typeReader = new ArrayReader();
+                typeReader = new NewArrayReader();
             }
             else
             {
@@ -93,7 +116,7 @@ public class DsonContext
                 }
                 if (rawType.isArray())
                 {
-                    typeReader = new ArrayReader();
+                    typeReader = new NewArrayReader();
                 }
                 else if (Collection.class.isAssignableFrom(rawType))
                 {

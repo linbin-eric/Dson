@@ -6,7 +6,9 @@ import java.lang.reflect.Type;
 
 public interface TypeReader
 {
-    void init(Type type, DsonContext dsonContext);
+    default void init(Type type, DsonContext dsonContext)
+    {
+    }
 
     Object fromString(Stream stream);
 }
