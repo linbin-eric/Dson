@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class ObjectWriter implements TypeWriter
 {
-    private Entry[]     entries;
+    private Entry[] entries;
 
     @Override
     public void toJson(Object entity, StringBuilder output)
@@ -102,7 +102,7 @@ public class ObjectWriter implements TypeWriter
                     }
                 }
             }
-            entry.setFullName('"' + each.getKey() + '"' + ':').setValueAccessor(ValueAccessor.standard(each.getValue()));
+            entry.setFullName('"' + each.getKey() + '"' + ':').setValueAccessor(dsonContext.getConfig().isValueAccessorUseCompile() ? ValueAccessor.compile(each.getValue()) : ValueAccessor.standard(each.getValue()));
             list.add(entry);
         }
         this.entries = list.toArray(Entry[]::new);

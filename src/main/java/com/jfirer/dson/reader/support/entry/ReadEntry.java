@@ -19,6 +19,13 @@ public interface ReadEntry
 {
     void setValue(Object instance, Stream stream);
 
+    /**
+     * 这个entry的实际输入输出名称
+     *
+     * @return
+     */
+    String name();
+
     static ReadEntry standard(String name, Field field, DsonContext dsonContext)
     {
         return new StandardReadEntry(name, field, dsonContext);
@@ -70,6 +77,9 @@ public interface ReadEntry
         }
         methodModel.setBody(builder.toString());
         classModel.putMethodModel(methodModel);
+        MethodModel fieldNameModel = new MethodModel(ReadEntry.class.getDeclaredMethod("name"), classModel);
+        fieldNameModel.setBody(STR.format("return \"{}\";", field.getName()));
+        classModel.putMethodModel(fieldNameModel);
         Class<ReadEntry> compile = (Class<ReadEntry>) CompileHelper.DEFAULT_COMPILE_HELPER.compile(classModel);
         return compile.getConstructor(TypeReader.class).newInstance(typeReader);
     }

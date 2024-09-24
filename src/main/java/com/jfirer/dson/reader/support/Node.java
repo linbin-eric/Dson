@@ -104,7 +104,7 @@ public class Node
         DsonConfig config   = dsonContext.getConfig();
         for (Map.Entry<String, Field> each : map.entrySet())
         {
-            rootNode.put(each.getKey(), config.isValueAccessorUseCompile() ? ReadEntry.compile(each.getValue(), dsonContext) : ReadEntry.standard(each.getKey(), each.getValue(), dsonContext));
+            rootNode.put(each.getKey(), config.isReadEntryUseCompile() ? ReadEntry.compile(each.getValue(), dsonContext) : ReadEntry.standard(each.getKey(), each.getValue(), dsonContext));
         }
         return rootNode;
     }

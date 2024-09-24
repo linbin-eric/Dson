@@ -2,29 +2,49 @@ package com.jfirer.dson;
 
 import com.jfirer.baseutil.reflect.TypeUtil;
 import com.jfirer.dson.model.*;
-import com.jfirer.dson.util.impl.HumpToUnderline;
 import com.jfirer.dson.util.JsonRename;
+import com.jfirer.dson.util.impl.HumpToUnderline;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
+@RunWith(Parameterized.class)
 public class FunctionTest extends Support
 {
+    private DsonContext dsonContext;
+
+    public FunctionTest(DsonConfig dsonConfig)
+    {
+        dsonContext = new DsonContext(dsonConfig);
+    }
+
+    @Parameterized.Parameters
+    public static Collection<DsonConfig> data()
+    {
+        List<DsonConfig> list = new LinkedList<>();
+        list.add(DsonConfig.STANDARD);
+        list.add(new DsonConfig().setReadUseCompile(true));
+        list.add(new DsonConfig().setReadEntryUseCompile(true));
+        list.add(new DsonConfig().setValueAccessorUseCompile(true));
+        list.add(new DsonConfig().setWriteUseCompile(true));
+        return list;
+    }
+
     @Test
     public void rightTest()
     {
-        String string = Dson.toJson(data);
+        String string = dsonContext.toJson(data);
         logger.debug("输出的json是\n\n{}\r\n\n", string);
-        System.out.println(Dson.toJson(Dson.fromString(Data.class, string)));
-        assertTrue(data.equal(Dson.fromString(Data.class, string)));
-        logger.debug("输出的数组json是\n\n{}\r\n\n", Dson.toJson(new Data[]{data, data}));
+        System.out.println(dsonContext.toJson(dsonContext.fromString(Data.class, string)));
+        assertTrue(data.equal(dsonContext.fromString(Data.class, string)));
+        logger.debug("输出的数组json是\n\n{}\r\n\n", dsonContext.toJson(new Data[]{data, data}));
         Data[][] origin = new Data[][]{{data, data}, {data, data, data}};
-        string = Dson.toJson(origin);
-        Data[][] result = Dson.fromString(Data[][].class, string);
+        string = dsonContext.toJson(origin);
+        Data[][] result = dsonContext.fromString(Data[][].class, string);
         for (int i = 0; i < origin.length; i++)
         {
             for (int j = 0; j < origin[i].length; j++)
@@ -33,15 +53,15 @@ public class FunctionTest extends Support
             }
         }
         Data[] test1 = new Data[]{data, data};
-        string = Dson.toJson(test1);
-        Data[] test1Result = Dson.fromString(Data[].class, string);
+        string = dsonContext.toJson(test1);
+        Data[] test1Result = dsonContext.fromString(Data[].class, string);
         for (int i = 0; i < test1.length; i++)
         {
             assertTrue(test1[i].equal(test1Result[i]));
         }
         Data[][][] test2 = new Data[][][]{{{data, data}, {data}}, {{data, data, data, data}, {data}, {data}}};
-        string = Dson.toJson(test2);
-        Data[][][] test2Result = Dson.fromString(Data[][][].class, string);
+        string = dsonContext.toJson(test2);
+        Data[][][] test2Result = dsonContext.fromString(Data[][][].class, string);
         for (int i = 0; i < test2Result.length; i++)
         {
             for (int j = 0; j < test2Result[i].length; j++)
@@ -61,8 +81,8 @@ public class FunctionTest extends Support
         ArrayList<String> list = new ArrayList<String>();
         list.add("sdadasd");
         list.add("sdadsasda");
-        String value = Dson.toJson(list);
-        ArrayList<String> result = (ArrayList<String>) Dson.fromString(new TypeUtil<ArrayList<String>>()
+        String value = dsonContext.toJson(list);
+        ArrayList<String> result = (ArrayList<String>) dsonContext.fromString(new TypeUtil<ArrayList<String>>()
         {
         }.getType(), value);
         assertTrue(list.equals(result));
@@ -75,26 +95,26 @@ public class FunctionTest extends Support
         cdata.setAge(1212121);
         cdata.setName("dassdas");
         arrayList.add(cdata);
-        value = Dson.toJson(arrayList);
+        value = dsonContext.toJson(arrayList);
         System.out.println(value);
-        ArrayList<NestData> result1 = Dson.fromString(new TypeUtil<ArrayList<NestData>>()
+        ArrayList<NestData> result1 = dsonContext.fromString(new TypeUtil<ArrayList<NestData>>()
         {
         }.getType(), value);
         assertTrue(arrayList.equals(result1));
         ArrayList<Data> list2 = new ArrayList<Data>();
         list2.add(data);
         list2.add(data);
-        value = Dson.toJson(list2);
+        value = dsonContext.toJson(list2);
         System.out.println(value);
-        ArrayList<Data> result3 = Dson.fromString(new TypeUtil<ArrayList<Data>>()
+        ArrayList<Data> result3 = dsonContext.fromString(new TypeUtil<ArrayList<Data>>()
         {
         }.getType(), value);
         assertTrue(list2.get(0).equal(result3.get(0)) && list2.get(1).equal(result3.get(1)));
         HashMap<String, Data> map = new HashMap<String, Data>();
         map.put("12wq", data);
         map.put("xczc", data);
-        value = Dson.toJson(map);
-        HashMap<String, Data> result4 = Dson.fromString(new TypeUtil<HashMap<String, Data>>()
+        value = dsonContext.toJson(map);
+        HashMap<String, Data> result4 = dsonContext.fromString(new TypeUtil<HashMap<String, Data>>()
         {
         }.getType(), value);
         assertTrue(map.get("12wq").equal(result4.get("12wq")));
@@ -104,19 +124,19 @@ public class FunctionTest extends Support
     @Test
     public void test1()
     {
-        assertEquals("{\"data\":{\"1\":\"121212\"}}", Dson.toJson(new FunctionData7()));
+        assertEquals("{\"data\":{\"1\":\"121212\"}}", dsonContext.toJson(new FunctionData7()));
     }
 
     @Test
     public void test2()
     {
-        System.out.println(Dson.toJson(new FunctionData10()));
+        System.out.println(dsonContext.toJson(new FunctionData10()));
     }
 
     @Test
     public void test3()
     {
-        String json = Dson.toJson(new FunctionData13());
+        String json = dsonContext.toJson(new FunctionData13());
         System.out.println(json);
         assertTrue(json.contains("""
                                          "array1":["1212","12112"]"""));
@@ -124,7 +144,6 @@ public class FunctionTest extends Support
                                          "array2":[1,2,3]"""));
         assertTrue(json.contains("""
                                          "array6":[1221121231231,212312313]"""));
-
     }
 
     @Test
@@ -132,7 +151,7 @@ public class FunctionTest extends Support
     {
         FunData16 data16 = new FunData16();
         data16.setTest(TestEnum.PUSH);
-        assertEquals("{\"test\":\"PUSH\"}", Dson.toJson(data16));
+        assertEquals("{\"test\":\"PUSH\"}", dsonContext.toJson(data16));
     }
 
     @Test
@@ -140,7 +159,7 @@ public class FunctionTest extends Support
     {
         FunctionData16 data16 = new FunctionData16();
         data16.setName("111");
-        assertEquals("{\"name\":\"123\"}", Dson.toJson(data16));
+        assertEquals("{\"name\":\"123\"}", dsonContext.toJson(data16));
     }
 
     @Test
@@ -149,10 +168,10 @@ public class FunctionTest extends Support
         FunctionData17 data17   = new FunctionData17();
         BaseData       baseData = new BaseData();
         data17.setValue(baseData);
-        String         json  = Dson.toJson(data17);
-        FunctionData17 o     = Dson.fromString(FunctionData17.class, json);
+        String         json  = dsonContext.toJson(data17);
+        FunctionData17 o     = dsonContext.fromString(FunctionData17.class, json);
         String         value = (String) o.getValue();
-        assertEquals(value, Dson.toJson(baseData));
+        assertEquals(value, dsonContext.toJson(baseData));
     }
 
     @Test
@@ -286,8 +305,8 @@ public class FunctionTest extends Support
                   ]
                 }
                 """;
-        Dson.fromString(Data.class, content);
-        List<String> list = (List<String>) Dson.fromStringByAttribute("list", new TypeUtil<ArrayList<String>>()
+        dsonContext.fromString(Data.class, content);
+        List<String> list = (List<String>) dsonContext.fromStringByAttribute("list", new TypeUtil<ArrayList<String>>()
         {
         }.getType(), content);
         assertEquals(2, list.size());
@@ -304,7 +323,7 @@ public class FunctionTest extends Support
                   "testNullList":["abc",null,"cde"]
                 }
                 """;
-        BaseData data1 = Dson.fromString(BaseData.class, content);
+        BaseData data1 = dsonContext.fromString(BaseData.class, content);
         assertNull(data1.getTestNull());
         assertEquals(2, data1.getTestNullList().size());
         assertEquals("abc", data1.getTestNullList().get(0));
@@ -313,7 +332,7 @@ public class FunctionTest extends Support
 
     @JsonRename(strategy = HumpToUnderline.class)
     @lombok.Data
-    static class ReNameTest
+    public static class ReNameTest
     {
         private String myName;
     }
@@ -325,8 +344,8 @@ public class FunctionTest extends Support
                 {"my_name":"lin"}""";
         ReNameTest reNameTest = new ReNameTest();
         reNameTest.setMyName("lin");
-        assertEquals(content, Dson.toJson(reNameTest));
-        ReNameTest o = Dson.fromString(ReNameTest.class, content);
+        assertEquals(content, dsonContext.toJson(reNameTest));
+        ReNameTest o = dsonContext.fromString(ReNameTest.class, content);
         assertEquals("lin", o.getMyName());
     }
 
@@ -395,12 +414,12 @@ public class FunctionTest extends Support
 //        lists[1].add("dasdasd1212121212asdasdasd");
 //        data.setLists(lists);
 //        data.setData(nestDatas2);
-        String       content = Dson.toJson(data);
-        FunctionData result  = Dson.fromString(FunctionData.class, content);
+        String       content = dsonContext.toJson(data);
+        FunctionData result  = dsonContext.fromString(FunctionData.class, content);
         System.out.println(result.getB1());
         assertTrue(data.equals(result));
-//        String string = Dson.toJson(data);
+//        String string = dsonContext.toJson(data);
 //        logger.debug("输出的json是\n\n{}\r\n\n", string);
-//        assertTrue(data.equal(Dson.fromString(FunctionData.class, string)));
+//        assertTrue(data.equal(dsonContext.fromString(FunctionData.class, string)));
     }
 }

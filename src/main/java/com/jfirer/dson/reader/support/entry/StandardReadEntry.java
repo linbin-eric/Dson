@@ -71,6 +71,12 @@ public class StandardReadEntry implements ReadEntry
     }
 
     @Override
+    public String name()
+    {
+        return name;
+    }
+
+    @Override
     public String toString()
     {
         return name;

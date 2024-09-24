@@ -1,6 +1,7 @@
 package com.jfirer.dson;
 
 import com.jfirer.dson.reader.DeSerializeDefinition;
+import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 import com.jfirer.dson.reader.impl.*;
 import com.jfirer.dson.reader.impl.basic.*;
@@ -26,10 +27,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DsonContext
 {
-    private ConcurrentHashMap<Type, TypeReader> readers = new ConcurrentHashMap<Type, TypeReader>();
-    private ConcurrentHashMap<Type, TypeWriter> writers = new ConcurrentHashMap<Type, TypeWriter>(256);
+    private static final ThreadLocal<StringBuilder>          LOCAL   = ThreadLocal.withInitial(() -> new StringBuilder());
+    private              ConcurrentHashMap<Type, TypeReader> readers = new ConcurrentHashMap<Type, TypeReader>();
+    private              ConcurrentHashMap<Type, TypeWriter> writers = new ConcurrentHashMap<Type, TypeWriter>(256);
     @Getter
-    private DsonConfig                          config;
+    private              DsonConfig                          config;
 
     public DsonContext(DsonConfig config)
     {
@@ -151,7 +153,7 @@ public class DsonContext
                 }
                 else
                 {
-                    typeReader = new ObjectReader();
+                    typeReader = config.isReadUseCompile() ? TypeReader.compile(rawType) : new ObjectReader();
                 }
             }
             readers.put(type, typeReader);
@@ -226,5 +228,44 @@ public class DsonContext
             typeWriter.initialize(type, this);
         }
         return typeWriter;
+    }
+
+    public <T> T fromString(Type type, String str)
+    {
+        TypeReader typeReader = parseReader(type);
+        return (T) typeReader.fromString(new Stream(str));
+    }
+
+    public String toJson(Object entity)
+    {
+        StringBuilder output     = LOCAL.get();
+        TypeWriter    typeWriter = parseWriter(entity.getClass());
+        typeWriter.toJson(entity, output);
+        String result = output.toString();
+        output.setLength(0);
+        return result;
+    }
+
+    public Object fromStringByAttribute(String attribute, Type type, String str)
+    {
+        TypeReader typeReader = parseReader(type);
+        Stream     stream     = new Stream(str);
+        stream.startParseObject();
+        boolean skipComma = false;
+        while (skipComma || stream.parseObjectEnd() == false)
+        {
+            String name = stream.getName();
+            stream.skipColon();
+            if (name.equals(attribute))
+            {
+                return typeReader.fromString(stream);
+            }
+            else
+            {
+                stream.skipWholeValue();
+            }
+            skipComma = stream.skipComma();
+        }
+        return null;
     }
 }

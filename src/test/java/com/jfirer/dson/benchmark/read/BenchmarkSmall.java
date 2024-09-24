@@ -3,8 +3,9 @@ package com.jfirer.dson.benchmark.read;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfirer.dson.Dson;
+import com.jfirer.dson.DsonConfig;
+import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.benchmark.SmallObject;
-import com.jfirer.dson.reader.TypeReader;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -18,20 +19,25 @@ import java.io.IOException;
 @Warmup(iterations = 2, time = 2)
 @Measurement(iterations = 3, time = 3)
 @Fork(2)
+@State(Scope.Benchmark)
 public class BenchmarkSmall
 {
+    DsonContext standard = new DsonContext();
+    DsonContext compile  = new DsonContext(new DsonConfig().setReadUseCompile(true));
+    DsonContext compile2 = new DsonContext(new DsonConfig().setReadEntryUseCompile(true));
+    DsonContext compile3 = new DsonContext(new DsonConfig().setValueAccessorUseCompile(true));
+
     @State(Scope.Benchmark)
     public static class SmallData
     {
         private SmallObject smallData;
         String       value;
         ObjectMapper mapper;
-        TypeReader   typeReader;
 
         @Setup(Level.Trial)
         public void before()
         {
-            smallData  = new SmallObject();
+            smallData = new SmallObject();
             smallData.setA(1);
             smallData.setA1(12);
             smallData.setAge(12);
@@ -59,9 +65,23 @@ public class BenchmarkSmall
     }
 
     @Benchmark
-    public void testCompile(Blackhole blackhole, SmallData smallData)
+    public void testCompile1(Blackhole blackhole, SmallData smallData)
     {
-        Object o = Dson.fromStringByCompile(SmallObject.class, smallData.value);
+        Object o = compile.fromString(SmallObject.class, smallData.value);
+        blackhole.consume(o);
+    }
+
+    @Benchmark
+    public void testCompile2(Blackhole blackhole, SmallData smallData)
+    {
+        Object o = compile2.fromString(SmallObject.class, smallData.value);
+        blackhole.consume(o);
+    }
+
+    @Benchmark
+    public void testCompile3(Blackhole blackhole, SmallData smallData)
+    {
+        Object o = compile3.fromString(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
