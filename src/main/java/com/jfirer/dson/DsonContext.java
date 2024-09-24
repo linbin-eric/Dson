@@ -6,11 +6,10 @@ import com.jfirer.dson.reader.impl.basic.*;
 import com.jfirer.dson.reader.impl.basic.array.*;
 import com.jfirer.dson.reader.impl.basic.array.boxed.*;
 import com.jfirer.dson.writer.TypeWriter;
-import com.jfirer.dson.writer.impl.ArrayWriter;
-import com.jfirer.dson.writer.impl.CollectionWriter;
-import com.jfirer.dson.writer.impl.EnumWriter;
-import com.jfirer.dson.writer.impl.MapWriter;
+import com.jfirer.dson.writer.impl.*;
 import com.jfirer.dson.writer.impl.basic.*;
+import com.jfirer.dson.writer.impl.basic.array.*;
+import com.jfirer.dson.writer.impl.basic.array.boxed.*;
 import lombok.Getter;
 
 import java.lang.reflect.GenericArrayType;
@@ -70,15 +69,23 @@ public class DsonContext
         writers.put(String.class, new StringWriter());
         writers.put(Date.class, new DateWriter());
         writers.put(java.sql.Date.class, new DateWriter());
-        writers.put(int[].class, new ArrayWriter(this, int[].class));
-        writers.put(short[].class, new ArrayWriter(this, short[].class));
-        writers.put(long[].class, new ArrayWriter(this, long[].class));
-        writers.put(byte[].class, new ArrayWriter(this, byte[].class));
-        writers.put(float[].class, new ArrayWriter(this, float[].class));
-        writers.put(double[].class, new ArrayWriter(this, double[].class));
-        writers.put(boolean[].class, new ArrayWriter(this, boolean[].class));
-        writers.put(char[].class, new ArrayWriter(this, char[].class));
-        writers.put(String[].class, new ArrayWriter(this, String[].class));
+        writers.put(int[].class, new IntArrayWriter());
+        writers.put(long[].class, new LongArrayWriter());
+        writers.put(float[].class, new FloatArrayWriter());
+        writers.put(double[].class, new DoubleArrayWriter());
+        writers.put(boolean[].class, new BooleanArrayWriter());
+        writers.put(char[].class, new CharArrayWriter());
+        writers.put(byte[].class, new ByteArrayWriter());
+        writers.put(short[].class, new ShortArrayWriter());
+        writers.put(String[].class, new StringArrayWriter());
+        writers.put(Integer[].class, new ClassIntArrayWriter());
+        writers.put(Long[].class, new ClassLongArrayWriter());
+        writers.put(Float[].class, new ClassFloatArrayWriter());
+        writers.put(Double[].class, new ClassDoubleArrayWriter());
+        writers.put(Boolean[].class, new ClassBooleanArrayWriter());
+        writers.put(Character[].class, new ClassCharArrayWriter());
+        writers.put(Short[].class, new ClassShortArrayWriter());
+        writers.put(Byte[].class, new ClassByteArrayWriter());
     }
 
     public DsonContext()
@@ -152,7 +159,7 @@ public class DsonContext
         {
             if (type instanceof GenericArrayType)
             {
-                typeWriter = new ArrayWriter();
+                typeWriter = ArrayWriter.findSuitableArrayWriter(type);
             }
             else
             {
@@ -171,7 +178,7 @@ public class DsonContext
                 }
                 if (targetClass.isArray())
                 {
-                    typeWriter = new ArrayWriter();
+                    typeWriter = ArrayWriter.findSuitableArrayWriter(type);
                 }
                 else if (Map.class.isAssignableFrom(targetClass))
                 {

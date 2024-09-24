@@ -1,4 +1,4 @@
-package com.jfirer.dson.writer.impl.basic;
+package com.jfirer.dson.writer.impl;
 
 import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.writer.TypeWriter;

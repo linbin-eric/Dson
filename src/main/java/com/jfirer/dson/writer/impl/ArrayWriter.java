@@ -8,216 +8,106 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public class ArrayWriter implements TypeWriter
+public class ArrayWriter
 {
-    private DsonContext dsonContext;
-    private ToJson      toJson;
-
-    public ArrayWriter(DsonContext dsonContext, Type type)
+    public static TypeWriter findSuitableArrayWriter(Type type)
     {
-        initialize(type, dsonContext);
-    }
-
-    public ArrayWriter()
-    {
-    }
-
-    interface ToJson
-    {
-        void output(StringBuilder builder, Object array);
-    }
-
-    class intArrayToJson implements ToJson
-    {
-        @Override
-        public void output(StringBuilder output, Object array)
+        if (type instanceof GenericArrayType)
         {
-            output.append('[');
-            int[] arr = (int[]) array;
-            for (int element : (int[]) array)
+            Type componentType = ((GenericArrayType) type).getGenericComponentType();
+            if (componentType instanceof GenericArrayType)
             {
-                output.append(element).append(',');
+                return new ComponentFinalTypeArrayWriter();
             }
-            if (arr.length != 0)
+            else if (componentType instanceof ParameterizedType)
             {
-                output.setLength(output.length() - 1);
-            }
-            output.append(']');
-        }
-    }
-
-    class booleanArrayToJson implements ToJson
-    {
-        @Override
-        public void output(StringBuilder output, Object array)
-        {
-            output.append('[');
-            boolean[] arr = (boolean[]) array;
-            for (boolean element : (boolean[]) array)
-            {
-                output.append(element).append(',');
-            }
-            if (arr.length != 0)
-            {
-                output.setLength(output.length() - 1);
-            }
-            output.append(']');
-        }
-    }
-
-    class byteArrayToJson implements ToJson
-    {
-        @Override
-        public void output(StringBuilder output, Object array)
-        {
-            output.append('[');
-            byte[] arr = (byte[]) array;
-            for (byte element : (byte[]) array)
-            {
-                output.append(element).append(',');
-            }
-            if (arr.length != 0)
-            {
-                output.setLength(output.length() - 1);
-            }
-            output.append(']');
-        }
-    }
-
-    class longArrayToJson implements ToJson
-    {
-        @Override
-        public void output(StringBuilder output, Object array)
-        {
-            output.append('[');
-            long[] arr = (long[]) array;
-            for (long element : (long[]) array)
-            {
-                output.append(element).append(',');
-            }
-            if (arr.length != 0)
-            {
-                output.setLength(output.length() - 1);
-            }
-            output.append(']');
-        }
-    }
-
-    class shortArrayToJson implements ToJson
-    {
-        @Override
-        public void output(StringBuilder output, Object array)
-        {
-            output.append('[');
-            short[] arr = (short[]) array;
-            for (short element : (short[]) array)
-            {
-                output.append(element).append(',');
-            }
-            if (arr.length != 0)
-            {
-                output.setLength(output.length() - 1);
-            }
-            output.append(']');
-        }
-    }
-
-    class floatArrayToJson implements ToJson
-    {
-        @Override
-        public void output(StringBuilder output, Object array)
-        {
-            output.append('[');
-            float[] arr = (float[]) array;
-            for (float element : (float[]) array)
-            {
-                output.append(element).append(',');
-            }
-            if (arr.length != 0)
-            {
-                output.setLength(output.length() - 1);
-            }
-            output.append(']');
-        }
-    }
-
-    class doubleArrayToJson implements ToJson
-    {
-        @Override
-        public void output(StringBuilder output, Object array)
-        {
-            output.append('[');
-            double[] arr = (double[]) array;
-            for (double element : (double[]) array)
-            {
-                output.append(element).append(',');
-            }
-            if (arr.length != 0)
-            {
-                output.setLength(output.length() - 1);
-            }
-            output.append(']');
-        }
-    }
-
-    class charArrayToJson implements ToJson
-    {
-        @Override
-        public void output(StringBuilder output, Object array)
-        {
-            output.append('[');
-            char[] arr = (char[]) array;
-            for (char element : arr)
-            {
-                output.append('"').append(element).append("\",");
-            }
-            if (arr.length != 0)
-            {
-                output.setLength(output.length() - 1);
-            }
-            output.append(']');
-        }
-    }
-
-    class StringArrayToJson implements ToJson
-    {
-        @Override
-        public void output(StringBuilder output, Object array)
-        {
-            output.append('[');
-            boolean hasComma = false;
-            for (String element : (String[]) array)
-            {
-                if (element != null)
+                if (Modifier.isFinal(((Class) ((ParameterizedType) componentType).getRawType()).getModifiers()))
                 {
-                    output.append('"').append(element).append("\",");
-                    hasComma = true;
+                    return new ComponentFinalTypeArrayWriter();
+                }
+                else
+                {
+                    return new ComponentUnFinalTypeArrayWriter();
                 }
             }
-            if (hasComma)
+            else
             {
-                output.setLength(output.length() - 1);
+                throw new IllegalArgumentException();
             }
-            output.append(']');
+        }
+        else if (type instanceof Class<?>)
+        {
+            Class<?> componentType = ((Class<?>) type).getComponentType();
+            if (Modifier.isFinal(componentType.getModifiers()))
+            {
+                return new ComponentFinalTypeArrayWriter();
+            }
+            else
+            {
+                return new ComponentUnFinalTypeArrayWriter();
+            }
+        }
+        else
+        {
+            throw new IllegalArgumentException();
         }
     }
 
-    class FinalElementTypeArrayToJson implements ToJson
+    static class ComponentFinalTypeArrayWriter implements TypeWriter
     {
-        private TypeWriter typeWriter;
+        private TypeWriter componentWriter;
 
-        public FinalElementTypeArrayToJson(Type componentType)
+        @Override
+        public void initialize(Type type, DsonContext dsonContext)
         {
-            typeWriter = dsonContext.parseWriter(componentType);
+            if (type instanceof GenericArrayType)
+            {
+                Type componentType = ((GenericArrayType) type).getGenericComponentType();
+                if (componentType instanceof ParameterizedType)
+                {
+                    Class ckazz = (Class) ((ParameterizedType) componentType).getRawType();
+                    if (Modifier.isFinal(ckazz.getModifiers()))
+                    {
+                        componentWriter = dsonContext.parseWriter(componentType);
+                    }
+                    else
+                    {
+                        throw new IllegalStateException();
+                    }
+                }
+                else if (componentType instanceof GenericArrayType)
+                {
+                    componentWriter = dsonContext.parseWriter(componentType);
+                }
+                else
+                {
+                    throw new IllegalStateException();
+                }
+            }
+            else if (type instanceof Class<?> ckazz)
+            {
+                if (Modifier.isFinal(ckazz.getComponentType().getModifiers()))
+                {
+                    componentWriter = dsonContext.parseWriter(ckazz.getComponentType());
+                }
+                else
+                {
+                    throw new IllegalStateException();
+                }
+            }
         }
 
         @Override
-        public void output(StringBuilder output, Object array)
+        public void toJson(Object entity, StringBuilder output)
         {
+            if (entity == null)
+            {
+                return;
+            }
             output.append('[');
-            Object[]   elements   = (Object[]) array;
+            Object[]   elements   = (Object[]) entity;
             int        length     = elements.length;
-            TypeWriter typeWriter = this.typeWriter;
+            TypeWriter typeWriter = this.componentWriter;
             boolean    hasComma   = false;
             for (int i = 0; i < length; i++)
             {
@@ -237,15 +127,30 @@ public class ArrayWriter implements TypeWriter
         }
     }
 
-    class UnFinalElementTypeArrayToJson implements ToJson
+    static class ComponentUnFinalTypeArrayWriter implements TypeWriter
     {
+        private DsonContext dsonContext;
+
         @Override
-        public void output(StringBuilder output, Object array)
+        public void initialize(Type type, DsonContext dsonContext)
         {
-            output.append('[');
-            boolean hasComma = false;
-            for (Object element : (Object[]) array)
+            this.dsonContext = dsonContext;
+        }
+
+        @Override
+        public void toJson(Object entity, StringBuilder output)
+        {
+            if (entity == null)
             {
+                return;
+            }
+            output.append('[');
+            Object[] elements = (Object[]) entity;
+            int      length   = elements.length;
+            boolean  hasComma = false;
+            for (int i = 0; i < length; i++)
+            {
+                Object element = elements[i];
                 if (element != null)
                 {
                     dsonContext.parseWriter(element.getClass()).toJson(element, output);
@@ -259,92 +164,5 @@ public class ArrayWriter implements TypeWriter
             }
             output.append(']');
         }
-    }
-
-    @Override
-    public void initialize(Type type, DsonContext dsonContext)
-    {
-        this.dsonContext = dsonContext;
-        if (type instanceof Class<?>)
-        {
-            Class<?> componentType = ((Class<?>) type).getComponentType();
-            if (componentType == int.class)
-            {
-                toJson = new intArrayToJson();
-            }
-            else if (componentType == short.class)
-            {
-                toJson = new shortArrayToJson();
-            }
-            else if (componentType == long.class)
-            {
-                toJson = new longArrayToJson();
-            }
-            else if (componentType == float.class)
-            {
-                toJson = new floatArrayToJson();
-            }
-            else if (componentType == double.class)
-            {
-                toJson = new doubleArrayToJson();
-            }
-            else if (componentType == boolean.class)
-            {
-                toJson = new booleanArrayToJson();
-            }
-            else if (componentType == byte.class)
-            {
-                toJson = new byteArrayToJson();
-            }
-            else if (componentType == char.class)
-            {
-                toJson = new charArrayToJson();
-            }
-            else if (componentType == String.class)
-            {
-                toJson = new StringArrayToJson();
-            }
-            else if (Modifier.isFinal(componentType.getModifiers()))
-            {
-                toJson = new FinalElementTypeArrayToJson(componentType);
-            }
-            else
-            {
-                toJson = new UnFinalElementTypeArrayToJson();
-            }
-        }
-        else if (type instanceof GenericArrayType)
-        {
-            Type componentType = ((GenericArrayType) type).getGenericComponentType();
-            if (componentType instanceof ParameterizedType)
-            {
-                Type rawType = ((ParameterizedType) componentType).getRawType();
-                if (rawType instanceof Class && Modifier.isFinal(((Class) rawType).getModifiers()))
-                {
-                    toJson = new FinalElementTypeArrayToJson(componentType);
-                    return;
-                }
-            }
-            else if (componentType instanceof GenericArrayType)
-            {
-                toJson = new FinalElementTypeArrayToJson(componentType);
-                return;
-            }
-            toJson = new UnFinalElementTypeArrayToJson();
-        }
-        else
-        {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    @Override
-    public void toJson(Object entity, StringBuilder output)
-    {
-        if (entity == null)
-        {
-            return;
-        }
-        toJson.output(output, entity);
     }
 }

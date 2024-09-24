@@ -20,7 +20,7 @@ import java.util.Map;
 
 public interface TypeWriter
 {
-    default void initialize(Type type, DsonContext contexts)
+    default void initialize(Type type, DsonContext dsonContext)
     {
     }
 
@@ -55,7 +55,7 @@ public interface TypeWriter
             ckazz = ckazz.getSuperclass();
         }
         MethodModel initMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("initialize", Type.class, DsonContext.class), classModel);
-        initMethod.setParamterNames( "type","dsonContext");
+        initMethod.setParamterNames("type", "dsonContext");
         StringBuilder initBody = new StringBuilder();
         initBody.append("this.dsonContext = dsonContext;\r\n");
         MethodModel toJsonMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("toJson", Object.class, StringBuilder.class), classModel);
