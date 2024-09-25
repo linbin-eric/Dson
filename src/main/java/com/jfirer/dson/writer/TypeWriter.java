@@ -59,11 +59,12 @@ public interface TypeWriter
         StringBuilder initBody = new StringBuilder();
         initBody.append("this.dsonContext = dsonContext;\r\n");
         MethodModel toJsonMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("toJson", Object.class, StringBuilder.class), classModel);
-        toJsonMethod.setParamterNames("instance", "builder");
-        StringBuilder toJsonBody = new StringBuilder("builder.append(\"{\");\r\n");
+        toJsonMethod.setParamterNames("entity", "builder");
+        String        referenceName = SmcHelper.getReferenceName(((Class<?>) type), classModel);
+        StringBuilder toJsonBody    = new StringBuilder("builder.append(\"{\");\r\n");
+        toJsonBody.append(STR.format("{} instance = ({})entity;\r\n", referenceName, referenceName));
         toJsonBody.append("boolean hasOutput = false;\r\n");
-        String  referenceName = SmcHelper.getReferenceName(((Class<?>) type), classModel);
-        boolean hasPrimitive  = false;
+        boolean hasPrimitive = false;
         for (Map.Entry<String, Field> each : map.entrySet())
         {
             if (Modifier.isFinal(each.getValue().getModifiers()) || Modifier.isStatic(each.getValue().getModifiers()))
@@ -90,7 +91,7 @@ public interface TypeWriter
                                                    """, SmcHelper.getReferenceName(each.getValue().getDeclaringClass(), classModel), each.getValue().getName(), fieldname, SmcHelper.getReferenceName(annotation.value(), classModel), fieldname));
                 toJsonBody.append(STR.format("""
                                                      {
-                                                     {} reference = (({})instance).{}();
+                                                     {} reference = instance.{}();
                                                                  if (reference != null)
                                                                  {
                                                                      builder.append("\\"{}\\":");
@@ -99,7 +100,7 @@ public interface TypeWriter
                                                                      hasOutput = true;
                                                                  }
                                                      }
-                                                     """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), referenceName, methodName, each.getKey(), fieldname));
+                                                     """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey(), fieldname));
             }
             else
             {
@@ -110,24 +111,24 @@ public interface TypeWriter
                     {
                         toJsonBody.append(STR.format("""
                                                              builder.append("\\"{}\\":");
-                                                                        builder.append((({})instance).{}());
+                                                                        builder.append(instance.{}());
                                                                         builder.append(',');
-                                                             """, each.getKey(), referenceName, methodName));
+                                                             """, each.getKey(), methodName));
                         hasPrimitive = true;
                     }
                     case ReflectUtil.PRIMITIVE_CHAR ->
                     {
                         toJsonBody.append(STR.format("""
                                                              builder.append("\\"{}\\":");
-                                                                         builder.append('"').append((({})instance).{}());
+                                                                         builder.append('"').append(instance.{}());
                                                                          builder.append('"').append(',');
-                                                             """, each.getKey(), referenceName, methodName));
+                                                             """, each.getKey(), methodName));
                         hasPrimitive = true;
                     }
                     case ReflectUtil.CLASS_BOOL, ReflectUtil.CLASS_BYTE, ReflectUtil.CLASS_SHORT, ReflectUtil.CLASS_INT, ReflectUtil.CLASS_LONG, ReflectUtil.CLASS_FLOAT,
                          ReflectUtil.CLASS_DOUBLE -> toJsonBody.append(STR.format("""
                                                                                           {
-                                                                                          {} reference = (({})instance).{}();
+                                                                                          {} reference = instance.{}();
                                                                                           if (reference != null)
                                                                                                       {
                                                                                                           builder.append("\\"{}\\":");
@@ -136,10 +137,10 @@ public interface TypeWriter
                                                                                                           hasOutput = true;
                                                                                                         }
                                                                                           }
-                                                                                          """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), referenceName, methodName, each.getKey()));
+                                                                                          """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
                     case ReflectUtil.CLASS_STRING, ReflectUtil.CLASS_CHAR -> toJsonBody.append(STR.format("""
                                                                                                                   {
-                                                                                                                  {} reference = (({})instance).{}();
+                                                                                                                  {} reference = instance.{}();
                                                                                                                   if (reference != null)
                                                                                                                               {
                                                                                                                                   builder.append("\\"{}\\":");
@@ -148,7 +149,7 @@ public interface TypeWriter
                                                                                                                                   hasOutput = true;
                                                                                                                                 }
                                                                                                                   }
-                                                                                                                  """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), referenceName, methodName, each.getKey()));
+                                                                                                                  """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
                     default ->
                     {
                         if (Modifier.isFinal(each.getValue().getModifiers()))
@@ -168,7 +169,7 @@ public interface TypeWriter
                                                                """, SmcHelper.getReferenceName(each.getValue().getDeclaringClass(), classModel), each.getValue().getName(), fieldname));
                             toJsonBody.append(STR.format("""
                                                                  {
-                                                                 {} reference = (({})instance).{}();
+                                                                 {} reference = instance.{}();
                                                                              if (reference != null)
                                                                              {
                                                                                  builder.append("\\"{}\\":");
@@ -177,13 +178,13 @@ public interface TypeWriter
                                                                                  hasOutput = true;
                                                                              }
                                                                  }
-                                                                 """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), referenceName, methodName, each.getKey(), fieldname));
+                                                                 """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey(), fieldname));
                         }
                         else
                         {
                             toJsonBody.append(STR.format("""
                                                                  {
-                                                                 {} reference =(({})instance).{}();
+                                                                 {} reference =instance.{}();
                                                                              if (reference != null)
                                                                              {
                                                                                  builder.append("\\"{}\\":");
@@ -192,7 +193,7 @@ public interface TypeWriter
                                                                                  hasOutput = true;
                                                                              }
                                                                  }
-                                                                 """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), referenceName, methodName, each.getKey()));
+                                                                 """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
                         }
                     }
                 }

@@ -2,7 +2,6 @@ package com.jfirer.dson.benchmark.read;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jfirer.dson.Dson;
 import com.jfirer.dson.DsonConfig;
 import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.benchmark.SmallObject;
@@ -60,7 +59,7 @@ public class BenchmarkSmall
     @Benchmark
     public void testStandard(Blackhole blackhole, SmallData smallData)
     {
-        Object o = Dson.fromString(SmallObject.class, smallData.value);
+        Object o = standard.fromString(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
