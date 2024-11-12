@@ -60,7 +60,7 @@ public class ObjectWriter implements TypeWriter
         List<Entry> list = new LinkedList<>();
         for (Map.Entry<String, Field> each : map.entrySet())
         {
-            if (Modifier.isFinal(each.getValue().getModifiers()) || Modifier.isStatic(each.getValue().getModifiers()))
+            if (Modifier.isStatic(each.getValue().getModifiers()))
             {
                 continue;
             }

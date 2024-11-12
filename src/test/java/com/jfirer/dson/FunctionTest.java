@@ -353,73 +353,89 @@ public class FunctionTest extends Support
     public void test7()
     {
         FunctionData data = new FunctionData();
-//        data.setA(12);
-//        data.setB(2.36f);
-//        data.setC(5.6987);
-//        data.setD(121212121212l);
-//        data.setE('f');
-//        data.setF(true);
-//        data.setG((short) 5.689);
-//        data.setH((byte) 3);
-//        data.setA1(1);
+        data.setA(12);
+        data.setB(2.36f);
+        data.setC(5.6987);
+        data.setD(121212121212l);
+        data.setE('f');
+        data.setF(true);
+        data.setG((short) 5.689);
+        data.setH((byte) 3);
+        data.setA1(1);
         data.setB1(2.34f);
-//        data.setC1(2323.34234234);
-//        data.setD1(11231231231313133l);
-//        data.setE1("sdasdasd");
-//        data.setF1(true);
-//        data.setG1((short) 2);
-//        data.setH1((byte) 12);
-//        NestData nestData = new NestData();
-//        nestData.setName("dsadas");
-//        data.setNestData(nestData);
-//        ArrayList<String> list = new ArrayList<String>();
-//        list.add("husdasdad");
-//        list.add("siudsan");
-//        data.setList(list);
-//        ArrayList<NestData> nestDatas = new ArrayList<NestData>();
-//        nestData = new NestData();
-//        nestData.setName("sdasda");
-//        nestData.setAge(13);
-//        nestDatas.add(nestData);
-//        nestData = new NestData();
-//        nestData.setName("dasdas");
-//        nestData.setAge(20);
-//        nestDatas.add(nestData);
-//        data.setDatas(nestDatas);
-//        data.setNolist(new ArrayList<String>());
-//        HashMap<String, String> map = new HashMap<String, String>();
-//        map.put("恁大", "dasdasd");
-//        map.put("dsada", "你好");
-//        data.setMap(map);
-//        data.setArray2(new int[][]{{1, 2, 3, 4}, {10, 12}});
-//        data.setStrs(new String[]{"231231", "sdadsasdasd"});
-//        data.setArray1(new int[]{1, 2, 3, 4, 5, 65});
-//        data.setChars(new char[]{'a', 'b'});
-//        data.setArray3(new Integer[]{1, 2, 3, 4, 5, 6, 7});
-//        data.setArray4(new Integer[][]{{1, 2, 3, 4, 5, 56}, {10, 11, 12, 14}});
-//        NestData[] nestDatas2 = new NestData[2];
-//        NestData   tmp        = new NestData();
-//        tmp.setAge(12);
-//        tmp.setName("das");
-//        nestDatas2[0] = tmp;
-//                        tmp = new NestData();
-//        tmp.setAge(1222);
-//        tmp.setName("daasdadasd");
-//        nestDatas2[1] = tmp;
-//        data.setNestDatas(nestDatas2);
-//        ArrayList<String>[] lists = new ArrayList[]{new ArrayList<String>(), new ArrayList<String>()};
-//        lists[0].add("dasdasda");
-//        lists[0].add("dasdasdasdasdasd");
-//        lists[1].add("1212121dasdasdasdasdasd");
-//        lists[1].add("dasdasd1212121212asdasdasd");
-//        data.setLists(lists);
-//        data.setData(nestDatas2);
+        data.setC1(2323.34234234);
+        data.setD1(11231231231313133l);
+        data.setE1("sdasdasd");
+        data.setF1(true);
+        data.setG1((short) 2);
+        data.setH1((byte) 12);
+        NestData nestData = new NestData();
+        nestData.setName("dsadas");
+        data.setNestData(nestData);
+        ArrayList<String> list = new ArrayList<String>();
+        list.add("husdasdad");
+        list.add("siudsan");
+        data.setList(list);
+        ArrayList<NestData> nestDatas = new ArrayList<NestData>();
+        nestData = new NestData();
+        nestData.setName("sdasda");
+        nestData.setAge(13);
+        nestDatas.add(nestData);
+        nestData = new NestData();
+        nestData.setName("dasdas");
+        nestData.setAge(20);
+        nestDatas.add(nestData);
+        data.setDatas(nestDatas);
+        data.setNolist(new ArrayList<String>());
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("恁大", "dasdasd");
+        map.put("dsada", "你好");
+        data.setMap(map);
+        data.setArray2(new int[][]{{1, 2, 3, 4}, {10, 12}});
+        data.setStrs(new String[]{"231231", "sdadsasdasd"});
+        data.setArray1(new int[]{1, 2, 3, 4, 5, 65});
+        data.setChars(new char[]{'a', 'b'});
+        data.setArray3(new Integer[]{1, 2, 3, 4, 5, 6, 7});
+        data.setArray4(new Integer[][]{{1, 2, 3, 4, 5, 56}, {10, 11, 12, 14}});
+        NestData[] nestDatas2 = new NestData[2];
+        NestData   tmp        = new NestData();
+        tmp.setAge(12);
+        tmp.setName("das");
+        nestDatas2[0] = tmp;
+                        tmp = new NestData();
+        tmp.setAge(1222);
+        tmp.setName("daasdadasd");
+        nestDatas2[1] = tmp;
+        data.setNestDatas(nestDatas2);
+        ArrayList<String>[] lists = new ArrayList[]{new ArrayList<String>(), new ArrayList<String>()};
+        lists[0].add("dasdasda");
+        lists[0].add("dasdasdasdasdasd");
+        lists[1].add("1212121dasdasdasdasdasd");
+        lists[1].add("dasdasd1212121212asdasdasd");
+        data.setLists(lists);
+        data.setData(nestDatas2);
         String       content = dsonContext.toJson(data);
         FunctionData result  = dsonContext.fromString(FunctionData.class, content);
         System.out.println(result.getB1());
-        assertTrue(data.equals(result));
-//        String string = dsonContext.toJson(data);
-//        logger.debug("输出的json是\n\n{}\r\n\n", string);
-//        assertTrue(data.equal(dsonContext.fromString(FunctionData.class, string)));
+        assertTrue(data.equal(result));
+        String string = dsonContext.toJson(data);
+        logger.debug("输出的json是\n\n{}\r\n\n", string);
+        assertTrue(data.equal(dsonContext.fromString(FunctionData.class, string)));
+    }
+
+    @lombok.Data
+    public static class FinalDataTest
+    {
+        private final String d = "ssss";
+    }
+
+    @Test
+    public void test8()
+    {
+        String json = Dson.toJson(new FinalDataTest());
+        String content = """
+                         {"d":"ss"}""";
+        FinalDataTest o    = Dson.fromString(FinalDataTest.class, json);
+        System.out.println(o.d);
     }
 }
