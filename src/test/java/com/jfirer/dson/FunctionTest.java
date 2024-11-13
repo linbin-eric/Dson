@@ -433,9 +433,19 @@ public class FunctionTest extends Support
     public void test8()
     {
         String json = Dson.toJson(new FinalDataTest());
-        String content = """
-                         {"d":"ss"}""";
-        FinalDataTest o    = Dson.fromString(FinalDataTest.class, json);
-        System.out.println(o.d);
+        assertEquals("""
+                             {"d":"ssss"}""", json);
+    }
+
+    @lombok.Data
+    public static class NullString
+    {
+        private String a;
+    }
+
+    @Test
+    public void test9()
+    {
+        System.out.println(Dson.toJson(new NullString()));
     }
 }
