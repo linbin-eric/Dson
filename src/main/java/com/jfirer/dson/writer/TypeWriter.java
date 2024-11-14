@@ -8,6 +8,7 @@ import com.jfirer.baseutil.smc.model.ClassModel;
 import com.jfirer.baseutil.smc.model.FieldModel;
 import com.jfirer.baseutil.smc.model.MethodModel;
 import com.jfirer.dson.DsonContext;
+import com.jfirer.dson.util.InitializeStatusHolder;
 import com.jfirer.dson.util.JsonRenameStrategy;
 import com.jfirer.dson.writer.impl.ObjectWriter;
 import lombok.SneakyThrows;
@@ -18,7 +19,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface TypeWriter
+public interface TypeWriter extends InitializeStatusHolder
 {
     default void initialize(Type type, DsonContext dsonContext)
     {
@@ -39,20 +40,15 @@ public interface TypeWriter
     }
 
     @SneakyThrows
-    static TypeWriter compile(Type type)
+    static TypeWriter compile(Class ckass)
     {
-        ClassModel classModel = new ClassModel(STR.format("CompileObjectWriter_{}", CompileHelper.COMPILE_COUNTER.getAndIncrement()));
+        ClassModel classModel = new ClassModel(STR.format("CompileObjectWriter_{}", CompileHelper.COMPILE_COUNTER.getAndIncrement()), InitializeStatusHolderImpl.class);
         classModel.addInterface(TypeWriter.class);
         classModel.addField(new FieldModel("dsonContext", DsonContext.class, classModel));
-        Class              ckazz = (Class) type;
         Map<String, Field> map   = new HashMap<>();
-        while (ckazz != Object.class)
+        for (Field each : ReflectUtil.findPojoBeanGetFields(ckass))
         {
-            for (Field each : ckazz.getDeclaredFields())
-            {
-                map.putIfAbsent(JsonRenameStrategy.helpGetRename(each), each);
-            }
-            ckazz = ckazz.getSuperclass();
+            map.putIfAbsent(JsonRenameStrategy.helpGetRename(each), each);
         }
         MethodModel initMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("initialize", Type.class, DsonContext.class), classModel);
         initMethod.setParamterNames("type", "dsonContext");
@@ -60,17 +56,13 @@ public interface TypeWriter
         initBody.append("this.dsonContext = dsonContext;\r\n");
         MethodModel toJsonMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("toJson", Object.class, StringBuilder.class), classModel);
         toJsonMethod.setParamterNames("entity", "builder");
-        String        referenceName = SmcHelper.getReferenceName(((Class<?>) type), classModel);
+        String        referenceName = SmcHelper.getReferenceName((ckass), classModel);
         StringBuilder toJsonBody    = new StringBuilder("builder.append(\"{\");\r\n");
         toJsonBody.append(STR.format("{} instance = ({})entity;\r\n", referenceName, referenceName));
         toJsonBody.append("boolean hasOutput = false;\r\n");
         boolean hasPrimitive = false;
         for (Map.Entry<String, Field> each : map.entrySet())
         {
-            if (Modifier.isFinal(each.getValue().getModifiers()) || Modifier.isStatic(each.getValue().getModifiers()))
-            {
-                continue;
-            }
             int    classId    = ReflectUtil.getClassId(each.getValue().getType());
             String methodName = ReflectUtil.parseBeanGetMethodName(each.getValue());
             if (each.getValue().isAnnotationPresent(SerializeDefinition.class))
@@ -152,7 +144,7 @@ public interface TypeWriter
                                                                                                                   """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
                     default ->
                     {
-                        if (Modifier.isFinal(each.getValue().getModifiers()))
+                        if (Modifier.isFinal(each.getValue().getType().getModifiers()))
                         {
                             String fieldname = "typeWrite_" + CompileHelper.COMPILE_COUNTER.getAndIncrement();
                             classModel.addField(new FieldModel(fieldname, TypeWriter.class, classModel));
@@ -215,6 +207,7 @@ public interface TypeWriter
                                       builder.append('}');
                                       """);
         }
+        initBody.append("setInitialized();\r\n");
         initMethod.setBody(initBody.toString());
         toJsonMethod.setBody(toJsonBody.toString());
         classModel.putMethodModel(initMethod);

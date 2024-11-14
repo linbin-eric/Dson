@@ -5,21 +5,23 @@ import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 import com.jfirer.dson.reader.support.entry.ReadEntry;
 import com.jfirer.dson.reader.support.Node;
+import com.jfirer.dson.util.InitializeStatusHolder;
 import io.github.karlatemp.unsafeaccessor.Unsafe;
 
 import java.lang.reflect.Type;
 
-public class ObjectReader implements TypeReader
+public class ObjectReader extends InitializeStatusHolder.InitializeStatusHolderImpl implements TypeReader
 {
     private              Class  ckass;
     private              Node   rootNode;
     private static final Unsafe UNSAFE = Unsafe.getUnsafe();
 
     @Override
-    public void init(Type type, DsonContext dsonContext)
+    public void initialize(Type type, DsonContext dsonContext)
     {
         this.ckass = (Class) type;
         rootNode   = Node.generateRoot(ckass, dsonContext);
+        setInitialized();
     }
 
     @Override

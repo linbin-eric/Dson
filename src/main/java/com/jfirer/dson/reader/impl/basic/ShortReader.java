@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
 public class ShortReader implements TypeReader
 {
     @Override
-    public void init(Type type, DsonContext dsonContext)
+    public void initialize(Type type, DsonContext dsonContext)
     {
     }
 

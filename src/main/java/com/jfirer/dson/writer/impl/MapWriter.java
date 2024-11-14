@@ -1,6 +1,7 @@
 package com.jfirer.dson.writer.impl;
 
 import com.jfirer.dson.DsonContext;
+import com.jfirer.dson.util.InitializeStatusHolder;
 import com.jfirer.dson.writer.TypeWriter;
 
 import java.lang.reflect.GenericArrayType;
@@ -10,7 +11,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class MapWriter implements TypeWriter
+public class MapWriter extends InitializeStatusHolder.InitializeStatusHolderImpl implements TypeWriter
 {
     private DsonContext dsonContext;
     private TypeWriter  valueWriter;
@@ -80,6 +81,7 @@ public class MapWriter implements TypeWriter
         {
             throw new IllegalArgumentException();
         }
+        setInitialized();
     }
 
     private boolean isTypeFinal(Type type)

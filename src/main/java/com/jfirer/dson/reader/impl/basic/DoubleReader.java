@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
 public class DoubleReader implements TypeReader
 {
     @Override
-    public void init(Type type, DsonContext dsonContext)
+    public void initialize(Type type, DsonContext dsonContext)
     {
     }
 

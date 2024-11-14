@@ -3,6 +3,7 @@ package com.jfirer.dson.reader.impl;
 import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
+import com.jfirer.dson.util.InitializeStatusHolder;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -10,13 +11,13 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
-public class NewArrayReader implements TypeReader
+public class NewArrayReader extends InitializeStatusHolder.InitializeStatusHolderImpl implements TypeReader
 {
     private Class      componentType;
     private TypeReader componentReader;
 
     @Override
-    public void init(Type type, DsonContext dsonContext)
+    public void initialize(Type type, DsonContext dsonContext)
     {
         Type origin = type;
         if (type instanceof GenericArrayType)
@@ -51,6 +52,7 @@ public class NewArrayReader implements TypeReader
         {
             throw new IllegalArgumentException(type.toString());
         }
+        setInitialized();
     }
 
     @Override

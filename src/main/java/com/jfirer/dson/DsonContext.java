@@ -151,13 +151,17 @@ public class DsonContext
                 {
                     typeReader = new UnKnowTypeReader();
                 }
+                else if (rawType.isRecord())
+                {
+                    typeReader = new ObjectReader();
+                }
                 else
                 {
                     typeReader = config.isReadUseCompile() ? TypeReader.compile(rawType) : new ObjectReader();
                 }
             }
             readers.put(type, typeReader);
-            typeReader.init(type, this);
+            typeReader.initialize(type, this);
             return typeReader;
         }
     }
@@ -212,11 +216,15 @@ public class DsonContext
                 {
                     typeWriter = new EnumWriter();
                 }
+                else if (targetClass.isRecord())
+                {
+                    typeWriter = new ObjectWriter();
+                }
                 else
                 {
                     if (config.isWriteUseCompile())
                     {
-                        typeWriter = TypeWriter.compile(type);
+                        typeWriter = TypeWriter.compile((Class) type);
                     }
                     else
                     {
@@ -227,6 +235,7 @@ public class DsonContext
             writers.put(type, typeWriter);
             typeWriter.initialize(type, this);
         }
+        typeWriter.ensureInitialized();
         return typeWriter;
     }
 

@@ -10,15 +10,16 @@ import com.jfirer.baseutil.smc.model.MethodModel;
 import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.support.Node;
 import com.jfirer.dson.reader.support.entry.ReadEntry;
+import com.jfirer.dson.util.InitializeStatusHolder;
 import com.jfirer.dson.util.JsonRenameStrategy;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
-public interface TypeReader
+public interface TypeReader extends InitializeStatusHolder
 {
-    default void init(Type type, DsonContext dsonContext)
+    default void initialize(Type type, DsonContext dsonContext)
     {
     }
 
@@ -27,13 +28,13 @@ public interface TypeReader
     @SneakyThrows
     static TypeReader compile(Class ckazz)
     {
-        ClassModel classModel = new ClassModel("BeanReader_" + CompileHelper.COMPILE_COUNTER.getAndIncrement());
+        ClassModel classModel = new ClassModel("BeanReader_" + CompileHelper.COMPILE_COUNTER.getAndIncrement(), InitializeStatusHolderImpl.class);
         classModel.addInterface(TypeReader.class);
         classModel.addImport(Node.class);
         classModel.addImport(Stream.class);
         classModel.addImport(ReadEntry.class);
         classModel.addField(new FieldModel("rootNode", Node.class, classModel));
-        MethodModel initMethod = new MethodModel(TypeReader.class.getDeclaredMethod("init", Type.class, DsonContext.class), classModel);
+        MethodModel initMethod = new MethodModel(TypeReader.class.getDeclaredMethod("initialize", Type.class, DsonContext.class), classModel);
         initMethod.setParamterNames("ckass", "dsonContext");
         StringBuilder initBody   = new StringBuilder("rootNode   = Node.generateRoot((Class)ckass, dsonContext);\r\n");
         MethodModel   fromString = new MethodModel(TypeReader.class.getDeclaredMethod("fromString", Stream.class), classModel);
@@ -43,7 +44,7 @@ public interface TypeReader
         builder.append(referenceName).append(" instance = new ").append(referenceName).append("();\r\n");
         builder.append("stream.startParseObject();\r\n");
         builder.append("boolean skipComma = false;\r\n");
-        Field[]       fields     = ReflectUtil.findPojoBeanFields(ckazz);
+        Field[]       fields     = ReflectUtil.findPojoBeanSetFields(ckazz);
         StringBuilder setContent = new StringBuilder();
         setContent.append("switch(readEntry.name())\r\n{\r\n");
         classModel.addImport(DeSerializeDefinition.class);
@@ -55,8 +56,8 @@ public interface TypeReader
                 String typeReaderName = "typeReader_" + CompileHelper.COMPILE_COUNTER.getAndIncrement();
                 classModel.addField(new FieldModel(typeReaderName, TypeReader.class, classModel));
                 initBody.append("try\r\n{\r\n");
-                initBody.append(typeReaderName + "=" + SmcHelper.getReferenceName(each.getDeclaringClass(), classModel) + ".class.getDeclaredField(\"" + each.getName() + "\").getAnnotation(DeSerializeDefinition.class).value().newInstance();");
-                initBody.append(typeReaderName + ".init(ckass,dsonContext);\r\n");
+                initBody.append(typeReaderName + "=" + SmcHelper.getReferenceName(each.getDeclaringClass(), classModel) + ".class.getDeclaredField(\"" + each.getName() + "\").getAnnotation(DeSerializeDefinition.class).value().newInstance();\r\n");
+                initBody.append(typeReaderName + ".initialize(ckass,dsonContext);\r\n");
                 initBody.append("}\r\ncatch(Throwable e){;}\r\n");
                 content = STR.format("instance.{}(({}){}.fromString(stream));", ReflectUtil.parseBeanSetMethodName(each), SmcHelper.getReferenceName(each.getType(), classModel), typeReaderName);
             }
@@ -81,7 +82,7 @@ public interface TypeReader
                     case ReflectUtil.PRIMITIVE_BOOL, ReflectUtil.CLASS_BOOL -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getBoolean());";
                     case ReflectUtil.PRIMITIVE_BYTE -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getByte());";
                     case ReflectUtil.PRIMITIVE_SHORT -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getShort());";
-                    case ReflectUtil.PRIMITIVE_CHAR, ReflectUtil.CLASS_CHAR ->  "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getChar());";
+                    case ReflectUtil.PRIMITIVE_CHAR, ReflectUtil.CLASS_CHAR -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getChar());";
                     case ReflectUtil.CLASS_INT -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getWInt());";
                     case ReflectUtil.CLASS_LONG -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getWLong());";
                     case ReflectUtil.CLASS_FLOAT -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getWFloat());";
@@ -118,6 +119,7 @@ public interface TypeReader
                                                       }
                                                       return instance;""", setContent.toString()));
         fromString.setBody(builder.toString());
+        initBody.append("setInitialized();\r\n");
         initMethod.setBody(initBody.toString());
         classModel.putMethodModel(fromString);
         classModel.putMethodModel(initMethod);

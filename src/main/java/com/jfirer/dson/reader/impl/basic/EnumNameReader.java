@@ -11,7 +11,7 @@ public class EnumNameReader implements TypeReader
     private Class type;
 
     @Override
-    public void init(Type type, DsonContext dsonContext)
+    public void initialize(Type type, DsonContext dsonContext)
     {
         this.type = (Class) type;
     }

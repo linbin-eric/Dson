@@ -41,7 +41,7 @@ public interface ReadEntry
             try
             {
                 typeReader = annotation.value().newInstance();
-                typeReader.init(field.getType(), dsonContext);
+                typeReader.initialize(field.getType(), dsonContext);
             }
             catch (Exception e)
             {
