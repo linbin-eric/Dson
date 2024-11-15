@@ -1,5 +1,6 @@
 package com.jfirer.dson;
 
+import com.alibaba.fastjson.JSON;
 import com.jfirer.baseutil.reflect.TypeUtil;
 import com.jfirer.dson.model.*;
 import com.jfirer.dson.util.JsonRename;
@@ -447,5 +448,16 @@ public class FunctionTest extends Support
     public void test9()
     {
         System.out.println(Dson.toJson(new NullString()));
+    }
+
+    @Test
+    public void test10()
+    {
+        List<String> l = new ArrayList<>();
+        l.add("""
+                      a"s"s""");
+        String s = JSON.toJSONString(l);
+        System.out.println(s);
+        System.out.println("[\"a\\\"ss\"]");
     }
 }
