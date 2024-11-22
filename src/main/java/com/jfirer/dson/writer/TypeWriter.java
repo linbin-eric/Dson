@@ -8,7 +8,6 @@ import com.jfirer.baseutil.smc.model.ClassModel;
 import com.jfirer.baseutil.smc.model.FieldModel;
 import com.jfirer.baseutil.smc.model.MethodModel;
 import com.jfirer.dson.DsonContext;
-import com.jfirer.dson.util.InitializeStatusHolder;
 import com.jfirer.dson.util.JsonRenameStrategy;
 import com.jfirer.dson.writer.impl.ObjectWriter;
 import lombok.SneakyThrows;
@@ -19,7 +18,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface TypeWriter extends InitializeStatusHolder
+public interface TypeWriter
 {
     default void initialize(Type type, DsonContext dsonContext)
     {
@@ -42,10 +41,10 @@ public interface TypeWriter extends InitializeStatusHolder
     @SneakyThrows
     static TypeWriter compile(Class ckass)
     {
-        ClassModel classModel = new ClassModel(STR.format("CompileObjectWriter_{}", CompileHelper.COMPILE_COUNTER.getAndIncrement()), InitializeStatusHolderImpl.class);
+        ClassModel classModel = new ClassModel(STR.format("CompileObjectWriter_{}", CompileHelper.COMPILE_COUNTER.getAndIncrement()));
         classModel.addInterface(TypeWriter.class);
         classModel.addField(new FieldModel("dsonContext", DsonContext.class, classModel));
-        Map<String, Field> map   = new HashMap<>();
+        Map<String, Field> map = new HashMap<>();
         for (Field each : ReflectUtil.findPojoBeanGetFields(ckass))
         {
             map.putIfAbsent(JsonRenameStrategy.helpGetRename(each), each);
@@ -207,7 +206,6 @@ public interface TypeWriter extends InitializeStatusHolder
                                       builder.append('}');
                                       """);
         }
-        initBody.append("setInitialized();\r\n");
         initMethod.setBody(initBody.toString());
         toJsonMethod.setBody(toJsonBody.toString());
         classModel.putMethodModel(initMethod);

@@ -10,14 +10,13 @@ import com.jfirer.baseutil.smc.model.MethodModel;
 import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.support.Node;
 import com.jfirer.dson.reader.support.entry.ReadEntry;
-import com.jfirer.dson.util.InitializeStatusHolder;
 import com.jfirer.dson.util.JsonRenameStrategy;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
-public interface TypeReader extends InitializeStatusHolder
+public interface TypeReader
 {
     default void initialize(Type type, DsonContext dsonContext)
     {
@@ -28,7 +27,7 @@ public interface TypeReader extends InitializeStatusHolder
     @SneakyThrows
     static TypeReader compile(Class ckazz)
     {
-        ClassModel classModel = new ClassModel("BeanReader_" + CompileHelper.COMPILE_COUNTER.getAndIncrement(), InitializeStatusHolderImpl.class);
+        ClassModel classModel = new ClassModel("BeanReader_" + CompileHelper.COMPILE_COUNTER.getAndIncrement());
         classModel.addInterface(TypeReader.class);
         classModel.addImport(Node.class);
         classModel.addImport(Stream.class);
@@ -119,7 +118,6 @@ public interface TypeReader extends InitializeStatusHolder
                                                       }
                                                       return instance;""", setContent.toString()));
         fromString.setBody(builder.toString());
-        initBody.append("setInitialized();\r\n");
         initMethod.setBody(initBody.toString());
         classModel.putMethodModel(fromString);
         classModel.putMethodModel(initMethod);

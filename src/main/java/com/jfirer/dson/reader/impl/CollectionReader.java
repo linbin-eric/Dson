@@ -4,13 +4,12 @@ import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
-import com.jfirer.dson.util.InitializeStatusHolder;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class CollectionReader extends InitializeStatusHolder.InitializeStatusHolderImpl implements TypeReader
+public class CollectionReader implements TypeReader
 {
     Class      ckass;
     TypeReader elementReader;
@@ -63,7 +62,6 @@ public class CollectionReader extends InitializeStatusHolder.InitializeStatusHol
             Type actualTypeArgument = ((ParameterizedType) type).getActualTypeArguments()[0];
             this.elementReader = dsonContext.parseReader(actualTypeArgument);
         }
-        setInitialized();
     }
 
     @Override

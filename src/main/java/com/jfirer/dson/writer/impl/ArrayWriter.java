@@ -1,7 +1,6 @@
 package com.jfirer.dson.writer.impl;
 
 import com.jfirer.dson.DsonContext;
-import com.jfirer.dson.util.InitializeStatusHolder;
 import com.jfirer.dson.writer.TypeWriter;
 
 import java.lang.reflect.GenericArrayType;
@@ -54,7 +53,7 @@ public class ArrayWriter
         }
     }
 
-    static class ComponentFinalTypeArrayWriter extends InitializeStatusHolder.InitializeStatusHolderImpl implements TypeWriter
+    static class ComponentFinalTypeArrayWriter implements TypeWriter
     {
         private TypeWriter componentWriter;
 
@@ -96,7 +95,6 @@ public class ArrayWriter
                     throw new IllegalStateException();
                 }
             }
-            setInitialized();
         }
 
         @Override
@@ -129,7 +127,7 @@ public class ArrayWriter
         }
     }
 
-    static class ComponentUnFinalTypeArrayWriter extends InitializeStatusHolder.InitializeStatusHolderImpl implements TypeWriter
+    static class ComponentUnFinalTypeArrayWriter implements TypeWriter
     {
         private DsonContext dsonContext;
 
@@ -137,7 +135,6 @@ public class ArrayWriter
         public void initialize(Type type, DsonContext dsonContext)
         {
             this.dsonContext = dsonContext;
-            setInitialized();
         }
 
         @Override

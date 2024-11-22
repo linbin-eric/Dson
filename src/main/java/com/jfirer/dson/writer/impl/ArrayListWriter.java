@@ -1,7 +1,6 @@
 package com.jfirer.dson.writer.impl;
 
 import com.jfirer.dson.DsonContext;
-import com.jfirer.dson.util.InitializeStatusHolder;
 import com.jfirer.dson.writer.TypeWriter;
 
 import java.lang.reflect.Modifier;
@@ -9,7 +8,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class ArrayListWriter extends InitializeStatusHolder.InitializeStatusHolderImpl implements  TypeWriter
+public class ArrayListWriter implements TypeWriter
 {
     boolean     elementTypeFinal = false;
     Class       elementType;
@@ -30,7 +29,6 @@ public class ArrayListWriter extends InitializeStatusHolder.InitializeStatusHold
                 elementWriter    = dsonContext.parseWriter((Class) argument);
             }
         }
-        setInitialized();
     }
 
     @Override

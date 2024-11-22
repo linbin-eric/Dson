@@ -3,7 +3,6 @@ package com.jfirer.dson.writer.impl;
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.valueaccessor.ValueAccessor;
 import com.jfirer.dson.DsonContext;
-import com.jfirer.dson.util.InitializeStatusHolder;
 import com.jfirer.dson.util.JsonRenameStrategy;
 import com.jfirer.dson.writer.SerializeDefinition;
 import com.jfirer.dson.writer.TypeWriter;
@@ -19,7 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class ObjectWriter extends InitializeStatusHolder.InitializeStatusHolderImpl implements TypeWriter
+public class ObjectWriter implements TypeWriter
 {
     private Entry[] entries;
 
@@ -107,7 +106,6 @@ public class ObjectWriter extends InitializeStatusHolder.InitializeStatusHolderI
             list.add(entry);
         }
         this.entries = list.toArray(Entry[]::new);
-        setInitialized();
     }
 
     @Data

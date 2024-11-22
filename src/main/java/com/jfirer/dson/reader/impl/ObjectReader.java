@@ -3,14 +3,13 @@ package com.jfirer.dson.reader.impl;
 import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
-import com.jfirer.dson.reader.support.entry.ReadEntry;
 import com.jfirer.dson.reader.support.Node;
-import com.jfirer.dson.util.InitializeStatusHolder;
+import com.jfirer.dson.reader.support.entry.ReadEntry;
 import io.github.karlatemp.unsafeaccessor.Unsafe;
 
 import java.lang.reflect.Type;
 
-public class ObjectReader extends InitializeStatusHolder.InitializeStatusHolderImpl implements TypeReader
+public class ObjectReader  implements TypeReader
 {
     private              Class  ckass;
     private              Node   rootNode;
@@ -21,7 +20,6 @@ public class ObjectReader extends InitializeStatusHolder.InitializeStatusHolderI
     {
         this.ckass = (Class) type;
         rootNode   = Node.generateRoot(ckass, dsonContext);
-        setInitialized();
     }
 
     @Override

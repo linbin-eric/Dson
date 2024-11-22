@@ -17,21 +17,20 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DsonContext
 {
-    private static final ThreadLocal<StringBuilder>          LOCAL   = ThreadLocal.withInitial(() -> new StringBuilder());
-    private              ConcurrentHashMap<Type, TypeReader> readers = new ConcurrentHashMap<Type, TypeReader>();
-    private              ConcurrentHashMap<Type, TypeWriter> writers = new ConcurrentHashMap<Type, TypeWriter>(256);
+    private              ConcurrentHashMap<Type, TypeReader> readers              = new ConcurrentHashMap<Type, TypeReader>();
+    private              ConcurrentHashMap<Type, TypeWriter> writers              = new ConcurrentHashMap<Type, TypeWriter>(256);
     @Getter
     private              DsonConfig                          config;
+    private static final ThreadLocal<Map<Type, TypeWriter>>  CURRENT_WRITER_CACHE = ThreadLocal.withInitial(() -> new HashMap<>());
+    private static final ThreadLocal<Map<Type, TypeReader>>  CURRENT_READER_CACHE = ThreadLocal.withInitial(() -> new HashMap<>());
 
     public DsonContext(DsonConfig config)
     {
@@ -101,35 +100,43 @@ public class DsonContext
     @SneakyThrows
     public TypeReader parseReader(Type type)
     {
-        TypeReader typeReader = readers.get(type);
-        if (typeReader != null)
+        Map<Type, TypeReader> cache = CURRENT_READER_CACHE.get();
+        TypeReader            tmp   = cache.get(type);
+        if (tmp != null)
         {
-            return typeReader;
+            return tmp;
         }
-        else
-        {
-            if (type instanceof GenericArrayType)
+        return readers.computeIfAbsent(type, t -> {
+            TypeReader typeReader;
+            if (t instanceof GenericArrayType)
             {
                 typeReader = new NewArrayReader();
             }
             else
             {
                 Class rawType = null;
-                if (type instanceof ParameterizedType)
+                if (t instanceof ParameterizedType)
                 {
-                    rawType = (Class) ((ParameterizedType) type).getRawType();
+                    rawType = (Class) ((ParameterizedType) t).getRawType();
                 }
-                else if (type instanceof Class)
+                else if (t instanceof Class)
                 {
-                    rawType = (Class) type;
+                    rawType = (Class) t;
                 }
                 else
                 {
-                    throw new IllegalArgumentException(type.toString());
+                    throw new IllegalArgumentException(t.toString());
                 }
                 if (rawType.isAnnotationPresent(DeSerializeDefinition.class))
                 {
-                    typeReader = ((DeSerializeDefinition) rawType.getAnnotation(DeSerializeDefinition.class)).value().getConstructor().newInstance();
+                    try
+                    {
+                        typeReader = ((DeSerializeDefinition) rawType.getAnnotation(DeSerializeDefinition.class)).value().getConstructor().newInstance();
+                    }
+                    catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
                 }
                 else if (rawType.isArray())
                 {
@@ -160,45 +167,58 @@ public class DsonContext
                     typeReader = config.isReadUseCompile() ? TypeReader.compile(rawType) : new ObjectReader();
                 }
             }
-            readers.put(type, typeReader);
-            typeReader.initialize(type, this);
+            cache.put(t, typeReader);
+            typeReader.initialize(t, this);
+            cache.remove(t);
             return typeReader;
-        }
+        });
     }
 
     @SneakyThrows
     public TypeWriter parseWriter(Type type)
     {
-        TypeWriter typeWriter = writers.get(type);
-        if (typeWriter == null)
+        Map<Type, TypeWriter> cache = CURRENT_WRITER_CACHE.get();
+        TypeWriter            tmp   = cache.get(type);
+        if (tmp != null)
         {
-            if (type instanceof GenericArrayType)
+            return tmp;
+        }
+        return writers.computeIfAbsent(type, t -> {
+            TypeWriter typeWriter;
+            if (t instanceof GenericArrayType)
             {
-                typeWriter = ArrayWriter.findSuitableArrayWriter(type);
+                typeWriter = ArrayWriter.findSuitableArrayWriter(t);
             }
             else
             {
                 Class targetClass;
-                if (type instanceof ParameterizedType)
+                if (t instanceof ParameterizedType)
                 {
-                    targetClass = (Class<?>) ((ParameterizedType) type).getRawType();
+                    targetClass = (Class<?>) ((ParameterizedType) t).getRawType();
                 }
-                else if (type instanceof Class<?>)
+                else if (t instanceof Class<?>)
                 {
-                    targetClass = (Class) type;
+                    targetClass = (Class) t;
                 }
                 else
                 {
-                    throw new IllegalArgumentException("当前类型:" + type);
+                    throw new IllegalArgumentException("当前类型:" + t);
                 }
                 if (targetClass.isAnnotationPresent(SerializeDefinition.class))
                 {
                     SerializeDefinition annotation = (SerializeDefinition) targetClass.getAnnotation(SerializeDefinition.class);
-                    typeWriter = annotation.value().getConstructor().newInstance();
+                    try
+                    {
+                        typeWriter = annotation.value().getConstructor().newInstance();
+                    }
+                    catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
                 }
                 else if (targetClass.isArray())
                 {
-                    typeWriter = ArrayWriter.findSuitableArrayWriter(type);
+                    typeWriter = ArrayWriter.findSuitableArrayWriter(t);
                 }
                 else if (Map.class.isAssignableFrom(targetClass))
                 {
@@ -224,7 +244,7 @@ public class DsonContext
                 {
                     if (config.isWriteUseCompile())
                     {
-                        typeWriter = TypeWriter.compile((Class) type);
+                        typeWriter = TypeWriter.compile((Class) t);
                     }
                     else
                     {
@@ -232,11 +252,11 @@ public class DsonContext
                     }
                 }
             }
-            writers.put(type, typeWriter);
-            typeWriter.initialize(type, this);
-        }
-        typeWriter.ensureInitialized();
-        return typeWriter;
+            cache.put(t, typeWriter);
+            typeWriter.initialize(t, this);
+            cache.remove(t);
+            return typeWriter;
+        });
     }
 
     public <T> T fromString(Type type, String str)
@@ -247,7 +267,7 @@ public class DsonContext
 
     public String toJson(Object entity)
     {
-        StringBuilder output     = LOCAL.get();
+        StringBuilder output     = new StringBuilder();
         TypeWriter    typeWriter = parseWriter(entity.getClass());
         typeWriter.toJson(entity, output);
         String result = output.toString();
