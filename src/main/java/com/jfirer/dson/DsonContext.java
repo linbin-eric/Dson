@@ -106,72 +106,71 @@ public class DsonContext
         {
             return tmp;
         }
-        return readers.computeIfAbsent(type, t -> {
-            TypeReader typeReader;
-            if (t instanceof GenericArrayType)
+        TypeReader typeReader;
+        if (type instanceof GenericArrayType)
+        {
+            typeReader = new NewArrayReader();
+        }
+        else
+        {
+            Class rawType = null;
+            if (type instanceof ParameterizedType)
             {
-                typeReader = new NewArrayReader();
+                rawType = (Class) ((ParameterizedType) type).getRawType();
+            }
+            else if (type instanceof Class)
+            {
+                rawType = (Class) type;
             }
             else
             {
-                Class rawType = null;
-                if (t instanceof ParameterizedType)
+                throw new IllegalArgumentException(type.toString());
+            }
+            if (rawType.isAnnotationPresent(DeSerializeDefinition.class))
+            {
+                try
                 {
-                    rawType = (Class) ((ParameterizedType) t).getRawType();
+                    typeReader = ((DeSerializeDefinition) rawType.getAnnotation(DeSerializeDefinition.class)).value().getConstructor().newInstance();
                 }
-                else if (t instanceof Class)
+                catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
                 {
-                    rawType = (Class) t;
-                }
-                else
-                {
-                    throw new IllegalArgumentException(t.toString());
-                }
-                if (rawType.isAnnotationPresent(DeSerializeDefinition.class))
-                {
-                    try
-                    {
-                        typeReader = ((DeSerializeDefinition) rawType.getAnnotation(DeSerializeDefinition.class)).value().getConstructor().newInstance();
-                    }
-                    catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-                }
-                else if (rawType.isArray())
-                {
-                    typeReader = new NewArrayReader();
-                }
-                else if (Collection.class.isAssignableFrom(rawType))
-                {
-                    typeReader = new CollectionReader();
-                }
-                else if (Map.class.isAssignableFrom(rawType))
-                {
-                    typeReader = new MapReader();
-                }
-                else if (Enum.class.isAssignableFrom(rawType))
-                {
-                    typeReader = new EnumNameReader();
-                }
-                else if (rawType == Object.class)
-                {
-                    typeReader = new UnKnowTypeReader();
-                }
-                else if (rawType.isRecord())
-                {
-                    typeReader = new ObjectReader();
-                }
-                else
-                {
-                    typeReader = config.isReadUseCompile() ? TypeReader.compile(rawType) : new ObjectReader();
+                    throw new RuntimeException(e);
                 }
             }
-            cache.put(t, typeReader);
-            typeReader.initialize(t, this);
-            cache.remove(t);
-            return typeReader;
-        });
+            else if (rawType.isArray())
+            {
+                typeReader = new NewArrayReader();
+            }
+            else if (Collection.class.isAssignableFrom(rawType))
+            {
+                typeReader = new CollectionReader();
+            }
+            else if (Map.class.isAssignableFrom(rawType))
+            {
+                typeReader = new MapReader();
+            }
+            else if (Enum.class.isAssignableFrom(rawType))
+            {
+                typeReader = new EnumNameReader();
+            }
+            else if (rawType == Object.class)
+            {
+                typeReader = new UnKnowTypeReader();
+            }
+            else if (rawType.isRecord())
+            {
+                typeReader = new ObjectReader();
+            }
+            else
+            {
+                typeReader = config.isReadUseCompile() ? TypeReader.compile(rawType) : new ObjectReader();
+            }
+        }
+        cache.put(type, typeReader);
+        typeReader.initialize(type, this);
+        cache.remove(type);
+        readers.put(type, typeReader);
+        return typeReader;
     }
 
     @SneakyThrows
@@ -183,80 +182,79 @@ public class DsonContext
         {
             return tmp;
         }
-        return writers.computeIfAbsent(type, t -> {
-            TypeWriter typeWriter;
-            if (t instanceof GenericArrayType)
+        TypeWriter typeWriter;
+        if (type instanceof GenericArrayType)
+        {
+            typeWriter = ArrayWriter.findSuitableArrayWriter(type);
+        }
+        else
+        {
+            Class targetClass;
+            if (type instanceof ParameterizedType)
             {
-                typeWriter = ArrayWriter.findSuitableArrayWriter(t);
+                targetClass = (Class<?>) ((ParameterizedType) type).getRawType();
+            }
+            else if (type instanceof Class<?>)
+            {
+                targetClass = (Class) type;
             }
             else
             {
-                Class targetClass;
-                if (t instanceof ParameterizedType)
+                throw new IllegalArgumentException("当前类型:" + type);
+            }
+            if (targetClass.isAnnotationPresent(SerializeDefinition.class))
+            {
+                SerializeDefinition annotation = (SerializeDefinition) targetClass.getAnnotation(SerializeDefinition.class);
+                try
                 {
-                    targetClass = (Class<?>) ((ParameterizedType) t).getRawType();
+                    typeWriter = annotation.value().getConstructor().newInstance();
                 }
-                else if (t instanceof Class<?>)
+                catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
                 {
-                    targetClass = (Class) t;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("当前类型:" + t);
-                }
-                if (targetClass.isAnnotationPresent(SerializeDefinition.class))
-                {
-                    SerializeDefinition annotation = (SerializeDefinition) targetClass.getAnnotation(SerializeDefinition.class);
-                    try
-                    {
-                        typeWriter = annotation.value().getConstructor().newInstance();
-                    }
-                    catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-                }
-                else if (targetClass.isArray())
-                {
-                    typeWriter = ArrayWriter.findSuitableArrayWriter(t);
-                }
-                else if (Map.class.isAssignableFrom(targetClass))
-                {
-                    typeWriter = new MapWriter();
-                }
-                else if (ArrayList.class.isAssignableFrom(targetClass))
-                {
-                    typeWriter = new ArrayListWriter();
-                }
-                else if (Collection.class.isAssignableFrom(targetClass))
-                {
-                    typeWriter = new CollectionWriter();
-                }
-                else if (Enum.class.isAssignableFrom(targetClass))
-                {
-                    typeWriter = new EnumWriter();
-                }
-                else if (targetClass.isRecord())
-                {
-                    typeWriter = new ObjectWriter();
-                }
-                else
-                {
-                    if (config.isWriteUseCompile())
-                    {
-                        typeWriter = TypeWriter.compile((Class) t);
-                    }
-                    else
-                    {
-                        typeWriter = TypeWriter.standard();
-                    }
+                    throw new RuntimeException(e);
                 }
             }
-            cache.put(t, typeWriter);
-            typeWriter.initialize(t, this);
-            cache.remove(t);
-            return typeWriter;
-        });
+            else if (targetClass.isArray())
+            {
+                typeWriter = ArrayWriter.findSuitableArrayWriter(targetClass);
+            }
+            else if (Map.class.isAssignableFrom(targetClass))
+            {
+                typeWriter = new MapWriter();
+            }
+            else if (ArrayList.class.isAssignableFrom(targetClass))
+            {
+                typeWriter = new ArrayListWriter();
+            }
+            else if (Collection.class.isAssignableFrom(targetClass))
+            {
+                typeWriter = new CollectionWriter();
+            }
+            else if (Enum.class.isAssignableFrom(targetClass))
+            {
+                typeWriter = new EnumWriter();
+            }
+            else if (targetClass.isRecord())
+            {
+                typeWriter = new ObjectWriter();
+            }
+            else
+            {
+                if (config.isWriteUseCompile())
+                {
+                    typeWriter = TypeWriter.compile((Class) type);
+                }
+                else
+                {
+                    typeWriter = TypeWriter.standard();
+                }
+            }
+        }
+        cache.put(type, typeWriter);
+        typeWriter.initialize(type, this);
+        cache.remove(type);
+        writers.put(type, typeWriter);
+        return typeWriter;
     }
 
     public <T> T fromString(Type type, String str)
