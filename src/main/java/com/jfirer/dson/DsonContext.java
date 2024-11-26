@@ -100,13 +100,17 @@ public class DsonContext
     @SneakyThrows
     public TypeReader parseReader(Type type)
     {
+        TypeReader typeReader = readers.get(type);
+        if (typeReader != null)
+        {
+            return typeReader;
+        }
         Map<Type, TypeReader> cache = CURRENT_READER_CACHE.get();
         TypeReader            tmp   = cache.get(type);
         if (tmp != null)
         {
             return tmp;
         }
-        TypeReader typeReader;
         if (type instanceof GenericArrayType)
         {
             typeReader = new NewArrayReader();
@@ -176,13 +180,17 @@ public class DsonContext
     @SneakyThrows
     public TypeWriter parseWriter(Type type)
     {
+        TypeWriter typeWriter = writers.get(type);
+        if (typeWriter != null)
+        {
+            return typeWriter;
+        }
         Map<Type, TypeWriter> cache = CURRENT_WRITER_CACHE.get();
         TypeWriter            tmp   = cache.get(type);
         if (tmp != null)
         {
             return tmp;
         }
-        TypeWriter typeWriter;
         if (type instanceof GenericArrayType)
         {
             typeWriter = ArrayWriter.findSuitableArrayWriter(type);
