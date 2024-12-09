@@ -3,6 +3,7 @@ package com.jfirer.dson.writer.impl;
 import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.baseutil.reflect.valueaccessor.ValueAccessor;
 import com.jfirer.dson.DsonContext;
+import com.jfirer.dson.util.JsonIgnore;
 import com.jfirer.dson.util.JsonRenameStrategy;
 import com.jfirer.dson.writer.SerializeDefinition;
 import com.jfirer.dson.writer.TypeWriter;
@@ -53,6 +54,10 @@ public class ObjectWriter implements TypeWriter
         {
             for (Field each : ckazz.getDeclaredFields())
             {
+                if (Modifier.isStatic(each.getModifiers()) || each.isAnnotationPresent(JsonIgnore.class))
+                {
+                    continue;
+                }
                 map.putIfAbsent(JsonRenameStrategy.helpGetRename(each), each);
             }
             ckazz = ckazz.getSuperclass();
@@ -60,10 +65,6 @@ public class ObjectWriter implements TypeWriter
         List<Entry> list = new LinkedList<>();
         for (Map.Entry<String, Field> each : map.entrySet())
         {
-            if (Modifier.isStatic(each.getValue().getModifiers()))
-            {
-                continue;
-            }
             int   classId = ReflectUtil.getClassId(each.getValue().getType());
             Entry entry   = null;
             if (each.getValue().isAnnotationPresent(SerializeDefinition.class))
