@@ -5,6 +5,7 @@ import com.jfirer.baseutil.reflect.valueaccessor.ValueAccessor;
 import com.jfirer.dson.DsonContext;
 import com.jfirer.dson.util.JsonIgnore;
 import com.jfirer.dson.util.JsonRenameStrategy;
+import com.jfirer.dson.util.WriterUtil;
 import com.jfirer.dson.writer.SerializeDefinition;
 import com.jfirer.dson.writer.TypeWriter;
 import lombok.Data;
@@ -217,7 +218,8 @@ public class ObjectWriter implements TypeWriter
             if (reference != null)
             {
                 builder.append(fullName);
-                builder.append('"').append(reference);
+                builder.append('"');
+                WriterUtil.writeString(builder, reference);
                 builder.append('"').append(',');
             }
         }
