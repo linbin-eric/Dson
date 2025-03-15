@@ -358,6 +358,10 @@ public class Stream
             {
                 offset += 1;
             }
+            else if (c == 'e' || c == '-')
+            {
+                offset += 1;
+            }
             else
             {
                 break;

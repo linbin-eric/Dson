@@ -1,5 +1,6 @@
 package com.jfirer.dson.reader.impl.basic.array;
 
+import com.jfirer.baseutil.reflect.ReflectUtil;
 import com.jfirer.dson.reader.Stream;
 import com.jfirer.dson.reader.TypeReader;
 
@@ -13,6 +14,8 @@ public class FloatArrayReader implements TypeReader
         stream.startParseArray();
         int     count = 0;
         float[] array = new float[16];
+        try{
+
         while (stream.parseArrayEnd() == false)
         {
             if (count == array.length)
@@ -29,6 +32,9 @@ public class FloatArrayReader implements TypeReader
                 count += 1;
             }
             stream.skipComma();
+        }
+        }catch (Throwable e){
+            ReflectUtil.throwException(e);
         }
         return Arrays.copyOf(array, count);
     }
