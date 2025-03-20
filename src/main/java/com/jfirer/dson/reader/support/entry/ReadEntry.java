@@ -62,18 +62,38 @@ public interface ReadEntry
         String        methodName = ReflectUtil.parseBeanSetMethodName(field);
         String        typeName   = SmcHelper.getReferenceName(field.getDeclaringClass(), classModel);
         StringBuilder builder    = new StringBuilder();
-        switch (classId)
+        if (typeReader != null)
         {
-            case ReflectUtil.PRIMITIVE_BYTE, ReflectUtil.CLASS_BYTE -> builder.append(STR.format("(({})instance).{}(stream.getByte());", typeName, methodName));
-            case ReflectUtil.PRIMITIVE_INT, ReflectUtil.CLASS_INT -> builder.append(STR.format("(({})instance).{}(stream.getInt());", typeName, methodName));
-            case ReflectUtil.PRIMITIVE_SHORT, ReflectUtil.CLASS_SHORT -> builder.append(STR.format("(({})instance).{}(stream.getShort());", typeName, methodName));
-            case ReflectUtil.PRIMITIVE_LONG, ReflectUtil.CLASS_LONG -> builder.append(STR.format("(({})instance).{}(stream.getLong());", typeName, methodName));
-            case ReflectUtil.PRIMITIVE_FLOAT, ReflectUtil.CLASS_FLOAT -> builder.append(STR.format("(({})instance).{}(stream.getFloat());", typeName, methodName));
-            case ReflectUtil.PRIMITIVE_DOUBLE, ReflectUtil.CLASS_DOUBLE -> builder.append(STR.format("(({})instance).{}(stream.getDouble());", typeName, methodName));
-            case ReflectUtil.PRIMITIVE_BOOL, ReflectUtil.CLASS_BOOL -> builder.append(STR.format("(({})instance).{}(stream.getBoolean());", typeName, methodName));
-            case ReflectUtil.PRIMITIVE_CHAR, ReflectUtil.CLASS_CHAR -> builder.append(STR.format("(({})instance).{}(stream.getChar());", typeName, methodName));
-            case ReflectUtil.CLASS_STRING -> builder.append(STR.format("(({})instance).{}(stream.getStringValue());", typeName, methodName));
-            default -> builder.append(STR.format("(({})instance).{}(({})typeReader.fromString(stream));", typeName, methodName, SmcHelper.getReferenceName(field.getType(), classModel)));
+            switch (classId)
+            {
+                case ReflectUtil.PRIMITIVE_BYTE, ReflectUtil.CLASS_BYTE -> builder.append(STR.format("(({})instance).{}((Byte)typeReader.from(stream));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_INT, ReflectUtil.CLASS_INT -> builder.append(STR.format("(({})instance).{}((Integer)typeReader.from(stream));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_SHORT, ReflectUtil.CLASS_SHORT -> builder.append(STR.format("(({})instance).{}((Short)typeReader.from(stream));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_LONG, ReflectUtil.CLASS_LONG -> builder.append(STR.format("(({})instance).{}((Long)typeReader.from(stream));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_FLOAT, ReflectUtil.CLASS_FLOAT -> builder.append(STR.format("(({})instance).{}((Float)typeReader.from(stream));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_DOUBLE,
+                     ReflectUtil.CLASS_DOUBLE -> builder.append(STR.format("(({})instance).{}((Double)typeReader.from(stream));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_BOOL, ReflectUtil.CLASS_BOOL -> builder.append(STR.format("(({})instance).{}((Boolean)typeReader.from(stream));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_CHAR,
+                     ReflectUtil.CLASS_CHAR -> builder.append(STR.format("(({})instance).{}((Character)typeReader.from(stream));", typeName, methodName));
+                default -> builder.append(STR.format("(({})instance).{}(({})typeReader.fromString(stream));", typeName, methodName, SmcHelper.getReferenceName(field.getType(), classModel)));
+            }
+        }
+        else
+        {
+            switch (classId)
+            {
+                case ReflectUtil.PRIMITIVE_BYTE, ReflectUtil.CLASS_BYTE -> builder.append(STR.format("(({})instance).{}(stream.getByte());", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_INT, ReflectUtil.CLASS_INT -> builder.append(STR.format("(({})instance).{}(stream.getInt());", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_SHORT, ReflectUtil.CLASS_SHORT -> builder.append(STR.format("(({})instance).{}(stream.getShort());", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_LONG, ReflectUtil.CLASS_LONG -> builder.append(STR.format("(({})instance).{}(stream.getLong());", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_FLOAT, ReflectUtil.CLASS_FLOAT -> builder.append(STR.format("(({})instance).{}(stream.getFloat());", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_DOUBLE, ReflectUtil.CLASS_DOUBLE -> builder.append(STR.format("(({})instance).{}(stream.getDouble());", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_BOOL, ReflectUtil.CLASS_BOOL -> builder.append(STR.format("(({})instance).{}(stream.getBoolean());", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_CHAR, ReflectUtil.CLASS_CHAR -> builder.append(STR.format("(({})instance).{}(stream.getChar());", typeName, methodName));
+                case ReflectUtil.CLASS_STRING -> builder.append(STR.format("(({})instance).{}(stream.getStringValue());", typeName, methodName));
+                default -> throw new IllegalArgumentException();
+            }
         }
         methodModel.setBody(builder.toString());
         classModel.putMethodModel(methodModel);

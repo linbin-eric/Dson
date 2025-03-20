@@ -51,26 +51,44 @@ public class StandardReadEntry implements ReadEntry
     @Override
     public void setValue(Object instance, Stream stream)
     {
-        switch (classId)
+        if (typeReader != null)
         {
-            case ReflectUtil.PRIMITIVE_INT -> valueAccessor.set(instance, stream.getInt());
-            case ReflectUtil.PRIMITIVE_LONG -> valueAccessor.set(instance, stream.getLong());
-            case ReflectUtil.PRIMITIVE_FLOAT -> valueAccessor.set(instance, stream.getFloat());
-            case ReflectUtil.PRIMITIVE_DOUBLE -> valueAccessor.set(instance, stream.getDouble());
-            case ReflectUtil.PRIMITIVE_BOOL -> valueAccessor.set(instance, stream.getBoolean());
-            case ReflectUtil.PRIMITIVE_BYTE -> valueAccessor.set(instance, stream.getByte());
-            case ReflectUtil.PRIMITIVE_SHORT -> valueAccessor.set(instance, stream.getShort());
-            case ReflectUtil.PRIMITIVE_CHAR -> valueAccessor.set(instance, stream.getChar());
-            case ReflectUtil.CLASS_INT -> valueAccessor.setReference(instance, stream.getWInt());
-            case ReflectUtil.CLASS_LONG -> valueAccessor.setReference(instance, stream.getWLong());
-            case ReflectUtil.CLASS_FLOAT -> valueAccessor.setReference(instance, stream.getWFloat());
-            case ReflectUtil.CLASS_DOUBLE -> valueAccessor.setReference(instance, stream.getWDouble());
-            case ReflectUtil.CLASS_BOOL -> valueAccessor.setReference(instance, stream.getBoolean());
-            case ReflectUtil.CLASS_BYTE -> valueAccessor.setReference(instance, stream.getWByte());
-            case ReflectUtil.CLASS_SHORT -> valueAccessor.setReference(instance, stream.getWShort());
-            case ReflectUtil.CLASS_CHAR -> valueAccessor.setReference(instance, stream.getChar());
-            case ReflectUtil.CLASS_STRING -> valueAccessor.setReference(instance, stream.getStringValue());
-            default -> valueAccessor.setReference(instance, typeReader.fromString(stream));
+            switch (classId)
+            {
+                case ReflectUtil.PRIMITIVE_INT -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).intValue());
+                case ReflectUtil.PRIMITIVE_LONG -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).longValue());
+                case ReflectUtil.PRIMITIVE_FLOAT -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).floatValue());
+                case ReflectUtil.PRIMITIVE_DOUBLE -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).doubleValue());
+                case ReflectUtil.PRIMITIVE_BOOL -> valueAccessor.set(instance, ((Boolean) typeReader.fromString(stream)).booleanValue());
+                case ReflectUtil.PRIMITIVE_BYTE -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).byteValue());
+                case ReflectUtil.PRIMITIVE_SHORT -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).shortValue());
+                case ReflectUtil.PRIMITIVE_CHAR -> valueAccessor.set(instance, ((Character) typeReader.fromString(stream)).charValue());
+                default -> valueAccessor.setReference(instance, typeReader.fromString(stream));
+            }
+        }
+        else
+        {
+            switch (classId)
+            {
+                case ReflectUtil.PRIMITIVE_INT -> valueAccessor.set(instance, stream.getInt());
+                case ReflectUtil.PRIMITIVE_LONG -> valueAccessor.set(instance, stream.getLong());
+                case ReflectUtil.PRIMITIVE_FLOAT -> valueAccessor.set(instance, stream.getFloat());
+                case ReflectUtil.PRIMITIVE_DOUBLE -> valueAccessor.set(instance, stream.getDouble());
+                case ReflectUtil.PRIMITIVE_BOOL -> valueAccessor.set(instance, stream.getBoolean());
+                case ReflectUtil.PRIMITIVE_BYTE -> valueAccessor.set(instance, stream.getByte());
+                case ReflectUtil.PRIMITIVE_SHORT -> valueAccessor.set(instance, stream.getShort());
+                case ReflectUtil.PRIMITIVE_CHAR -> valueAccessor.set(instance, stream.getChar());
+                case ReflectUtil.CLASS_INT -> valueAccessor.setReference(instance, stream.getWInt());
+                case ReflectUtil.CLASS_LONG -> valueAccessor.setReference(instance, stream.getWLong());
+                case ReflectUtil.CLASS_FLOAT -> valueAccessor.setReference(instance, stream.getWFloat());
+                case ReflectUtil.CLASS_DOUBLE -> valueAccessor.setReference(instance, stream.getWDouble());
+                case ReflectUtil.CLASS_BOOL -> valueAccessor.setReference(instance, stream.getBoolean());
+                case ReflectUtil.CLASS_BYTE -> valueAccessor.setReference(instance, stream.getWByte());
+                case ReflectUtil.CLASS_SHORT -> valueAccessor.setReference(instance, stream.getWShort());
+                case ReflectUtil.CLASS_CHAR -> valueAccessor.setReference(instance, stream.getChar());
+                case ReflectUtil.CLASS_STRING -> valueAccessor.setReference(instance, stream.getStringValue());
+                default -> throw new IllegalArgumentException();
+            }
         }
     }
 
