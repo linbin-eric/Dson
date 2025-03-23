@@ -1,7 +1,7 @@
 package com.jfirer.dson.reader;
 
-import com.jfirer.dson.reader.support.entry.ReadEntry;
 import com.jfirer.dson.reader.support.Node;
+import com.jfirer.dson.reader.support.entry.ReadEntry;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -146,7 +146,9 @@ public class Stream
         int    length = this.length;
         char[] value  = this.value;
         offset += 1;
-        boolean hasDot = false;
+        boolean hasDot   = false;
+        boolean hasE     = false;
+        boolean hasMinus = false;
         do
         {
             char c = value[offset];
@@ -158,6 +160,16 @@ public class Stream
             {
                 offset += 1;
                 hasDot = true;
+            }
+            else if ((c == 'e' || c == 'E') && hasE == false)
+            {
+                offset += 1;
+                hasE = true;
+            }
+            else if (c == '-' && hasMinus == false && hasE == true)
+            {
+                hasMinus = true;
+                offset += 1;
             }
             else
             {
