@@ -508,14 +508,28 @@ public class Stream
                 {
                     if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
                     {
-                        inStringState = false;
+                        if (value[offset - 1] == '\\')
+                        {
+                            ;
+                        }
+                        else
+                        {
+                            inStringState = false;
+                        }
                     }
                 }
                 else
                 {
                     if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
                     {
-                        inStringState = true;
+                        if (value[offset - 1] == '\\')
+                        {
+                            ;
+                        }
+                        else
+                        {
+                            inStringState = true;
+                        }
                     }
                     else if (c == Symbol.LEFT_BRACE.literals())
                     {

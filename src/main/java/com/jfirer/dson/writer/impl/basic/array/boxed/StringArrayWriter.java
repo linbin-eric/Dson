@@ -1,5 +1,6 @@
 package com.jfirer.dson.writer.impl.basic.array.boxed;
 
+import com.jfirer.dson.util.WriterUtil;
 import com.jfirer.dson.writer.TypeWriter;
 
 public class StringArrayWriter implements TypeWriter
@@ -13,7 +14,11 @@ public class StringArrayWriter implements TypeWriter
         {
             if (element != null)
             {
-                output.append('"').append(element).append('"').append(',');
+                output.append('"');
+                WriterUtil.writeString(output, element);
+                output.append('"');
+                output.append(',');
+//                output.append('"').append(element).append('"').append(',');
                 hasComma = true;
             }
         }
