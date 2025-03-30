@@ -5,7 +5,8 @@ public class WriterUtil
     public static void writeString(StringBuilder output, String value)
     {
         boolean hasSpical = false;
-        if (value.indexOf('"') >= 0 || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0 || value.indexOf('\t') >= 0)
+        if (value.indexOf('"') >= 0 || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0 || value.indexOf('\t') >= 0|| value.indexOf('\\')>=0
+        )
         {
             hasSpical = true;
         }
@@ -31,7 +32,7 @@ public class WriterUtil
                 }
                 else if (c == '\\')
                 {
-                    output.append('\\').append('\\');
+                    output.append("\\\\");
                 }
                 else if (c == '\t')
                 {
