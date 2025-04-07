@@ -103,8 +103,10 @@ public class Stream
         int length = this.length;
         int begin  = offset;
         offset += 1;
-        char[]  value  = this.value;
-        boolean hasDot = false;
+        char[]  value    = this.value;
+        boolean hasDot   = false;
+        boolean hasE     = false;
+        boolean hasMinus = false;
         do
         {
             char c = value[offset];
@@ -117,6 +119,16 @@ public class Stream
                 offset += 1;
                 hasDot = true;
             }
+            else if ((c == 'e' || c == 'E') && hasE == false)
+            {
+                offset += 1;
+                hasE = true;
+            }
+            else if (c == '-' && hasMinus == false && hasE == true)
+            {
+                hasMinus = true;
+                offset += 1;
+            }
             else
             {
                 break;
@@ -128,7 +140,7 @@ public class Stream
         }
         String numString = new String(value, begin, offset - begin);
         Number result    = null;
-        if (hasDot)
+        if (hasDot || hasE || hasMinus)
         {
             result = Double.valueOf(numString);
         }

@@ -460,4 +460,13 @@ public class FunctionTest extends Support
         System.out.println(s);
         System.out.println("[\"a\\\"ss\"]");
     }
+
+    @Test
+    public void test11(){
+        String content = """
+                {
+                "remotePort": 443,
+                       "responseTime": 1.744012189544805E12}""";
+        Dson.fromString(content);
+    }
 }
