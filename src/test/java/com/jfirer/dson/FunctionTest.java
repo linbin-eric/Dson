@@ -1,6 +1,7 @@
 package com.jfirer.dson;
 
 import com.alibaba.fastjson.JSON;
+import com.jfirer.baseutil.IoUtil;
 import com.jfirer.baseutil.reflect.TypeUtil;
 import com.jfirer.dson.model.*;
 import com.jfirer.dson.util.JsonRename;
@@ -9,6 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -462,7 +466,8 @@ public class FunctionTest extends Support
     }
 
     @Test
-    public void test11(){
+    public void test11()
+    {
         String content = """
                 {
                 "remotePort": 443,
@@ -471,11 +476,17 @@ public class FunctionTest extends Support
     }
 
     @Test
-    public void test12(){
+    public void test12() throws IOException
+    {
         String content = """
                 {"a":"\\\\","b":"","factor":96}""";
         Dson.fromString(content);
-        System.out.println(content);
-
+        InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("comment.json");
+        byte[]      bytes            = IoUtil.readAllBytes(resourceAsStream);
+        String      s                = new String(bytes, StandardCharsets.UTF_8);
+        Dson.fromString(s);
+        content = """
+                {"a":""}""";
+        Dson.fromString(content);
     }
 }

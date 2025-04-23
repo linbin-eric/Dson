@@ -298,7 +298,7 @@ public class Stream
             c = value[offset];
             if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
             {
-                if (value[offset - 1] == '\\')
+                if (isRealDoubleQuotationMask(offset - 1) == false)
                 {
                     node = node.getNext(c);
                     offset += 1;
@@ -324,7 +324,7 @@ public class Stream
             c = value[offset];
             if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
             {
-                if (value[offset - 1] == '\\')
+                if (isRealDoubleQuotationMask(offset - 1) == false)
                 {
                     offset += 1;
                 }
@@ -483,7 +483,7 @@ public class Stream
             }
             return list;
         }
-        else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+        else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals() && isRealDoubleQuotationMask(offset - 1))
         {
             String value = getString();
             return value;
@@ -561,7 +561,7 @@ public class Stream
                 {
                     if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
                     {
-                        if (value[offset - 1] == '\\')
+                        if (isRealDoubleQuotationMask(offset - 1) == false)
                         {
                             ;
                         }
@@ -575,7 +575,7 @@ public class Stream
                 {
                     if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
                     {
-                        if (value[offset - 1] == '\\')
+                        if (isRealDoubleQuotationMask(offset - 1) == false)
                         {
                             ;
                         }
@@ -606,14 +606,14 @@ public class Stream
             {
                 if (inStringState)
                 {
-                    if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+                    if (c == Symbol.DOUBLE_QUOTATION_MASK.literals() && isRealDoubleQuotationMask(offset - 1))
                     {
                         inStringState = false;
                     }
                 }
                 else
                 {
-                    if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+                    if (c == Symbol.DOUBLE_QUOTATION_MASK.literals() && isRealDoubleQuotationMask(offset - 1))
                     {
                         inStringState = true;
                     }
@@ -633,7 +633,7 @@ public class Stream
         else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
         {
             offset += 1;
-            while (value[offset] != Symbol.DOUBLE_QUOTATION_MASK.literals() || value[offset - 1] == '\\')
+            while ((value[offset] == Symbol.DOUBLE_QUOTATION_MASK.literals() && isRealDoubleQuotationMask(offset - 1)) == false)
             {
                 offset += 1;
             }
@@ -659,7 +659,14 @@ public class Stream
 
     private void throwExecption()
     {
-        throw new IllegalStateException(offset + " : " + new String(value, offset, length - offset));
+        if (offset > 20)
+        {
+            throw new IllegalStateException(offset + " : " + new String(value, offset - 20, 20));
+        }
+        else
+        {
+            throw new IllegalStateException(offset + " : " + new String(value, 0, offset));
+        }
     }
 
     public String getStringValue()
