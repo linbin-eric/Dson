@@ -72,7 +72,7 @@ public class Stream
             c = value[offset];
             if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
             {
-                if (value[offset - 1] == '\\')
+                if (isRealDoubleQuotationMask(offset - 1) == false)
                 {
                     offset += 1;
                 }
@@ -90,6 +90,19 @@ public class Stream
         offset += 1;
         this.offset = offset;
         return result;
+    }
+
+    private boolean isRealDoubleQuotationMask(int offsetOfLastSlash)
+    {
+        char[] value  = this.value;
+        int    count  = 0;
+        int    offset = offsetOfLastSlash;
+        while (offset >= 0 && value[offset] == '\\')
+        {
+            count++;
+            offset--;
+        }
+        return (count & 1) == 0;
     }
 
     /**
@@ -383,6 +396,10 @@ public class Stream
         int    offset = this.offset;
         int    begin  = offset;
         offset += 1;
+        boolean hasDot   = false;
+        boolean hasE     = false;
+        boolean hasMinus = false;
+        boolean hasplus  = false;
         do
         {
             char c = value[offset];
@@ -393,9 +410,21 @@ public class Stream
             else if (c == '.')
             {
                 offset += 1;
+                hasDot = true;
             }
-            else if (c == 'e' || c == '-')
+            else if ((c == 'e' || c == 'E') && hasE == false)
             {
+                offset += 1;
+                hasE = true;
+            }
+            else if (c == '-' && hasMinus == false && hasE == true)
+            {
+                hasMinus = true;
+                offset += 1;
+            }
+            else if (c == '+' && hasplus == false && hasE == true)
+            {
+                hasplus = true;
                 offset += 1;
             }
             else

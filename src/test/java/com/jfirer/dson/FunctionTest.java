@@ -469,4 +469,13 @@ public class FunctionTest extends Support
                        "responseTime": 1.744012189544805E12}""";
         Dson.fromString(content);
     }
+
+    @Test
+    public void test12(){
+        String content = """
+                {"a":"\\\\","b":"","factor":96}""";
+        Dson.fromString(content);
+        System.out.println(content);
+
+    }
 }
