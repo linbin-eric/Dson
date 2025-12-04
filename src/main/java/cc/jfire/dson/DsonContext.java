@@ -20,6 +20,8 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -61,6 +63,8 @@ public class DsonContext
         readers.put(Character[].class, new ClassCharArrayReader());
         readers.put(Short[].class, new ClassShortArrayReader());
         readers.put(Byte[].class, new ClassByteArrayReader());
+        readers.put(BigDecimal.class,new BigDecimalReader());
+        readers.put(LocalDateTime.class, new LocalDateTimeReader());
         ////
         writers.put(Integer.class, new IntegerWriter());
         writers.put(Short.class, new ShortWriter());
@@ -90,6 +94,8 @@ public class DsonContext
         writers.put(Character[].class, new ClassCharArrayWriter());
         writers.put(Short[].class, new ClassShortArrayWriter());
         writers.put(Byte[].class, new ClassByteArrayWriter());
+        writers.put(BigDecimal.class,new BigDecimalWriter());
+        writers.put(LocalDateTime.class, new LocalDateTimeWriter());
     }
 
     public DsonContext()
