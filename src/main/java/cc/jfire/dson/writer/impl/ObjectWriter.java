@@ -55,7 +55,7 @@ public class ObjectWriter implements TypeWriter
         {
             for (Field each : ckazz.getDeclaredFields())
             {
-                if (Modifier.isStatic(each.getModifiers()) || each.isAnnotationPresent(JsonIgnore.class))
+                if (Modifier.isStatic(each.getModifiers()) || (each.isAnnotationPresent(JsonIgnore.class) && each.getAnnotation(JsonIgnore.class).ignoreWrite()))
                 {
                     continue;
                 }

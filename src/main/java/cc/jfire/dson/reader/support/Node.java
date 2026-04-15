@@ -92,7 +92,7 @@ public class Node
             for (Field each : fields)
             {
                 int modifiers = each.getModifiers();
-                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers) || each.isAnnotationPresent(JsonIgnore.class))
+                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers) || (each.isAnnotationPresent(JsonIgnore.class) && each.getAnnotation(JsonIgnore.class).ignoreRead()))
                 {
                     continue;
                 }
