@@ -7,6 +7,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -46,8 +47,8 @@ public class MapWriter implements TypeWriter
                 }
                 else
                 {
+                    dsonContext.parseWriter(entryValue.getClass()).toJson(entryValue, output);
                 }
-                dsonContext.parseWriter(entryValue.getClass()).toJson(entryValue, output);
                 output.append(',');
                 hasComma = true;
             }
@@ -57,6 +58,41 @@ public class MapWriter implements TypeWriter
             output.setLength(output.length() - 1);
         }
         output.append('}');
+    }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        if (entity == null)
+        {
+            return null;
+        }
+        Map<String, Object> map      = new HashMap<>();
+        TypeWriter          writer   = null;
+        if (valueTypeFinal)
+        {
+            writer = this.valueWriter;
+        }
+        else
+        {
+            ;
+        }
+        for (Entry<?, ?> entry : ((Map<?, ?>) entity).entrySet())
+        {
+            Object entryValue = entry.getValue();
+            if (entryValue != null)
+            {
+                if (valueTypeFinal)
+                {
+                    map.put(String.valueOf(entry.getKey()), writer.toJsonObject(entryValue));
+                }
+                else
+                {
+                    map.put(String.valueOf(entry.getKey()), dsonContext.parseWriter(entryValue.getClass()).toJsonObject(entryValue));
+                }
+            }
+        }
+        return map;
     }
 
     @Override

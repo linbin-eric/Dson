@@ -12,4 +12,11 @@ public class DateWriter implements TypeWriter
         long time = ((Date) entity).getTime();
         output.append(time);
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        long time = ((Date) entity).getTime();
+        return time;
+    }
 }

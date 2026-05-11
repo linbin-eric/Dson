@@ -9,4 +9,10 @@ public class ShortWriter implements TypeWriter
     {
         output.append(((Short) entity).shortValue());
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return entity;
+    }
 }

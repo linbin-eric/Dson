@@ -12,4 +12,10 @@ public class LocalDateTimeWriter implements TypeWriter
     {
         output.append('"').append(DateUtil.FORMATTER.format(((LocalDateTime) entity))).append('"');
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return DateUtil.FORMATTER.format(((LocalDateTime) entity));
+    }
 }

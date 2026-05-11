@@ -10,4 +10,11 @@ public class EnumOrdinalWriter implements TypeWriter
         int ordinal = ((Enum) entity).ordinal();
         output.append(ordinal);
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        int ordinal = ((Enum) entity).ordinal();
+        return ordinal;
+    }
 }

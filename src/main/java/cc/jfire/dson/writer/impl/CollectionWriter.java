@@ -6,14 +6,15 @@ import cc.jfire.dson.writer.TypeWriter;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class CollectionWriter implements TypeWriter
 {
     private DsonContext dsonContext;
     private TypeWriter  elementWriter;
     private boolean     elementTypeFinal = false;
-    private Class       elementType;
 
     @Override
     public void initialize(Type type, DsonContext dsonContext)
@@ -25,7 +26,6 @@ public class CollectionWriter implements TypeWriter
             if (elementType instanceof Class<?> && Modifier.isFinal(((Class<?>) elementType).getModifiers()))
             {
                 elementTypeFinal = true;
-                this.elementType = (Class) elementType;
                 elementWriter    = dsonContext.parseWriter(elementType);
             }
         }
@@ -66,5 +66,35 @@ public class CollectionWriter implements TypeWriter
             output.setLength(output.length() - 1);
         }
         output.append(']');
+    }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        Collection<?> collection = (Collection<?>) entity;
+        List<Object>  list       = new ArrayList<>();
+        TypeWriter    writer     = null;
+        if (elementTypeFinal)
+        {
+            writer = this.elementWriter;
+        }
+        else
+        {
+        }
+        for (Object each : collection)
+        {
+            if (each != null)
+            {
+                if (elementTypeFinal)
+                {
+                    list.add(writer.toJsonObject(each));
+                }
+                else
+                {
+                    list.add(dsonContext.parseWriter(each.getClass()).toJsonObject(each));
+                }
+            }
+        }
+        return list;
     }
 }

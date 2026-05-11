@@ -9,4 +9,10 @@ public class FloatWriter implements TypeWriter
     {
         output.append(((Float) entity).floatValue());
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return entity;
+    }
 }

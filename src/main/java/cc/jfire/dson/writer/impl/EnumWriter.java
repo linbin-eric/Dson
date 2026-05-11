@@ -10,4 +10,11 @@ public class EnumWriter implements TypeWriter
         Enum<?> instance = (Enum<?>) entity;
         output.append('"').append(instance.name()).append('"');
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        Enum<?> instance = (Enum<?>) entity;
+        return instance.name();
+    }
 }

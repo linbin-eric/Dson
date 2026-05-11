@@ -9,4 +9,10 @@ public class BooleanWriter implements TypeWriter
     {
         output.append(((Boolean) entity).booleanValue());
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return entity;
+    }
 }

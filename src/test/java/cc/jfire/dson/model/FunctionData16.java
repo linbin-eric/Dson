@@ -25,5 +25,11 @@ public class FunctionData16
         {
             output.append('"').append("123").append('"');
         }
+
+        @Override
+        public Object toJsonObject(Object entity)
+        {
+            return "123";
+        }
     }
 }

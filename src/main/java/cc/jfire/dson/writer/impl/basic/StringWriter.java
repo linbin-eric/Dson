@@ -16,4 +16,10 @@ public class StringWriter implements TypeWriter
         WriterUtil.writeString(output, (String) entity);
         output.append('"');
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return entity;
+    }
 }

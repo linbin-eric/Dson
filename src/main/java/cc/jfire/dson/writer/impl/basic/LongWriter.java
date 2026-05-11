@@ -9,4 +9,10 @@ public class LongWriter implements TypeWriter
     {
         output.append(((Long) entity).longValue());
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return entity;
+    }
 }

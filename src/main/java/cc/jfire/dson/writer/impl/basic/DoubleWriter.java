@@ -9,4 +9,10 @@ public class DoubleWriter implements TypeWriter
     {
         output.append(((Double) entity).doubleValue());
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return entity;
+    }
 }

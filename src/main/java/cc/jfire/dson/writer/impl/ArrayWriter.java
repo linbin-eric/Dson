@@ -7,6 +7,8 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArrayWriter
 {
@@ -125,6 +127,26 @@ public class ArrayWriter
             }
             output.append(']');
         }
+
+        @Override
+        public Object toJsonObject(Object entity)
+        {
+            if (entity == null)
+            {
+                return null;
+            }
+            List<Object> list       = new ArrayList<>();
+            Object[]     elements   = (Object[]) entity;
+            TypeWriter   typeWriter = this.componentWriter;
+            for (Object element : elements)
+            {
+                if (element != null)
+                {
+                    list.add(typeWriter.toJsonObject(element));
+                }
+            }
+            return list;
+        }
     }
 
     static class ComponentUnFinalTypeArrayWriter implements TypeWriter
@@ -163,6 +185,25 @@ public class ArrayWriter
                 output.setLength(output.length() - 1);
             }
             output.append(']');
+        }
+
+        @Override
+        public Object toJsonObject(Object entity)
+        {
+            if (entity == null)
+            {
+                return null;
+            }
+            List<Object> list     = new ArrayList<>();
+            Object[]     elements = (Object[]) entity;
+            for (Object element : elements)
+            {
+                if (element != null)
+                {
+                    list.add(dsonContext.parseWriter(element.getClass()).toJsonObject(element));
+                }
+            }
+            return list;
         }
     }
 }

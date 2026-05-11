@@ -9,4 +9,10 @@ public class BigDecimalWriter implements TypeWriter
     {
         output.append(((java.math.BigDecimal) entity).toPlainString());
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return ((java.math.BigDecimal) entity).toPlainString();
+    }
 }

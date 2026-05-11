@@ -9,4 +9,10 @@ public class ByteWriter implements TypeWriter
     {
         output.append(((Byte) entity).byteValue());
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return entity;
+    }
 }

@@ -6,16 +6,20 @@ import java.lang.reflect.Type;
 
 public class Dson
 {
-    private static final DsonContext STANDARD_WRITER = new DsonContext();
-    private static final DsonContext COMPILE_WRITER  = new DsonContext(new DsonConfig().setWriteUseCompile(true));
-    private static final DsonContext STANDARD_READER = new DsonContext();
-    private static final DsonContext COMPILE_READER  = new DsonContext(new DsonConfig().setReadUseCompile(true));
-
-    public static  final CompileHelper DEFAULT_COMPILER_HELPER = new CompileHelper();
+    private static final DsonContext   STANDARD_WRITER         = new DsonContext();
+    private static final DsonContext   COMPILE_WRITER          = new DsonContext(new DsonConfig().setWriteUseCompile(true));
+    private static final DsonContext   STANDARD_READER         = new DsonContext();
+    private static final DsonContext   COMPILE_READER          = new DsonContext(new DsonConfig().setReadUseCompile(true));
+    public static final  CompileHelper DEFAULT_COMPILER_HELPER = new CompileHelper();
 
     public static String toJson(Object entity)
     {
         return STANDARD_WRITER.toJson(entity);
+    }
+
+    public static Object toJsonObject(Object entity)
+    {
+        return STANDARD_WRITER.toJsonObject(entity);
     }
 
     public static String toJsonByCompile(Object entity)

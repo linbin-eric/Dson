@@ -9,4 +9,10 @@ public class IntegerWriter implements TypeWriter
     {
         output.append(((Integer) entity).intValue());
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return entity;
+    }
 }

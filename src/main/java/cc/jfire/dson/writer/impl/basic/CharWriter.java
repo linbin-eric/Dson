@@ -9,4 +9,10 @@ public class CharWriter implements TypeWriter
     {
         output.append('"').append(((Character) entity).charValue()).append('"');
     }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return entity;
+    }
 }

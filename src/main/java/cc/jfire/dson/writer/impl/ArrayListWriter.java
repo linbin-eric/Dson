@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ArrayListWriter implements TypeWriter
 {
@@ -65,5 +66,31 @@ public class ArrayListWriter implements TypeWriter
             output.setLength(output.length() - 1);
         }
         output.append(']');
+    }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        List<Object> list   = new ArrayList<>();
+        TypeWriter   writer = null;
+        if (elementTypeFinal)
+        {
+            writer = this.elementWriter;
+        }
+        for (Object each : (ArrayList) entity)
+        {
+            if (each != null)
+            {
+                if (elementTypeFinal)
+                {
+                    list.add(writer.toJsonObject(each));
+                }
+                else
+                {
+                    list.add(dsonContext.parseWriter(each.getClass()).toJsonObject(each));
+                }
+            }
+        }
+        return list;
     }
 }

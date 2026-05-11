@@ -2,6 +2,8 @@ package cc.jfire.dson.writer.impl.basic.array;
 
 import cc.jfire.dson.writer.TypeWriter;
 
+import java.util.List;
+
 public class ShortArrayWriter implements TypeWriter
 {
     @Override
@@ -18,5 +20,11 @@ public class ShortArrayWriter implements TypeWriter
             output.setLength(output.length() - 1);
         }
         output.append(']');
+    }
+
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        return List.of((short[]) entity);
     }
 }

@@ -45,6 +45,17 @@ public class ObjectWriter implements TypeWriter
         output.append('}');
     }
 
+    @Override
+    public Object toJsonObject(Object entity)
+    {
+        Map<String, Object> map = new HashMap<>();
+        for (Entry each : entries)
+        {
+            each.toJsonObject(map, entity);
+        }
+        return map;
+    }
+
     @SneakyThrows
     @Override
     public void initialize(Type type, DsonContext dsonContext)
@@ -104,7 +115,9 @@ public class ObjectWriter implements TypeWriter
                     }
                 }
             }
-            entry.setFullName('"' + each.getKey() + '"' + ':').setValueAccessor(dsonContext.getConfig().isValueAccessorUseCompile() ? ValueAccessor.compile(each.getValue()) : ValueAccessor.standard(each.getValue()));
+            entry.setFullName('"' + each.getKey() + '"' + ':')//
+                 .setName(each.getKey())//
+                 .setValueAccessor(dsonContext.getConfig().isValueAccessorUseCompile() ? ValueAccessor.compile(each.getValue()) : ValueAccessor.standard(each.getValue()));
             list.add(entry);
         }
         this.entries = list.toArray(Entry[]::new);
@@ -117,8 +130,11 @@ public class ObjectWriter implements TypeWriter
         protected ValueAccessor valueAccessor;
         protected TypeWriter    typeWriter;
         protected String        fullName;
+        protected String        name;
 
         public abstract void output(StringBuilder builder, Object instance);
+
+        public abstract void toJsonObject(Map<String, Object> map, Object instance);
     }
 
     class IntEntry extends Entry
@@ -129,6 +145,12 @@ public class ObjectWriter implements TypeWriter
             builder.append(fullName);
             builder.append(valueAccessor.getInt(instance));
             builder.append(',');
+        }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            map.put(name, valueAccessor.getInt(instance));
         }
     }
 
@@ -141,6 +163,12 @@ public class ObjectWriter implements TypeWriter
             builder.append(valueAccessor.getByte(instance));
             builder.append(',');
         }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            map.put(name, valueAccessor.getByte(instance));
+        }
     }
 
     class CharEntry extends Entry
@@ -151,6 +179,12 @@ public class ObjectWriter implements TypeWriter
             builder.append(fullName);
             builder.append('"').append(valueAccessor.getChar(instance));
             builder.append('"').append(',');
+        }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            map.put(name, valueAccessor.getChar(instance));
         }
     }
 
@@ -163,6 +197,12 @@ public class ObjectWriter implements TypeWriter
             builder.append(valueAccessor.getBoolean(instance));
             builder.append(',');
         }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            map.put(name, valueAccessor.getBoolean(instance));
+        }
     }
 
     class ShortEntry extends Entry
@@ -173,6 +213,12 @@ public class ObjectWriter implements TypeWriter
             builder.append(fullName);
             builder.append(valueAccessor.getShort(instance));
             builder.append(',');
+        }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            map.put(name, valueAccessor.getShort(instance));
         }
     }
 
@@ -185,6 +231,12 @@ public class ObjectWriter implements TypeWriter
             builder.append(valueAccessor.getLong(instance));
             builder.append(',');
         }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            map.put(name, valueAccessor.getLong(instance));
+        }
     }
 
     class FloatEntry extends Entry
@@ -196,6 +248,12 @@ public class ObjectWriter implements TypeWriter
             builder.append(valueAccessor.getFloat(instance));
             builder.append(',');
         }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            map.put(name, valueAccessor.getFloat(instance));
+        }
     }
 
     class DoubleEntry extends Entry
@@ -206,6 +264,12 @@ public class ObjectWriter implements TypeWriter
             builder.append(fullName);
             builder.append(valueAccessor.getDouble(instance));
             builder.append(',');
+        }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            map.put(name, valueAccessor.getDouble(instance));
         }
     }
 
@@ -223,6 +287,16 @@ public class ObjectWriter implements TypeWriter
                 builder.append('"').append(',');
             }
         }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            String reference = (String) valueAccessor.getReference(instance);
+            if (reference != null)
+            {
+                map.put(name, reference);
+            }
+        }
     }
 
     class BoxedNonCharacterEntry extends Entry
@@ -238,6 +312,16 @@ public class ObjectWriter implements TypeWriter
                 builder.append(',');
             }
         }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            Object reference = valueAccessor.getReference(instance);
+            if (reference != null)
+            {
+                map.put(name, reference);
+            }
+        }
     }
 
     class CharacterEntry extends Entry
@@ -245,12 +329,22 @@ public class ObjectWriter implements TypeWriter
         @Override
         public void output(StringBuilder builder, Object instance)
         {
-            CharacterEntry reference = (CharacterEntry) valueAccessor.getReference(instance);
+            Character reference = (Character) valueAccessor.getReference(instance);
             if (reference != null)
             {
                 builder.append(fullName);
                 builder.append('"').append(reference);
                 builder.append('"').append(',');
+            }
+        }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            Character reference = (Character) valueAccessor.getReference(instance);
+            if (reference != null)
+            {
+                map.put(name, reference);
             }
         }
     }
@@ -266,6 +360,16 @@ public class ObjectWriter implements TypeWriter
                 builder.append(fullName);
                 typeWriter.toJson(reference, builder);
                 builder.append(',');
+            }
+        }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            Object reference = valueAccessor.getReference(instance);
+            if (reference != null)
+            {
+                map.put(name, typeWriter.toJsonObject(reference));
             }
         }
     }
@@ -285,6 +389,16 @@ public class ObjectWriter implements TypeWriter
                 builder.append(fullName);
                 dsonContext.parseWriter(reference.getClass()).toJson(reference, builder);
                 builder.append(',');
+            }
+        }
+
+        @Override
+        public void toJsonObject(Map<String, Object> map, Object instance)
+        {
+            Object reference = valueAccessor.getReference(instance);
+            if (reference != null)
+            {
+                map.put(name, dsonContext.parseWriter(reference.getClass()).toJsonObject(reference));
             }
         }
     }
