@@ -8,6 +8,7 @@ import cc.jfire.baseutil.smc.model.FieldModel;
 import cc.jfire.baseutil.smc.model.MethodModel;
 import cc.jfire.dson.Dson;
 import cc.jfire.dson.DsonContext;
+import cc.jfire.dson.dynamic.DynamicJsonValue;
 import cc.jfire.dson.util.JsonRenameStrategy;
 import cc.jfire.dson.writer.impl.ObjectWriter;
 import lombok.SneakyThrows;
@@ -77,30 +78,36 @@ public interface TypeWriter
         toJsonValueMethod.setParamterNames("entity");
         StringBuilder toJsonValueBody = new StringBuilder();
         toJsonValueBody.append(STR.format("{} instance = ({})entity;\r\n", referenceName, referenceName));
-        toJsonValueBody.append("java.util.Map map = new java.util.HashMap();\r\n");
-        for (Map.Entry<String, Field> each : map.entrySet())
+        if (DynamicJsonValue.class.isAssignableFrom(ckass))
         {
-            int    classId    = ReflectUtil.getClassId(each.getValue().getType());
-            String methodName = ReflectUtil.parseBeanGetMethodName(each.getValue());
+            toJsonValueBody.append("return ((cc.jfire.dson.dynamic.DynamicJsonValue)instance).toJsonValue();");
+        }
+        else
+        {
+            toJsonValueBody.append("java.util.Map map = new java.util.HashMap();\r\n");
+            for (Map.Entry<String, Field> each : map.entrySet())
+            {
+                int    classId    = ReflectUtil.getClassId(each.getValue().getType());
+                String methodName = ReflectUtil.parseBeanGetMethodName(each.getValue());
                 switch (classId)
                 {
                     case ReflectUtil.PRIMITIVE_INT, ReflectUtil.PRIMITIVE_LONG, ReflectUtil.PRIMITIVE_FLOAT, ReflectUtil.PRIMITIVE_DOUBLE, ReflectUtil.PRIMITIVE_SHORT,
-                         ReflectUtil.PRIMITIVE_BYTE, ReflectUtil.PRIMITIVE_BOOL,ReflectUtil.PRIMITIVE_CHAR  ->
+                         ReflectUtil.PRIMITIVE_BYTE, ReflectUtil.PRIMITIVE_BOOL, ReflectUtil.PRIMITIVE_CHAR ->
                     {
                         toJsonValueBody.append(STR.format("""
-                                                             map.put("{}",instance.{}());
-                                                             """, each.getKey(), methodName));
+                                                                  map.put("{}",instance.{}());
+                                                                  """, each.getKey(), methodName));
                     }
                     case ReflectUtil.CLASS_BOOL, ReflectUtil.CLASS_BYTE, ReflectUtil.CLASS_SHORT, ReflectUtil.CLASS_INT, ReflectUtil.CLASS_LONG, ReflectUtil.CLASS_FLOAT,
                          ReflectUtil.CLASS_DOUBLE, ReflectUtil.CLASS_STRING, ReflectUtil.CLASS_CHAR -> toJsonValueBody.append(STR.format("""
-                                                                                          {
-                                                                                          {} reference = instance.{}();
-                                                                                          if (reference != null)
-                                                                                                      {
-                                                                                                          map.put("{}",reference);
-                                                                                                        }
-                                                                                          }
-                                                                                          """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
+                                                                                                                                                 {
+                                                                                                                                                 {} reference = instance.{}();
+                                                                                                                                                 if (reference != null)
+                                                                                                                                                             {
+                                                                                                                                                                 map.put("{}",reference);
+                                                                                                                                                               }
+                                                                                                                                                 }
+                                                                                                                                                 """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
                     default ->
                     {
                         if (Modifier.isFinal(each.getValue().getType().getModifiers()))
@@ -119,31 +126,32 @@ public interface TypeWriter
                                                                }
                                                                """, SmcHelper.getReferenceName(each.getValue().getDeclaringClass(), classModel), each.getValue().getName(), fieldname));
                             toJsonValueBody.append(STR.format("""
-                                                                 {
-                                                                 {} reference = instance.{}();
-                                                                             if (reference != null)
-                                                                             {
-                                                                                 map.put("{}",{}.toJsonValue(reference));
-                                                                             }
-                                                                 }
-                                                                 """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey(), fieldname));
+                                                                      {
+                                                                      {} reference = instance.{}();
+                                                                                  if (reference != null)
+                                                                                  {
+                                                                                      map.put("{}",{}.toJsonValue(reference));
+                                                                                  }
+                                                                      }
+                                                                      """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey(), fieldname));
                         }
                         else
                         {
                             toJsonValueBody.append(STR.format("""
-                                                                 {
-                                                                 {} reference =instance.{}();
-                                                                             if (reference != null)
-                                                                             {
-                                                                              map.put("{}",dsonContext.parseWriter(reference.getClass()).toJsonValue(reference));
-                                                                             }
-                                                                 }
-                                                                 """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
+                                                                      {
+                                                                      {} reference =instance.{}();
+                                                                                  if (reference != null)
+                                                                                  {
+                                                                                   map.put("{}",dsonContext.parseWriter(reference.getClass()).toJsonValue(reference));
+                                                                                  }
+                                                                      }
+                                                                      """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
                         }
                     }
                 }
             }
-        toJsonValueBody.append("return map;");
+            toJsonValueBody.append("return map;");
+        }
         boolean hasPrimitive = false;
         for (Map.Entry<String, Field> each : map.entrySet())
         {

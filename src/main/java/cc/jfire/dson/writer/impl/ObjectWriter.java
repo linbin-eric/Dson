@@ -3,6 +3,7 @@ package cc.jfire.dson.writer.impl;
 import cc.jfire.baseutil.reflect.ReflectUtil;
 import cc.jfire.baseutil.reflect.valueaccessor.ValueAccessor;
 import cc.jfire.dson.DsonContext;
+import cc.jfire.dson.dynamic.DynamicJsonValue;
 import cc.jfire.dson.util.JsonIgnore;
 import cc.jfire.dson.util.JsonRenameStrategy;
 import cc.jfire.dson.util.WriterUtil;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class ObjectWriter implements TypeWriter
 {
     private Entry[] entries;
+    private boolean dynamicJsonValue;
 
     @Override
     public void toJson(Object entity, StringBuilder output)
@@ -48,20 +50,28 @@ public class ObjectWriter implements TypeWriter
     @Override
     public Object toJsonValue(Object entity)
     {
-        Map<String, Object> map = new HashMap<>();
-        for (Entry each : entries)
+        if (dynamicJsonValue)
         {
-            each.toJsonValue(map, entity);
+            return ((DynamicJsonValue) entity).toJsonValue();
         }
-        return map;
+        else
+        {
+            Map<String, Object> map = new HashMap<>();
+            for (Entry each : entries)
+            {
+                each.toJsonValue(map, entity);
+            }
+            return map;
+        }
     }
 
     @SneakyThrows
     @Override
     public void initialize(Type type, DsonContext dsonContext)
     {
-        Class              ckazz = (Class) type;
-        Map<String, Field> map   = new HashMap<>();
+        Class ckazz = (Class) type;
+        dynamicJsonValue = DynamicJsonValue.class.isAssignableFrom(ckazz);
+        Map<String, Field> map = new HashMap<>();
         while (ckazz != Object.class)
         {
             for (Field each : ckazz.getDeclaredFields())
