@@ -69,7 +69,7 @@ public class ArrayListWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         List<Object> list   = new ArrayList<>();
         TypeWriter   writer = null;
@@ -83,11 +83,11 @@ public class ArrayListWriter implements TypeWriter
             {
                 if (elementTypeFinal)
                 {
-                    list.add(writer.toJsonObject(each));
+                    list.add(writer.toJsonValue(each));
                 }
                 else
                 {
-                    list.add(dsonContext.parseWriter(each.getClass()).toJsonObject(each));
+                    list.add(dsonContext.parseWriter(each.getClass()).toJsonValue(each));
                 }
             }
         }

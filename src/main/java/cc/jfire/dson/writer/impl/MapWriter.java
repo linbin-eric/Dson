@@ -61,7 +61,7 @@ public class MapWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         if (entity == null)
         {
@@ -84,11 +84,11 @@ public class MapWriter implements TypeWriter
             {
                 if (valueTypeFinal)
                 {
-                    map.put(String.valueOf(entry.getKey()), writer.toJsonObject(entryValue));
+                    map.put(String.valueOf(entry.getKey()), writer.toJsonValue(entryValue));
                 }
                 else
                 {
-                    map.put(String.valueOf(entry.getKey()), dsonContext.parseWriter(entryValue.getClass()).toJsonObject(entryValue));
+                    map.put(String.valueOf(entry.getKey()), dsonContext.parseWriter(entryValue.getClass()).toJsonValue(entryValue));
                 }
             }
         }

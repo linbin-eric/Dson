@@ -19,15 +19,15 @@ public class DsonToJsonObjectTest
 
     @SuppressWarnings("unchecked")
     @Test
-    public void toJsonObject()
+    public void toJsonValue()
     {
-        assertJsonObjectData(Dson.toJsonObject(new JsonObjectData()));
+        assertJsonObjectData(Dson.toJsonValue(new JsonObjectData()));
     }
 
     @Test
-    public void toJsonObjectByCompile()
+    public void toJsonValueByCompile()
     {
-        assertJsonObjectData(Dson.toJsonObjectByCompile(new JsonObjectData()));
+        assertJsonObjectData(Dson.toJsonValueByCompile(new JsonObjectData()));
     }
 
     @SuppressWarnings("unchecked")
@@ -46,15 +46,15 @@ public class DsonToJsonObjectTest
     }
 
     @Test
-    public void toJsonObjectWithNull()
+    public void toJsonValueWithNull()
     {
-        assertNull(Dson.toJsonObject(null));
+        assertNull(Dson.toJsonValue(null));
     }
 
     @Test
-    public void toJsonObjectByCompileWithNull()
+    public void toJsonValueByCompileWithNull()
     {
-        assertNull(Dson.toJsonObjectByCompile(null));
+        assertNull(Dson.toJsonValueByCompile(null));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class DsonToJsonObjectTest
         JsonObjectData data = new JsonObjectData();
 
         JsonNode fromToJson       = MAPPER.readTree(Dson.toJson(data));
-        JsonNode fromToJsonObject = MAPPER.readTree(Dson.toJson(Dson.toJsonObject(data)));
+        JsonNode fromToJsonObject = MAPPER.readTree(Dson.toJson(Dson.toJsonValue(data)));
 
         assertEquals(fromToJson, fromToJsonObject);
     }
@@ -74,7 +74,7 @@ public class DsonToJsonObjectTest
         JsonObjectData data = new JsonObjectData();
 
         JsonNode fromToJson       = MAPPER.readTree(Dson.toJsonByCompile(data));
-        JsonNode fromToJsonObject = MAPPER.readTree(Dson.toJsonByCompile(Dson.toJsonObjectByCompile(data)));
+        JsonNode fromToJsonObject = MAPPER.readTree(Dson.toJsonByCompile(Dson.toJsonValueByCompile(data)));
 
         assertEquals(fromToJson, fromToJsonObject);
     }

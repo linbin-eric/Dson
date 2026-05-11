@@ -14,7 +14,7 @@ public class DateWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         long time = ((Date) entity).getTime();
         return time;

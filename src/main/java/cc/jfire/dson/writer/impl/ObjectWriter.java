@@ -46,7 +46,7 @@ public class ObjectWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         Map<String, Object> map = new HashMap<>();
         for (Entry each : entries)
@@ -369,7 +369,7 @@ public class ObjectWriter implements TypeWriter
             Object reference = valueAccessor.getReference(instance);
             if (reference != null)
             {
-                map.put(name, typeWriter.toJsonObject(reference));
+                map.put(name, typeWriter.toJsonValue(reference));
             }
         }
     }
@@ -398,7 +398,7 @@ public class ObjectWriter implements TypeWriter
             Object reference = valueAccessor.getReference(instance);
             if (reference != null)
             {
-                map.put(name, dsonContext.parseWriter(reference.getClass()).toJsonObject(reference));
+                map.put(name, dsonContext.parseWriter(reference.getClass()).toJsonValue(reference));
             }
         }
     }

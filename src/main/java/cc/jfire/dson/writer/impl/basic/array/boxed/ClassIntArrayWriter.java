@@ -27,7 +27,7 @@ public class ClassIntArrayWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         return List.of((Integer[]) entity);
     }

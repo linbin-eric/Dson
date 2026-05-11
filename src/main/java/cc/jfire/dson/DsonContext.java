@@ -287,14 +287,14 @@ public class DsonContext
         return result;
     }
 
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         if (entity == null)
         {
             return null;
         }
         TypeWriter typeWriter = parseWriter(entity.getClass());
-        return typeWriter.toJsonObject(entity);
+        return typeWriter.toJsonValue(entity);
     }
 
     public Object fromStringByAttribute(String attribute, Type type, String str)

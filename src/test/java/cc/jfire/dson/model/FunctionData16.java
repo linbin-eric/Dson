@@ -27,7 +27,7 @@ public class FunctionData16
         }
 
         @Override
-        public Object toJsonObject(Object entity)
+        public Object toJsonValue(Object entity)
         {
             return "123";
         }

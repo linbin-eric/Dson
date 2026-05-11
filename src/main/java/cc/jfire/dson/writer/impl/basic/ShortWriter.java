@@ -11,7 +11,7 @@ public class ShortWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         return entity;
     }

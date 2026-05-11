@@ -11,7 +11,7 @@ public class BigDecimalWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         return ((java.math.BigDecimal) entity).toPlainString();
     }

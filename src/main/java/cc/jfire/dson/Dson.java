@@ -17,9 +17,9 @@ public class Dson
         return STANDARD_WRITER.toJson(entity);
     }
 
-    public static Object toJsonObject(Object entity)
+    public static Object toJsonValue(Object entity)
     {
-        return STANDARD_WRITER.toJsonObject(entity);
+        return STANDARD_WRITER.toJsonValue(entity);
     }
 
     public static String toJsonByCompile(Object entity)
@@ -27,9 +27,9 @@ public class Dson
         return COMPILE_WRITER.toJson(entity);
     }
 
-    public static Object toJsonObjectByCompile(Object entity)
+    public static Object toJsonValueByCompile(Object entity)
     {
-        return COMPILE_WRITER.toJsonObject(entity);
+        return COMPILE_WRITER.toJsonValue(entity);
     }
 
     public static <T> T fromString(Type type, String str)

@@ -43,7 +43,7 @@ public interface TypeWriter
      * @param entity
      * @return
      */
-    Object toJsonObject(Object entity);
+    Object toJsonValue(Object entity);
 
     static ObjectWriter standard()
     {
@@ -73,11 +73,11 @@ public interface TypeWriter
         StringBuilder toJsonBody    = new StringBuilder("builder.append(\"{\");\r\n");
         toJsonBody.append(STR.format("{} instance = ({})entity;\r\n", referenceName, referenceName));
         toJsonBody.append("boolean hasOutput = false;\r\n");
-        MethodModel toJsonObjectMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("toJsonObject", Object.class), classModel);
-        toJsonObjectMethod.setParamterNames("entity");
-        StringBuilder toJsonObjectBody = new StringBuilder();
-        toJsonObjectBody.append(STR.format("{} instance = ({})entity;\r\n", referenceName, referenceName));
-        toJsonObjectBody.append("java.util.Map map = new java.util.HashMap();\r\n");
+        MethodModel toJsonValueMethod = new MethodModel(TypeWriter.class.getDeclaredMethod("toJsonValue", Object.class), classModel);
+        toJsonValueMethod.setParamterNames("entity");
+        StringBuilder toJsonValueBody = new StringBuilder();
+        toJsonValueBody.append(STR.format("{} instance = ({})entity;\r\n", referenceName, referenceName));
+        toJsonValueBody.append("java.util.Map map = new java.util.HashMap();\r\n");
         for (Map.Entry<String, Field> each : map.entrySet())
         {
             int    classId    = ReflectUtil.getClassId(each.getValue().getType());
@@ -87,12 +87,12 @@ public interface TypeWriter
                     case ReflectUtil.PRIMITIVE_INT, ReflectUtil.PRIMITIVE_LONG, ReflectUtil.PRIMITIVE_FLOAT, ReflectUtil.PRIMITIVE_DOUBLE, ReflectUtil.PRIMITIVE_SHORT,
                          ReflectUtil.PRIMITIVE_BYTE, ReflectUtil.PRIMITIVE_BOOL,ReflectUtil.PRIMITIVE_CHAR  ->
                     {
-                        toJsonObjectBody.append(STR.format("""
+                        toJsonValueBody.append(STR.format("""
                                                              map.put("{}",instance.{}());
                                                              """, each.getKey(), methodName));
                     }
                     case ReflectUtil.CLASS_BOOL, ReflectUtil.CLASS_BYTE, ReflectUtil.CLASS_SHORT, ReflectUtil.CLASS_INT, ReflectUtil.CLASS_LONG, ReflectUtil.CLASS_FLOAT,
-                         ReflectUtil.CLASS_DOUBLE, ReflectUtil.CLASS_STRING, ReflectUtil.CLASS_CHAR -> toJsonObjectBody.append(STR.format("""
+                         ReflectUtil.CLASS_DOUBLE, ReflectUtil.CLASS_STRING, ReflectUtil.CLASS_CHAR -> toJsonValueBody.append(STR.format("""
                                                                                           {
                                                                                           {} reference = instance.{}();
                                                                                           if (reference != null)
@@ -118,24 +118,24 @@ public interface TypeWriter
                                                                    }catch(Throwable e){;}
                                                                }
                                                                """, SmcHelper.getReferenceName(each.getValue().getDeclaringClass(), classModel), each.getValue().getName(), fieldname));
-                            toJsonObjectBody.append(STR.format("""
+                            toJsonValueBody.append(STR.format("""
                                                                  {
                                                                  {} reference = instance.{}();
                                                                              if (reference != null)
                                                                              {
-                                                                                 map.put("{}",{}.toJsonObject(reference));
+                                                                                 map.put("{}",{}.toJsonValue(reference));
                                                                              }
                                                                  }
                                                                  """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey(), fieldname));
                         }
                         else
                         {
-                            toJsonObjectBody.append(STR.format("""
+                            toJsonValueBody.append(STR.format("""
                                                                  {
                                                                  {} reference =instance.{}();
                                                                              if (reference != null)
                                                                              {
-                                                                              map.put("{}",dsonContext.parseWriter(reference.getClass()).toJsonObject(reference));
+                                                                              map.put("{}",dsonContext.parseWriter(reference.getClass()).toJsonValue(reference));
                                                                              }
                                                                  }
                                                                  """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
@@ -143,7 +143,7 @@ public interface TypeWriter
                     }
                 }
             }
-        toJsonObjectBody.append("return map;");
+        toJsonValueBody.append("return map;");
         boolean hasPrimitive = false;
         for (Map.Entry<String, Field> each : map.entrySet())
         {
@@ -293,10 +293,10 @@ public interface TypeWriter
         }
         initMethod.setBody(initBody.toString());
         toJsonMethod.setBody(toJsonBody.toString());
-        toJsonObjectMethod.setBody(toJsonObjectBody.toString());
+        toJsonValueMethod.setBody(toJsonValueBody.toString());
         classModel.putMethodModel(initMethod);
         classModel.putMethodModel(toJsonMethod);
-        classModel.putMethodModel(toJsonObjectMethod);
+        classModel.putMethodModel(toJsonValueMethod);
         Class<TypeWriter> compile    = (Class<TypeWriter>) Dson.DEFAULT_COMPILER_HELPER.compile(classModel);
         TypeWriter        typeWriter = compile.getConstructor().newInstance();
         return typeWriter;

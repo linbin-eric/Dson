@@ -69,7 +69,7 @@ public class CollectionWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         Collection<?> collection = (Collection<?>) entity;
         List<Object>  list       = new ArrayList<>();
@@ -87,11 +87,11 @@ public class CollectionWriter implements TypeWriter
             {
                 if (elementTypeFinal)
                 {
-                    list.add(writer.toJsonObject(each));
+                    list.add(writer.toJsonValue(each));
                 }
                 else
                 {
-                    list.add(dsonContext.parseWriter(each.getClass()).toJsonObject(each));
+                    list.add(dsonContext.parseWriter(each.getClass()).toJsonValue(each));
                 }
             }
         }

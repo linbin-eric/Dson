@@ -12,7 +12,7 @@ public class EnumWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         Enum<?> instance = (Enum<?>) entity;
         return instance.name();

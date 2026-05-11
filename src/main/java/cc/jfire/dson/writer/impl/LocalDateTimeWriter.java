@@ -14,7 +14,7 @@ public class LocalDateTimeWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         return DateUtil.FORMATTER.format(((LocalDateTime) entity));
     }

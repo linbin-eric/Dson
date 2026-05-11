@@ -23,7 +23,7 @@ public class DoubleArrayWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         return List.of((double[]) entity);
     }

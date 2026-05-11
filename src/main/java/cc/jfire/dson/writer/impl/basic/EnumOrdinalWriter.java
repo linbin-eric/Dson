@@ -12,7 +12,7 @@ public class EnumOrdinalWriter implements TypeWriter
     }
 
     @Override
-    public Object toJsonObject(Object entity)
+    public Object toJsonValue(Object entity)
     {
         int ordinal = ((Enum) entity).ordinal();
         return ordinal;
