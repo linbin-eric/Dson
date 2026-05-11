@@ -51,7 +51,7 @@ public class ObjectWriter implements TypeWriter
         Map<String, Object> map = new HashMap<>();
         for (Entry each : entries)
         {
-            each.toJsonObject(map, entity);
+            each.toJsonValue(map, entity);
         }
         return map;
     }
@@ -134,7 +134,7 @@ public class ObjectWriter implements TypeWriter
 
         public abstract void output(StringBuilder builder, Object instance);
 
-        public abstract void toJsonObject(Map<String, Object> map, Object instance);
+        public abstract void toJsonValue(Map<String, Object> map, Object instance);
     }
 
     class IntEntry extends Entry
@@ -148,7 +148,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             map.put(name, valueAccessor.getInt(instance));
         }
@@ -165,7 +165,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             map.put(name, valueAccessor.getByte(instance));
         }
@@ -182,7 +182,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             map.put(name, valueAccessor.getChar(instance));
         }
@@ -199,7 +199,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             map.put(name, valueAccessor.getBoolean(instance));
         }
@@ -216,7 +216,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             map.put(name, valueAccessor.getShort(instance));
         }
@@ -233,7 +233,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             map.put(name, valueAccessor.getLong(instance));
         }
@@ -250,7 +250,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             map.put(name, valueAccessor.getFloat(instance));
         }
@@ -267,7 +267,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             map.put(name, valueAccessor.getDouble(instance));
         }
@@ -289,7 +289,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             String reference = (String) valueAccessor.getReference(instance);
             if (reference != null)
@@ -314,7 +314,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             Object reference = valueAccessor.getReference(instance);
             if (reference != null)
@@ -339,7 +339,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             Character reference = (Character) valueAccessor.getReference(instance);
             if (reference != null)
@@ -364,7 +364,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             Object reference = valueAccessor.getReference(instance);
             if (reference != null)
@@ -393,7 +393,7 @@ public class ObjectWriter implements TypeWriter
         }
 
         @Override
-        public void toJsonObject(Map<String, Object> map, Object instance)
+        public void toJsonValue(Map<String, Object> map, Object instance)
         {
             Object reference = valueAccessor.getReference(instance);
             if (reference != null)
