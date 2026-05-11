@@ -27,6 +27,11 @@ public class Dson
         return COMPILE_WRITER.toJson(entity);
     }
 
+    public static Object toJsonObjectByCompile(Object entity)
+    {
+        return COMPILE_WRITER.toJsonObject(entity);
+    }
+
     public static <T> T fromString(Type type, String str)
     {
         return STANDARD_READER.fromString(type, str);

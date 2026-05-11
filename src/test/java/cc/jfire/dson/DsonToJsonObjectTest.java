@@ -21,9 +21,18 @@ public class DsonToJsonObjectTest
     @Test
     public void toJsonObject()
     {
-        JsonObjectData data   = new JsonObjectData();
-        Object         result = Dson.toJsonObject(data);
+        assertJsonObjectData(Dson.toJsonObject(new JsonObjectData()));
+    }
 
+    @Test
+    public void toJsonObjectByCompile()
+    {
+        assertJsonObjectData(Dson.toJsonObjectByCompile(new JsonObjectData()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void assertJsonObjectData(Object result)
+    {
         assertTrue(result instanceof Map);
         Map<String, Object> map = (Map<String, Object>) result;
         assertEquals("dson", map.get("name"));
@@ -43,6 +52,12 @@ public class DsonToJsonObjectTest
     }
 
     @Test
+    public void toJsonObjectByCompileWithNull()
+    {
+        assertNull(Dson.toJsonObjectByCompile(null));
+    }
+
+    @Test
     public void toJsonObjectMatchesToJson() throws Exception
     {
         JsonObjectData data = new JsonObjectData();
@@ -53,7 +68,18 @@ public class DsonToJsonObjectTest
         assertEquals(fromToJson, fromToJsonObject);
     }
 
-    static class JsonObjectData
+    @Test
+    public void toJsonObjectByCompileMatchesToJsonByCompile() throws Exception
+    {
+        JsonObjectData data = new JsonObjectData();
+
+        JsonNode fromToJson       = MAPPER.readTree(Dson.toJsonByCompile(data));
+        JsonNode fromToJsonObject = MAPPER.readTree(Dson.toJsonByCompile(Dson.toJsonObjectByCompile(data)));
+
+        assertEquals(fromToJson, fromToJsonObject);
+    }
+
+    public static class JsonObjectData
     {
         private final String              name       = "dson";
         private final int                 age        = 7;
@@ -87,7 +113,7 @@ public class DsonToJsonObjectTest
         }
     }
 
-    static class JsonObjectChild
+    public static class JsonObjectChild
     {
         private final String name = "nested";
 
