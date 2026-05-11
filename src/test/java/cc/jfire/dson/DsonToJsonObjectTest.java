@@ -1,5 +1,7 @@
 package cc.jfire.dson;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -13,6 +15,8 @@ import static org.junit.Assert.assertTrue;
 
 public class DsonToJsonObjectTest
 {
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     @SuppressWarnings("unchecked")
     @Test
     public void toJsonObject()
@@ -36,6 +40,17 @@ public class DsonToJsonObjectTest
     public void toJsonObjectWithNull()
     {
         assertNull(Dson.toJsonObject(null));
+    }
+
+    @Test
+    public void toJsonObjectMatchesToJson() throws Exception
+    {
+        JsonObjectData data = new JsonObjectData();
+
+        JsonNode fromToJson       = MAPPER.readTree(Dson.toJson(data));
+        JsonNode fromToJsonObject = MAPPER.readTree(Dson.toJson(Dson.toJsonObject(data)));
+
+        assertEquals(fromToJson, fromToJsonObject);
     }
 
     static class JsonObjectData
