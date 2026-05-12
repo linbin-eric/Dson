@@ -19,7 +19,7 @@ public class Stream
     {
         length = str.length();
         char[] value = buf.get();
-        if (str.length() < value.length)
+        if (str.length() <= value.length)
         {
             str.getChars(0, str.length(), value, 0);
         }
