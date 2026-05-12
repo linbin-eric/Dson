@@ -222,18 +222,32 @@ public interface TypeWriter
                                                                                                         }
                                                                                           }
                                                                                           """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
-                    case ReflectUtil.CLASS_STRING, ReflectUtil.CLASS_CHAR -> toJsonBody.append(STR.format("""
-                                                                                                                  {
-                                                                                                                  {} reference = instance.{}();
-                                                                                                                  if (reference != null)
-                                                                                                                              {
-                                                                                                                                  builder.append("\\"{}\\":");
-                                                                                                                                  builder.append('"').append(reference).append('"');
-                                                                                                                                  builder.append(',');
-                                                                                                                                  hasOutput = true;
-                                                                                                                                }
-                                                                                                                  }
-                                                                                                                  """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
+                    case ReflectUtil.CLASS_STRING -> toJsonBody.append(STR.format("""
+                                                                                                           {
+                                                                                                           {} reference = instance.{}();
+                                                                                                           if (reference != null)
+                                                                                                                       {
+                                                                                                                           builder.append("\\"{}\\":");
+                                                                                                                           builder.append('"');
+                                                                                                                           cc.jfire.dson.util.WriterUtil.writeString(builder, reference);
+                                                                                                                           builder.append('"');
+                                                                                                                           builder.append(',');
+                                                                                                                           hasOutput = true;
+                                                                                                                         }
+                                                                                                           }
+                                                                                                           """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
+                    case ReflectUtil.CLASS_CHAR -> toJsonBody.append(STR.format("""
+                                                                                                         {
+                                                                                                         {} reference = instance.{}();
+                                                                                                         if (reference != null)
+                                                                                                                     {
+                                                                                                                         builder.append("\\"{}\\":");
+                                                                                                                         builder.append('"').append(reference).append('"');
+                                                                                                                         builder.append(',');
+                                                                                                                         hasOutput = true;
+                                                                                                                       }
+                                                                                                         }
+                                                                                                         """, SmcHelper.getReferenceName(each.getValue().getType(), classModel), methodName, each.getKey()));
                     default ->
                     {
                         if (Modifier.isFinal(each.getValue().getType().getModifiers()))

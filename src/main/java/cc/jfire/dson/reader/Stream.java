@@ -72,16 +72,22 @@ public class Stream
      */
     private String getString()
     {
-        int    offset = this.offset;
-        int    length = this.length;
-        char[] value  = this.value;
+        int     offset    = this.offset;
+        int     length    = this.length;
+        char[]  value     = this.value;
+        boolean hasEscape = false;
         offset += 1;
         int  start = offset;
         char c;
         do
         {
             c = value[offset];
-            if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+            if (c == '\\')
+            {
+                hasEscape = true;
+                offset += 1;
+            }
+            else if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
             {
                 if (isRealDoubleQuotationMask(offset - 1) == false)
                 {
@@ -97,9 +103,88 @@ public class Stream
                 offset += 1;
             }
         } while (offset < length);
-        String result = new String(value, start, offset - start);
+        if (offset >= length)
+        {
+            throwExecption();
+        }
+        String result = hasEscape ? getEscapeString(start, offset) : new String(value, start, offset - start);
         offset += 1;
         this.offset = offset;
+        return result;
+    }
+
+    private String getEscapeString(int start, int end)
+    {
+        char[]        value  = this.value;
+        StringBuilder result = new StringBuilder(end - start);
+        int           offset = start;
+        while (offset < end)
+        {
+            char c = value[offset];
+            if (c != '\\')
+            {
+                result.append(c);
+                offset += 1;
+                continue;
+            }
+            offset += 1;
+            if (offset >= end)
+            {
+                throwExecption();
+            }
+            c = value[offset];
+            switch (c)
+            {
+                case '"' -> result.append('"');
+                case '\\' -> result.append('\\');
+                case '/' -> result.append('/');
+                case 'b' -> result.append('\b');
+                case 'f' -> result.append('\f');
+                case 'n' -> result.append('\n');
+                case 'r' -> result.append('\r');
+                case 't' -> result.append('\t');
+                case 'u' ->
+                {
+                    if (offset + 4 >= end)
+                    {
+                        throwExecption();
+                    }
+                    result.append((char) parseHex(offset + 1));
+                    offset += 4;
+                }
+                default -> throw new IllegalArgumentException("invalid escape: " + c);
+            }
+            offset += 1;
+        }
+        return result.toString();
+    }
+
+    private int parseHex(int offset)
+    {
+        int    result = 0;
+        char[] value  = this.value;
+        for (int i = 0; i < 4; i++)
+        {
+            char c = value[offset + i];
+            int  digit;
+            if (c >= '0' && c <= '9')
+            {
+                digit = c - '0';
+            }
+            else if (c >= 'a' && c <= 'f')
+            {
+                digit = c - 'a' + 10;
+            }
+            else if (c >= 'A' && c <= 'F')
+            {
+                digit = c - 'A' + 10;
+            }
+            else
+            {
+                throw new IllegalArgumentException("invalid unicode escape: " + c);
+            }
+            result = (result << 4) + digit;
+        }
         return result;
     }
 

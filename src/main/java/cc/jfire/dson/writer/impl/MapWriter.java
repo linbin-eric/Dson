@@ -1,6 +1,7 @@
 package cc.jfire.dson.writer.impl;
 
 import cc.jfire.dson.DsonContext;
+import cc.jfire.dson.util.WriterUtil;
 import cc.jfire.dson.writer.TypeWriter;
 
 import java.lang.reflect.GenericArrayType;
@@ -40,7 +41,9 @@ public class MapWriter implements TypeWriter
             Object entryValue = entry.getValue();
             if (entryValue != null)
             {
-                output.append('"').append(entry.getKey()).append("\":");
+                output.append('"');
+                WriterUtil.writeString(output, String.valueOf(entry.getKey()));
+                output.append("\":");
                 if (valueTypeFinal)
                 {
                     writer.toJson(entryValue, output);
