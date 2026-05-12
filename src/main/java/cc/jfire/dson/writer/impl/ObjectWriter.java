@@ -4,6 +4,7 @@ import cc.jfire.baseutil.reflect.ReflectUtil;
 import cc.jfire.baseutil.reflect.valueaccessor.ValueAccessor;
 import cc.jfire.dson.DsonContext;
 import cc.jfire.dson.dynamic.DynamicJsonValue;
+import cc.jfire.dson.dynamic.DynamicModifyValue;
 import cc.jfire.dson.util.JsonIgnore;
 import cc.jfire.dson.util.JsonRenameStrategy;
 import cc.jfire.dson.util.WriterUtil;
@@ -24,7 +25,8 @@ import java.util.Map;
 public class ObjectWriter implements TypeWriter
 {
     private Entry[] entries;
-    private boolean dynamicJsonValue;
+    private boolean dynamicJsonValue = false;
+    private boolean dynamicModify    = false;
 
     @Override
     public void toJson(Object entity, StringBuilder output)
@@ -33,18 +35,24 @@ public class ObjectWriter implements TypeWriter
         {
             return;
         }
-        output.append('{');
-        int length = output.length();
-        for (Entry each : entries)
+        if (dynamicModify)
         {
-            each.output(output, entity);
         }
-        int newLength = output.length();
-        if (length != newLength)
+        else
         {
-            output.setLength(newLength - 1);
+            output.append('{');
+            int length = output.length();
+            for (Entry each : entries)
+            {
+                each.output(output, entity);
+            }
+            int newLength = output.length();
+            if (length != newLength)
+            {
+                output.setLength(newLength - 1);
+            }
+            output.append('}');
         }
-        output.append('}');
     }
 
     @Override
@@ -71,6 +79,7 @@ public class ObjectWriter implements TypeWriter
     {
         Class ckazz = (Class) type;
         dynamicJsonValue = DynamicJsonValue.class.isAssignableFrom(ckazz);
+        dynamicModify    = DynamicModifyValue.class.isAssignableFrom(ckazz);
         Map<String, Field> map = new HashMap<>();
         while (ckazz != Object.class)
         {

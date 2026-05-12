@@ -3,12 +3,15 @@ package cc.jfire.dson.reader.impl.basic.array.boxed;
 import cc.jfire.dson.reader.Stream;
 import cc.jfire.dson.reader.TypeReader;
 
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
+import java.util.Map;
 
 public class ClassByteArrayReader implements TypeReader
 {
     @Override
-    public Object fromString(Stream stream)
+    public Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext)
     {
         stream.startParseArray();
         int    count = 0;

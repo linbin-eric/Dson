@@ -15,15 +15,17 @@ import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public interface TypeReader
 {
-    default void initialize(Type type, DsonContext dsonContext)
+    default void initialize(Type type, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
     {
     }
 
-    Object fromString(Stream stream);
+    Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext);
 
     AtomicInteger COMPILE_COUNTER = new AtomicInteger();
 
@@ -36,13 +38,19 @@ public interface TypeReader
         classModel.addImport(Stream.class);
         classModel.addImport(ReadEntry.class);
         classModel.addField(new FieldModel("rootNode", Node.class, classModel));
-        MethodModel initMethod = new MethodModel(TypeReader.class.getDeclaredMethod("initialize", Type.class, DsonContext.class), classModel);
-        initMethod.setParamterNames("ckass", "dsonContext");
-        StringBuilder initBody   = new StringBuilder("rootNode   = Node.generateRoot((Class)ckass, dsonContext);\r\n");
-        MethodModel   fromString = new MethodModel(TypeReader.class.getDeclaredMethod("fromString", Stream.class), classModel);
-        fromString.setParamterNames("stream");
+        classModel.addField(new FieldModel("readerTypeVariableContext", Map.class, classModel));
         StringBuilder builder       = new StringBuilder();
         String        referenceName = SmcHelper.getReferenceName(ckazz, classModel);
+        MethodModel   initMethod    = new MethodModel(TypeReader.class.getDeclaredMethod("initialize", Type.class, DsonContext.class, Map.class), classModel);
+        initMethod.setParamterNames("type", "dsonContext", "typeVariableContext");
+        StringBuilder initBody = new StringBuilder(STR.format("""
+                java.util.Map thisTypeVariableContext = cc.jfire.dson.reader.support.TypeResolver.resolveTypeArguments(type);
+                thisTypeVariableContext.putAll(typeVariableContext);
+                readerTypeVariableContext = thisTypeVariableContext;
+                rootNode   = Node.generateRoot({}.class, type, dsonContext, thisTypeVariableContext);
+                """, referenceName));
+        MethodModel   fromString = new MethodModel(TypeReader.class.getDeclaredMethod("fromString", Stream.class, Map.class), classModel);
+        fromString.setParamterNames("stream", "typeVariableContext");
         builder.append(referenceName).append(" instance = new ").append(referenceName).append("();\r\n");
         builder.append("stream.startParseObject();\r\n");
         builder.append("boolean skipComma = false;\r\n");
@@ -53,46 +61,51 @@ public interface TypeReader
         for (Field each : fields)
         {
             String content;
+            String declaringClassName = SmcHelper.getReferenceName(each.getDeclaringClass(), classModel);
+            String setterTarget       = STR.format("(({})instance)", declaringClassName);
+            String methodName         = ReflectUtil.parseBeanSetMethodName(each);
             if (each.isAnnotationPresent(DeSerializeDefinition.class))
             {
                 String typeReaderName = "typeReader_" + COMPILE_COUNTER.getAndIncrement();
                 classModel.addField(new FieldModel(typeReaderName, TypeReader.class, classModel));
                 initBody.append("try\r\n{\r\n");
-                initBody.append(typeReaderName + "=" + SmcHelper.getReferenceName(each.getDeclaringClass(), classModel) + ".class.getDeclaredField(\"" + each.getName() + "\").getAnnotation(DeSerializeDefinition.class).value().newInstance();\r\n");
-                initBody.append(typeReaderName + ".initialize(ckass,dsonContext);\r\n");
+                initBody.append("java.lang.reflect.Field field = " + declaringClassName + ".class.getDeclaredField(\"" + each.getName() + "\");\r\n");
+                initBody.append(typeReaderName + "=field.getAnnotation(DeSerializeDefinition.class).value().newInstance();\r\n");
+                initBody.append(typeReaderName + ".initialize(field.getGenericType(),dsonContext,thisTypeVariableContext);\r\n");
                 initBody.append("}\r\ncatch(Throwable e){;}\r\n");
-                content = STR.format("instance.{}(({}){}.fromString(stream));", ReflectUtil.parseBeanSetMethodName(each), SmcHelper.getReferenceName(each.getType(), classModel), typeReaderName);
+                content = STR.format("{}.{}(({}){}.fromString(stream,readerTypeVariableContext));", setterTarget, methodName, SmcHelper.getReferenceName(each.getType(), classModel), typeReaderName);
             }
             else if (ReflectUtil.isNonBoxedObject(each.getType()) && each.getType() != String.class)
             {
                 String typeReaderName = "typeReader_" + COMPILE_COUNTER.getAndIncrement();
                 classModel.addField(new FieldModel(typeReaderName, TypeReader.class, classModel));
                 initBody.append("try\r\n{\r\n");
-                initBody.append(typeReaderName + "=dsonContext.parseReader(" + SmcHelper.getReferenceName(each.getDeclaringClass(), classModel) + ".class.getDeclaredField(\"" + each.getName() + "\").getGenericType());");
+                initBody.append("java.lang.reflect.Field field = " + declaringClassName + ".class.getDeclaredField(\"" + each.getName() + "\");\r\n");
+                initBody.append(typeReaderName + "=dsonContext.parseReader(field.getGenericType(),thisTypeVariableContext);\r\n");
                 initBody.append("}\r\ncatch(Throwable e){;}\r\n");
-                content = STR.format("instance.{}(({}){}.fromString(stream));", ReflectUtil.parseBeanSetMethodName(each), SmcHelper.getReferenceName(each.getType(), classModel), typeReaderName);
+                content = STR.format("{}.{}(({}){}.fromString(stream,readerTypeVariableContext));", setterTarget, methodName, SmcHelper.getReferenceName(each.getType(), classModel), typeReaderName);
             }
             else
             {
                 int classId = ReflectUtil.getClassId(each.getType());
                 content = switch (classId)
                 {
-                    case ReflectUtil.PRIMITIVE_INT -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getInt());";
-                    case ReflectUtil.PRIMITIVE_LONG -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getLong());";
-                    case ReflectUtil.PRIMITIVE_FLOAT -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getFloat());";
-                    case ReflectUtil.PRIMITIVE_DOUBLE -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getDouble());";
-                    case ReflectUtil.PRIMITIVE_BOOL, ReflectUtil.CLASS_BOOL -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getBoolean());";
-                    case ReflectUtil.PRIMITIVE_BYTE -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getByte());";
-                    case ReflectUtil.PRIMITIVE_SHORT -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getShort());";
-                    case ReflectUtil.PRIMITIVE_CHAR, ReflectUtil.CLASS_CHAR -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getChar());";
-                    case ReflectUtil.CLASS_INT -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getWInt());";
-                    case ReflectUtil.CLASS_LONG -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getWLong());";
-                    case ReflectUtil.CLASS_FLOAT -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getWFloat());";
-                    case ReflectUtil.CLASS_DOUBLE -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getWDouble());";
-                    case ReflectUtil.CLASS_BYTE -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getWByte());";
-                    case ReflectUtil.CLASS_SHORT -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getWShort());";
-                    case ReflectUtil.CLASS_STRING -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(stream.getStringValue());";
-                    default -> "instance." + ReflectUtil.parseBeanSetMethodName(each) + "(typeReader.fromString(stream));";
+                    case ReflectUtil.PRIMITIVE_INT -> setterTarget + "." + methodName + "(stream.getInt());";
+                    case ReflectUtil.PRIMITIVE_LONG -> setterTarget + "." + methodName + "(stream.getLong());";
+                    case ReflectUtil.PRIMITIVE_FLOAT -> setterTarget + "." + methodName + "(stream.getFloat());";
+                    case ReflectUtil.PRIMITIVE_DOUBLE -> setterTarget + "." + methodName + "(stream.getDouble());";
+                    case ReflectUtil.PRIMITIVE_BOOL, ReflectUtil.CLASS_BOOL -> setterTarget + "." + methodName + "(stream.getBoolean());";
+                    case ReflectUtil.PRIMITIVE_BYTE -> setterTarget + "." + methodName + "(stream.getByte());";
+                    case ReflectUtil.PRIMITIVE_SHORT -> setterTarget + "." + methodName + "(stream.getShort());";
+                    case ReflectUtil.PRIMITIVE_CHAR, ReflectUtil.CLASS_CHAR -> setterTarget + "." + methodName + "(stream.getChar());";
+                    case ReflectUtil.CLASS_INT -> setterTarget + "." + methodName + "(stream.getWInt());";
+                    case ReflectUtil.CLASS_LONG -> setterTarget + "." + methodName + "(stream.getWLong());";
+                    case ReflectUtil.CLASS_FLOAT -> setterTarget + "." + methodName + "(stream.getWFloat());";
+                    case ReflectUtil.CLASS_DOUBLE -> setterTarget + "." + methodName + "(stream.getWDouble());";
+                    case ReflectUtil.CLASS_BYTE -> setterTarget + "." + methodName + "(stream.getWByte());";
+                    case ReflectUtil.CLASS_SHORT -> setterTarget + "." + methodName + "(stream.getWShort());";
+                    case ReflectUtil.CLASS_STRING -> setterTarget + "." + methodName + "(stream.getStringValue());";
+                    default -> "throw new IllegalArgumentException();";
                 };
             }
             setContent.append(STR.format("""

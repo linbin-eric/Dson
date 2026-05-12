@@ -5,16 +5,18 @@ import cc.jfire.dson.reader.Stream;
 import cc.jfire.dson.reader.TypeReader;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Map;
 
 public class FloatReader implements TypeReader
 {
     @Override
-    public void initialize(Type type, DsonContext dsonContext)
+    public void initialize(Type type, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
     {
     }
 
     @Override
-    public Object fromString(Stream stream)
+    public Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext)
     {
         return stream.getFloat();
     }

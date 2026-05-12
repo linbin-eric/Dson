@@ -4,12 +4,15 @@ import cc.jfire.baseutil.reflect.ReflectUtil;
 import cc.jfire.dson.reader.Stream;
 import cc.jfire.dson.reader.TypeReader;
 
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
+import java.util.Map;
 
 public class FloatArrayReader implements TypeReader
 {
     @Override
-    public Object fromString(Stream stream)
+    public Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext)
     {
         stream.startParseArray();
         int     count = 0;

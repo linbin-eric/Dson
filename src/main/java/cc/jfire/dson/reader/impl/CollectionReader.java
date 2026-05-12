@@ -4,9 +4,11 @@ import cc.jfire.baseutil.reflect.ReflectUtil;
 import cc.jfire.dson.DsonContext;
 import cc.jfire.dson.reader.Stream;
 import cc.jfire.dson.reader.TypeReader;
+import cc.jfire.dson.reader.support.TypeResolver;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 public class CollectionReader implements TypeReader
@@ -15,8 +17,10 @@ public class CollectionReader implements TypeReader
     TypeReader elementReader;
 
     @Override
-    public void initialize(Type type, DsonContext dsonContext)
+    public void initialize(Type type, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
     {
+        Type record = type;
+        type = TypeResolver.resolveType(type, typeVariableContext);
         if (type instanceof Class)
         {
             ckass = (Class) type;
@@ -55,17 +59,17 @@ public class CollectionReader implements TypeReader
         if (type instanceof Class)
         {
             ckass              = (Class) type;
-            this.elementReader = dsonContext.parseReader(Object.class);
+            this.elementReader = dsonContext.parseReader(Object.class, typeVariableContext);
         }
         else if (type instanceof ParameterizedType)
         {
             Type actualTypeArgument = ((ParameterizedType) type).getActualTypeArguments()[0];
-            this.elementReader = dsonContext.parseReader(actualTypeArgument);
+            this.elementReader = dsonContext.parseReader(actualTypeArgument, typeVariableContext);
         }
     }
 
     @Override
-    public Object fromString(Stream stream)
+    public Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext)
     {
         try
         {
@@ -80,7 +84,7 @@ public class CollectionReader implements TypeReader
                 }
                 else
                 {
-                    collection.add(typeReader.fromString(stream));
+                    collection.add(typeReader.fromString(stream, typeVariableContext));
                 }
                 stream.skipComma();
             }

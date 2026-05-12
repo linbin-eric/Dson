@@ -7,19 +7,17 @@ import cc.jfire.dson.reader.impl.*;
 import cc.jfire.dson.reader.impl.basic.*;
 import cc.jfire.dson.reader.impl.basic.array.*;
 import cc.jfire.dson.reader.impl.basic.array.boxed.*;
+import cc.jfire.dson.reader.support.TypeResolver;
+import cc.jfire.dson.writer.SerializeDefinition;
+import cc.jfire.dson.writer.TypeWriter;
 import cc.jfire.dson.writer.impl.*;
 import cc.jfire.dson.writer.impl.basic.*;
 import cc.jfire.dson.writer.impl.basic.array.*;
 import cc.jfire.dson.writer.impl.basic.array.boxed.*;
-import cc.jfire.dson.writer.SerializeDefinition;
-import cc.jfire.dson.writer.TypeWriter;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -63,7 +61,7 @@ public class DsonContext
         readers.put(Character[].class, new ClassCharArrayReader());
         readers.put(Short[].class, new ClassShortArrayReader());
         readers.put(Byte[].class, new ClassByteArrayReader());
-        readers.put(BigDecimal.class,new BigDecimalReader());
+        readers.put(BigDecimal.class, new BigDecimalReader());
         readers.put(LocalDateTime.class, new LocalDateTimeReader());
         ////
         writers.put(Integer.class, new IntegerWriter());
@@ -94,7 +92,7 @@ public class DsonContext
         writers.put(Character[].class, new ClassCharArrayWriter());
         writers.put(Short[].class, new ClassShortArrayWriter());
         writers.put(Byte[].class, new ClassByteArrayWriter());
-        writers.put(BigDecimal.class,new BigDecimalWriter());
+        writers.put(BigDecimal.class, new BigDecimalWriter());
         writers.put(LocalDateTime.class, new LocalDateTimeWriter());
     }
 
@@ -104,37 +102,47 @@ public class DsonContext
     }
 
     @SneakyThrows
-    public TypeReader parseReader(Type type)
+    public TypeReader parseReader(Type type, Map<TypeVariable<?>, Type> typeVariableContext)
     {
         TypeReader typeReader = readers.get(type);
         if (typeReader != null)
         {
             return typeReader;
         }
+        boolean needResolve = needResolve(type, typeVariableContext);
+        Type lookupType = needResolve ? TypeResolver.resolveType(type, typeVariableContext) : type;
+        if (needResolve)
+        {
+            typeReader = readers.get(lookupType);
+            if (typeReader != null)
+            {
+                return typeReader;
+            }
+        }
         Map<Type, TypeReader> cache = CURRENT_READER_CACHE.get();
-        TypeReader            tmp   = cache.get(type);
+        TypeReader            tmp   = cache.get(lookupType);
         if (tmp != null)
         {
             return tmp;
         }
-        if (type instanceof GenericArrayType)
+        if (lookupType instanceof GenericArrayType)
         {
             typeReader = new NewArrayReader();
         }
         else
         {
             Class rawType = null;
-            if (type instanceof ParameterizedType)
+            if (lookupType instanceof ParameterizedType)
             {
-                rawType = (Class) ((ParameterizedType) type).getRawType();
+                rawType = (Class) ((ParameterizedType) lookupType).getRawType();
             }
-            else if (type instanceof Class)
+            else if (lookupType instanceof Class)
             {
-                rawType = (Class) type;
+                rawType = (Class) lookupType;
             }
             else
             {
-                throw new IllegalArgumentException(type.toString());
+                throw new IllegalArgumentException(lookupType.toString());
             }
             if (rawType.isAnnotationPresent(DeSerializeDefinition.class))
             {
@@ -176,11 +184,66 @@ public class DsonContext
                 typeReader = config.isReadUseCompile() ? TypeReader.compile(rawType) : new ObjectReader();
             }
         }
-        cache.put(type, typeReader);
-        typeReader.initialize(type, this);
-        cache.remove(type);
-        readers.put(type, typeReader);
+        cache.put(lookupType, typeReader);
+        typeReader.initialize(lookupType, this, typeVariableContext);
+        cache.remove(lookupType);
+        readers.put(lookupType, typeReader);
         return typeReader;
+    }
+
+    private static boolean needResolve(Type type, Map<TypeVariable<?>, Type> typeVariableContext)
+    {
+        if (typeVariableContext == null || typeVariableContext.isEmpty())
+        {
+            return false;
+        }
+        return containsResolvableTypeVariable(type, typeVariableContext);
+    }
+
+    private static boolean containsResolvableTypeVariable(Type type, Map<TypeVariable<?>, Type> typeVariableContext)
+    {
+        if (type instanceof TypeVariable<?> typeVariable)
+        {
+            return typeVariableContext.containsKey(typeVariable);
+        }
+        if (type instanceof ParameterizedType parameterizedType)
+        {
+            Type ownerType = parameterizedType.getOwnerType();
+            if (ownerType != null && containsResolvableTypeVariable(ownerType, typeVariableContext))
+            {
+                return true;
+            }
+            for (Type each : parameterizedType.getActualTypeArguments())
+            {
+                if (containsResolvableTypeVariable(each, typeVariableContext))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        if (type instanceof GenericArrayType genericArrayType)
+        {
+            return containsResolvableTypeVariable(genericArrayType.getGenericComponentType(), typeVariableContext);
+        }
+        if (type instanceof WildcardType wildcardType)
+        {
+            for (Type each : wildcardType.getUpperBounds())
+            {
+                if (containsResolvableTypeVariable(each, typeVariableContext))
+                {
+                    return true;
+                }
+            }
+            for (Type each : wildcardType.getLowerBounds())
+            {
+                if (containsResolvableTypeVariable(each, typeVariableContext))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @SneakyThrows
@@ -271,10 +334,10 @@ public class DsonContext
         return typeWriter;
     }
 
-    public <T> T fromString(Type type, String str)
+    public <T> T fromString(Type type, String str, Map<TypeVariable<?>, Type> typeVariableContext)
     {
-        TypeReader typeReader = parseReader(type);
-        return (T) typeReader.fromString(new Stream(str));
+        TypeReader typeReader = parseReader(type, typeVariableContext);
+        return (T) typeReader.fromString(new Stream(str), typeVariableContext);
     }
 
     public String toJson(Object entity)
@@ -297,9 +360,9 @@ public class DsonContext
         return typeWriter.toJsonValue(entity);
     }
 
-    public Object fromStringByAttribute(String attribute, Type type, String str)
+    public Object fromStringByAttribute(String attribute, Type type, String str, Map<TypeVariable<?>, Type> typeVariableContext)
     {
-        TypeReader typeReader = parseReader(type);
+        TypeReader typeReader = parseReader(type, typeVariableContext);
         Stream     stream     = new Stream(str);
         stream.startParseObject();
         boolean skipComma = false;
@@ -309,7 +372,7 @@ public class DsonContext
             stream.skipColon();
             if (name.equals(attribute))
             {
-                return typeReader.fromString(stream);
+                return typeReader.fromString(stream, typeVariableContext);
             }
             else
             {

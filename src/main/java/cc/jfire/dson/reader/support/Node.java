@@ -3,13 +3,16 @@ package cc.jfire.dson.reader.support;
 import cc.jfire.dson.DsonConfig;
 import cc.jfire.dson.DsonContext;
 import cc.jfire.dson.reader.support.entry.ReadEntry;
-import cc.jfire.dson.util.JsonRenameStrategy;
 import cc.jfire.dson.util.JsonIgnore;
+import cc.jfire.dson.util.JsonRenameStrategy;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 public class Node
 {
@@ -83,7 +86,7 @@ public class Node
         }
     }
 
-    public static Node generateRoot(Class ckass, DsonContext dsonContext)
+    public static Node generateRoot(Class ckass, Type type, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
     {
         Map<String, Field> map = new HashMap<String, Field>();
         while (ckass != Object.class)
@@ -100,11 +103,13 @@ public class Node
             }
             ckass = ckass.getSuperclass();
         }
-        Node       rootNode = new Node();
-        DsonConfig config   = dsonContext.getConfig();
+        Node                                 rootNode                = new Node();
+        DsonConfig                           config                  = dsonContext.getConfig();
+        ConcurrentMap<TypeVariable<?>, Type> thisTypeVariableContext = TypeResolver.resolveTypeArguments(type);
+        thisTypeVariableContext.putAll(typeVariableContext);
         for (Map.Entry<String, Field> each : map.entrySet())
         {
-            rootNode.put(each.getKey(), config.isReadEntryUseCompile() ? ReadEntry.compile(each.getValue(), dsonContext) : ReadEntry.standard(each.getKey(), each.getValue(), dsonContext));
+            rootNode.put(each.getKey(), config.isReadEntryUseCompile() ? ReadEntry.compile(each.getValue(), dsonContext, thisTypeVariableContext) : ReadEntry.standard(each.getKey(), each.getValue(), dsonContext, thisTypeVariableContext));
         }
         return rootNode;
     }

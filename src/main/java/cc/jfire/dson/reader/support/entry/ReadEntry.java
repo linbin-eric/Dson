@@ -14,6 +14,9 @@ import cc.jfire.dson.reader.TypeReader;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Map;
 
 public interface ReadEntry
 {
@@ -26,13 +29,13 @@ public interface ReadEntry
      */
     String name();
 
-    static ReadEntry standard(String name, Field field, DsonContext dsonContext)
+    static ReadEntry standard(String name, Field field, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
     {
-        return new StandardReadEntry(name, field, dsonContext);
+        return new StandardReadEntry(name, field, dsonContext,typeVariableContext);
     }
 
     @SneakyThrows
-    static ReadEntry compile(Field field, DsonContext dsonContext)
+    static ReadEntry compile(Field field, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
     {
         TypeReader typeReader = null;
         if (field.isAnnotationPresent(DeSerializeDefinition.class))
@@ -41,7 +44,7 @@ public interface ReadEntry
             try
             {
                 typeReader = annotation.value().newInstance();
-                typeReader.initialize(field.getType(), dsonContext);
+                typeReader.initialize(field.getGenericType(), dsonContext, typeVariableContext);
             }
             catch (Exception e)
             {
@@ -50,11 +53,12 @@ public interface ReadEntry
         }
         else if (ReflectUtil.getClassId(field.getType()) > ReflectUtil.CLASS_STRING)
         {
-            typeReader = dsonContext.parseReader(field.getGenericType());
+            typeReader = dsonContext.parseReader(field.getGenericType(), typeVariableContext);
         }
         ClassModel classModel = new ClassModel(STR.format("ReadEntry_{}_{}", field.getName(), TypeReader.COMPILE_COUNTER.getAndIncrement()));
         classModel.addField(new FieldModel("typeReader", TypeReader.class, classModel));
-        classModel.addConstructor("this.typeReader=$0;", TypeReader.class);
+        classModel.addField(new FieldModel("typeVariableContext", Map.class, classModel));
+        classModel.addConstructor("this.typeReader=$0;this.typeVariableContext=$1;", TypeReader.class, Map.class);
         classModel.addInterface(ReadEntry.class);
         MethodModel methodModel = new MethodModel(ReadEntry.class.getDeclaredMethod("setValue", Object.class, Stream.class), classModel);
         methodModel.setParamterNames("instance", "stream");
@@ -66,17 +70,17 @@ public interface ReadEntry
         {
             switch (classId)
             {
-                case ReflectUtil.PRIMITIVE_BYTE, ReflectUtil.CLASS_BYTE -> builder.append(STR.format("(({})instance).{}((Byte)typeReader.from(stream));", typeName, methodName));
-                case ReflectUtil.PRIMITIVE_INT, ReflectUtil.CLASS_INT -> builder.append(STR.format("(({})instance).{}((Integer)typeReader.from(stream));", typeName, methodName));
-                case ReflectUtil.PRIMITIVE_SHORT, ReflectUtil.CLASS_SHORT -> builder.append(STR.format("(({})instance).{}((Short)typeReader.from(stream));", typeName, methodName));
-                case ReflectUtil.PRIMITIVE_LONG, ReflectUtil.CLASS_LONG -> builder.append(STR.format("(({})instance).{}((Long)typeReader.from(stream));", typeName, methodName));
-                case ReflectUtil.PRIMITIVE_FLOAT, ReflectUtil.CLASS_FLOAT -> builder.append(STR.format("(({})instance).{}((Float)typeReader.from(stream));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_BYTE, ReflectUtil.CLASS_BYTE -> builder.append(STR.format("(({})instance).{}((Byte)typeReader.fromString(stream,typeVariableContext));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_INT, ReflectUtil.CLASS_INT -> builder.append(STR.format("(({})instance).{}((Integer)typeReader.fromString(stream,typeVariableContext));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_SHORT, ReflectUtil.CLASS_SHORT -> builder.append(STR.format("(({})instance).{}((Short)typeReader.fromString(stream,typeVariableContext));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_LONG, ReflectUtil.CLASS_LONG -> builder.append(STR.format("(({})instance).{}((Long)typeReader.fromString(stream,typeVariableContext));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_FLOAT, ReflectUtil.CLASS_FLOAT -> builder.append(STR.format("(({})instance).{}((Float)typeReader.fromString(stream,typeVariableContext));", typeName, methodName));
                 case ReflectUtil.PRIMITIVE_DOUBLE,
-                     ReflectUtil.CLASS_DOUBLE -> builder.append(STR.format("(({})instance).{}((Double)typeReader.from(stream));", typeName, methodName));
-                case ReflectUtil.PRIMITIVE_BOOL, ReflectUtil.CLASS_BOOL -> builder.append(STR.format("(({})instance).{}((Boolean)typeReader.from(stream));", typeName, methodName));
+                     ReflectUtil.CLASS_DOUBLE -> builder.append(STR.format("(({})instance).{}((Double)typeReader.fromString(stream,typeVariableContext));", typeName, methodName));
+                case ReflectUtil.PRIMITIVE_BOOL, ReflectUtil.CLASS_BOOL -> builder.append(STR.format("(({})instance).{}((Boolean)typeReader.fromString(stream,typeVariableContext));", typeName, methodName));
                 case ReflectUtil.PRIMITIVE_CHAR,
-                     ReflectUtil.CLASS_CHAR -> builder.append(STR.format("(({})instance).{}((Character)typeReader.from(stream));", typeName, methodName));
-                default -> builder.append(STR.format("(({})instance).{}(({})typeReader.fromString(stream));", typeName, methodName, SmcHelper.getReferenceName(field.getType(), classModel)));
+                     ReflectUtil.CLASS_CHAR -> builder.append(STR.format("(({})instance).{}((Character)typeReader.fromString(stream,typeVariableContext));", typeName, methodName));
+                default -> builder.append(STR.format("(({})instance).{}(({})typeReader.fromString(stream,typeVariableContext));", typeName, methodName, SmcHelper.getReferenceName(field.getType(), classModel)));
             }
         }
         else
@@ -101,6 +105,6 @@ public interface ReadEntry
         fieldNameModel.setBody(STR.format("return \"{}\";", field.getName()));
         classModel.putMethodModel(fieldNameModel);
         Class<ReadEntry> compile = (Class<ReadEntry>) Dson.DEFAULT_COMPILER_HELPER.compile(classModel);
-        return compile.getConstructor(TypeReader.class).newInstance(typeReader);
+        return compile.getConstructor(TypeReader.class, Map.class).newInstance(typeReader, typeVariableContext);
     }
 }

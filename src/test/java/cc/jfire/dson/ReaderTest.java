@@ -5,6 +5,7 @@ import cc.jfire.dson.reader.TypeReader;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.print.attribute.HashAttributeSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -130,8 +131,8 @@ public class ReaderTest
         String s = Dson.toJson(data);
         System.out.println(s);
         DsonContext jsonReader = new DsonContext();
-        TypeReader  typeReader = jsonReader.parseReader(SimpleData.class);
-        Object      o          = typeReader.fromString(new Stream(s));
+        TypeReader  typeReader = jsonReader.parseReader(SimpleData.class, new HashMap<>());
+        Object      o          = typeReader.fromString(new Stream(s), new HashMap<>());
         System.out.println(Dson.toJson(o));
         Assert.assertEquals(s, Dson.toJson(o));
     }

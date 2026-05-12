@@ -7,23 +7,26 @@ import cc.jfire.dson.reader.support.Node;
 import cc.jfire.dson.reader.support.entry.ReadEntry;
 import io.github.karlatemp.unsafeaccessor.Unsafe;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Map;
 
-public class ObjectReader  implements TypeReader
+public class ObjectReader implements TypeReader
 {
-    private              Class  ckass;
-    private              Node   rootNode;
-    private static final Unsafe UNSAFE = Unsafe.getUnsafe();
+    private              Class                      ckass;
+    private              Node                       rootNode;
+    private static final Unsafe                     UNSAFE = Unsafe.getUnsafe();
 
     @Override
-    public void initialize(Type type, DsonContext dsonContext)
+    public void initialize(Type type, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
     {
-        this.ckass = (Class) type;
-        rootNode   = Node.generateRoot(ckass, dsonContext);
+        this.ckass          = type instanceof Class<?> ? (Class<?>) type : type instanceof ParameterizedType ? (Class) ((ParameterizedType) type).getRawType() : null;
+        rootNode            = Node.generateRoot(this.ckass,type, dsonContext,typeVariableContext);
     }
 
     @Override
-    public Object fromString(Stream stream)
+    public Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext)
     {
         try
         {
