@@ -296,6 +296,54 @@ public class Stream
         return false;
     }
 
+    private boolean isNextStrictNullAndSkip()
+    {
+        int    offset = this.offset;
+        char[] value  = this.value;
+        if (offset + 3 < length)
+        {
+            if ((value[offset] == 'n' && value[offset + 1] == 'u' && value[offset + 2] == 'l' && value[offset + 3] == 'l')
+                || (value[offset] == 'N' && value[offset + 1] == 'U' && value[offset + 2] == 'L' && value[offset + 3] == 'L'))
+            {
+                this.offset = offset + 4;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isNextTrueAndSkip()
+    {
+        int    offset = this.offset;
+        char[] value  = this.value;
+        if (offset + 3 < length)
+        {
+            if ((value[offset] == 't' && value[offset + 1] == 'r' && value[offset + 2] == 'u' && value[offset + 3] == 'e')
+                || (value[offset] == 'T' && value[offset + 1] == 'R' && value[offset + 2] == 'U' && value[offset + 3] == 'E'))
+            {
+                this.offset = offset + 4;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isNextFalseAndSkip()
+    {
+        int    offset = this.offset;
+        char[] value  = this.value;
+        if (offset + 4 < length)
+        {
+            if ((value[offset] == 'f' && value[offset + 1] == 'a' && value[offset + 2] == 'l' && value[offset + 3] == 's' && value[offset + 4] == 'e')
+                || (value[offset] == 'F' && value[offset + 1] == 'A' && value[offset + 2] == 'L' && value[offset + 3] == 'S' && value[offset + 4] == 'E'))
+            {
+                this.offset = offset + 5;
+                return true;
+            }
+        }
+        return false;
+    }
+
     public ReadEntry getName(Node node)
     {
         char c = value[offset];
@@ -618,10 +666,8 @@ public class Stream
         }
         else if (c == 'T' || c == 't')
         {
-            String value = new String(this.value, offset, 4);
-            if ("TRUE".equals(value) || "true".equals(value))
+            if (isNextTrueAndSkip())
             {
-                offset += 4;
                 return true;
             }
             else
@@ -631,10 +677,8 @@ public class Stream
         }
         else if (c == 'F' || c == 'f')
         {
-            String value = new String(this.value, offset, 5);
-            if ("false".equals(value) || "FALSE".equals(value))
+            if (isNextFalseAndSkip())
             {
-                offset += 5;
                 return false;
             }
             else
@@ -644,10 +688,8 @@ public class Stream
         }
         else if (c == 'n' || c == 'N')
         {
-            String value = new String(this.value, offset, 4);
-            if ("null".equals(value) || "NULL".equals(value))
+            if (isNextStrictNullAndSkip())
             {
-                offset += 4;
                 return null;
             }
             else
@@ -831,10 +873,8 @@ public class Stream
         char c = ignoreSymbol();
         if (c == 'T' || c == 't')
         {
-            String value = new String(this.value, offset, 4);
-            if ("TRUE".equals(value) || "true".equals(value))
+            if (isNextTrueAndSkip())
             {
-                offset += 4;
                 return true;
             }
             else
@@ -844,10 +884,8 @@ public class Stream
         }
         else if (c == 'F' || c == 'f')
         {
-            String value = new String(this.value, offset, 5);
-            if ("false".equals(value) || "FALSE".equals(value))
+            if (isNextFalseAndSkip())
             {
-                offset += 5;
                 return false;
             }
             else
