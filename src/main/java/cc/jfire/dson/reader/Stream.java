@@ -1,6 +1,7 @@
 package cc.jfire.dson.reader;
 
 import cc.jfire.dson.reader.support.Node;
+import cc.jfire.dson.reader.support.FieldIndexNode;
 import cc.jfire.dson.reader.support.entry.ReadEntry;
 
 import java.util.HashMap;
@@ -34,23 +35,33 @@ public class Stream
 
     public char ignoreSymbol()
     {
-        char[] value = this.value;
-        char   c     = value[offset];
-        do
+        char[] value  = this.value;
+        int    offset = this.offset;
+        char   c      = value[offset];
+        if (c > ' ')
         {
-            if (c == Symbol.BLANK.literals() //
-                || c == Symbol.RETURN.literals()//
-                || c == Symbol.NEWLINE.literals()//
-                || c == Symbol.TAB.literals())
+            return c;
+        }
+        int length = this.length;
+        while (c == Symbol.BLANK.literals() //
+               || c == Symbol.RETURN.literals()//
+               || c == Symbol.NEWLINE.literals()//
+               || c == Symbol.TAB.literals())
+        {
+            offset += 1;
+            if (offset >= length)
             {
-                offset += 1;
-                c = value[offset];
-            }
-            else
-            {
+                this.offset = offset;
                 return c;
             }
-        } while (offset < length);
+            c = value[offset];
+            if (c > ' ')
+            {
+                this.offset = offset;
+                return c;
+            }
+        }
+        this.offset = offset;
         return c;
     }
 
@@ -342,6 +353,63 @@ public class Stream
         return null;
     }
 
+    public int getNameIndex(FieldIndexNode node)
+    {
+        char c = value[offset];
+        if (c != Symbol.DOUBLE_QUOTATION_MASK.literals())
+        {
+            throwExecption();
+        }
+        offset += 1;
+        do
+        {
+            c = value[offset];
+            if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+            {
+                if (isRealDoubleQuotationMask(offset - 1) == false)
+                {
+                    node = node == null ? null : node.getNext(c);
+                    offset += 1;
+                }
+                else
+                {
+                    offset += 1;
+                    return node == null ? -1 : node.getIndex();
+                }
+            }
+            else
+            {
+                node = node == null ? null : node.getNext(c);
+                offset += 1;
+            }
+        } while (offset < length && node != null);
+        if (offset == length)
+        {
+            return -1;
+        }
+        do
+        {
+            c = value[offset];
+            if (c == Symbol.DOUBLE_QUOTATION_MASK.literals())
+            {
+                if (isRealDoubleQuotationMask(offset - 1) == false)
+                {
+                    offset += 1;
+                }
+                else
+                {
+                    offset += 1;
+                    return -1;
+                }
+            }
+            else
+            {
+                offset += 1;
+            }
+        } while (offset < length);
+        return -1;
+    }
+
     public String getName()
     {
         char c = value[offset];
@@ -379,13 +447,73 @@ public class Stream
 
     public long getLong()
     {
-        return Long.parseLong(getNumberString());
+        return getIntegralLong();
     }
 
     public int getInt()
     {
-        String value = getNumberString();
-        return Integer.parseInt(value);
+        long value = getIntegralLong();
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE)
+        {
+            throw new NumberFormatException();
+        }
+        return (int) value;
+    }
+
+    private long getIntegralLong()
+    {
+        char   c      = ignoreSymbol();
+        char[] value  = this.value;
+        int    length = this.length;
+        int    offset = this.offset;
+        boolean negative = c == '-';
+        if (negative)
+        {
+            offset += 1;
+            if (offset >= length)
+            {
+                throwExecption();
+            }
+        }
+        long limit   = negative ? Long.MIN_VALUE : -Long.MAX_VALUE;
+        long multmin = limit / 10;
+        long result  = 0;
+        boolean hasDigit = false;
+        while (offset < length)
+        {
+            c = value[offset];
+            if (c < '0' || c > '9')
+            {
+                break;
+            }
+            int digit = c - '0';
+            if (result < multmin)
+            {
+                throw new NumberFormatException();
+            }
+            result *= 10;
+            if (result < limit + digit)
+            {
+                throw new NumberFormatException();
+            }
+            result -= digit;
+            offset += 1;
+            hasDigit = true;
+        }
+        if (hasDigit == false)
+        {
+            throwExecption();
+        }
+        if (offset < length)
+        {
+            c = value[offset];
+            if (c == '.' || c == 'e' || c == 'E' || c == '+')
+            {
+                throw new NumberFormatException();
+            }
+        }
+        this.offset = offset;
+        return negative ? result : -result;
     }
 
     private String getNumberString()
@@ -680,12 +808,22 @@ public class Stream
 
     public short getShort()
     {
-        return Short.parseShort(getNumberString());
+        long value = getIntegralLong();
+        if (value < Short.MIN_VALUE || value > Short.MAX_VALUE)
+        {
+            throw new NumberFormatException();
+        }
+        return (short) value;
     }
 
     public byte getByte()
     {
-        return Byte.parseByte(getNumberString());
+        long value = getIntegralLong();
+        if (value < Byte.MIN_VALUE || value > Byte.MAX_VALUE)
+        {
+            throw new NumberFormatException();
+        }
+        return (byte) value;
     }
 
     public boolean getBoolean()
@@ -733,17 +871,17 @@ public class Stream
 
     public Integer getWInt()
     {
-        return Integer.valueOf(getNumberString());
+        return Integer.valueOf(getInt());
     }
 
     public Byte getWByte()
     {
-        return Byte.valueOf(getNumberString());
+        return Byte.valueOf(getByte());
     }
 
     public Long getWLong()
     {
-        return Long.valueOf(getNumberString());
+        return Long.valueOf(getLong());
     }
 
     public Float getWFloat()
@@ -753,7 +891,7 @@ public class Stream
 
     public Short getWShort()
     {
-        return Short.valueOf(getNumberString());
+        return Short.valueOf(getShort());
     }
 
     public Double getWDouble()
