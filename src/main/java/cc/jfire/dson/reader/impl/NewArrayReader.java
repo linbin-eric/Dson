@@ -1,13 +1,11 @@
 package cc.jfire.dson.reader.impl;
 
-import cc.jfire.dson.DsonContext;
+import cc.jfire.dson.reader.ReaderContext;
 import cc.jfire.dson.reader.Stream;
 import cc.jfire.dson.reader.TypeReader;
-import cc.jfire.dson.reader.support.TypeResolver;
 
 import java.lang.reflect.*;
 import java.util.Arrays;
-import java.util.Map;
 
 public class NewArrayReader implements TypeReader
 {
@@ -15,7 +13,7 @@ public class NewArrayReader implements TypeReader
     private TypeReader componentReader;
 
     @Override
-    public void initialize(Type type, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
+    public void initialize(Type type, ReaderContext readerContext)
     {
         Type origin = type;
         if (type instanceof GenericArrayType)
@@ -26,7 +24,7 @@ public class NewArrayReader implements TypeReader
                 dim++;
                 type = genericArrayType.getGenericComponentType();
             }
-            type = TypeResolver.resolveType(type, typeVariableContext);
+            type = readerContext.resolveType(type);
             if (type instanceof ParameterizedType parameterizedType)
             {
                 Class rawType = (Class) parameterizedType.getRawType();
@@ -44,12 +42,12 @@ public class NewArrayReader implements TypeReader
             {
                 componentType = Array.newInstance(componentType, 0).getClass();
             }
-            componentReader = dsonContext.parseReader(((GenericArrayType) origin).getGenericComponentType(), typeVariableContext);
+            componentReader = readerContext.parseReader(((GenericArrayType) origin).getGenericComponentType());
         }
         else if (type instanceof Class ckazz)
         {
             componentType   = ckazz.getComponentType();
-            componentReader = dsonContext.parseReader(componentType, typeVariableContext);
+            componentReader = readerContext.parseReader(componentType);
         }
         else
         {
@@ -58,7 +56,7 @@ public class NewArrayReader implements TypeReader
     }
 
     @Override
-    public Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext)
+    public Object fromString(Stream stream)
     {
         stream.startParseArray();
         int      count = 0;
@@ -75,7 +73,7 @@ public class NewArrayReader implements TypeReader
             }
             else
             {
-                array[count] = componentReader.fromString(stream, typeVariableContext);
+                array[count] = componentReader.fromString(stream);
                 count += 1;
             }
             stream.skipComma();

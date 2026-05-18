@@ -1,13 +1,13 @@
 package cc.jfire.dson;
 
 import cc.jfire.dson.reader.DeSerializeDefinition;
+import cc.jfire.dson.reader.ReaderContext;
 import cc.jfire.dson.reader.Stream;
 import cc.jfire.dson.reader.TypeReader;
 import cc.jfire.dson.reader.impl.*;
 import cc.jfire.dson.reader.impl.basic.*;
 import cc.jfire.dson.reader.impl.basic.array.*;
 import cc.jfire.dson.reader.impl.basic.array.boxed.*;
-import cc.jfire.dson.reader.support.TypeResolver;
 import cc.jfire.dson.writer.SerializeDefinition;
 import cc.jfire.dson.writer.TypeWriter;
 import cc.jfire.dson.writer.impl.*;
@@ -25,44 +25,47 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DsonContext
 {
-    private              ConcurrentHashMap<Type, TypeReader> readers              = new ConcurrentHashMap<Type, TypeReader>();
-    private              ConcurrentHashMap<Type, TypeWriter> writers              = new ConcurrentHashMap<Type, TypeWriter>(256);
+    private final        ConcurrentHashMap<Type, ReaderContext> readerContexts      = new ConcurrentHashMap<Type, ReaderContext>();
+    private final        Map<Type, TypeReader>                  standardReaders     = new ConcurrentHashMap<Type, TypeReader>();
+    private final        ConcurrentHashMap<Type, TypeWriter>    writers             = new ConcurrentHashMap<Type, TypeWriter>(256);
     @Getter
-    private              DsonConfig                          config;
-    private static final ThreadLocal<Map<Type, TypeWriter>>  CURRENT_WRITER_CACHE = ThreadLocal.withInitial(() -> new HashMap<>());
-    private static final ThreadLocal<Map<Type, TypeReader>>  CURRENT_READER_CACHE = ThreadLocal.withInitial(() -> new HashMap<>());
+    private              DsonConfig                             config;
+    private static final ThreadLocal<Map<Type, TypeWriter>>     CURRENT_WRITER_CACHE = ThreadLocal.withInitial(() -> new HashMap<>());
+
+
+
 
     public DsonContext(DsonConfig config)
     {
         this.config = config;
-        readers.put(String.class, new StringReader());
-        readers.put(Integer.class, new IntegerReader());
-        readers.put(Long.class, new LongReader());
-        readers.put(Short.class, new ShortReader());
-        readers.put(Byte.class, new ByteReader());
-        readers.put(Character.class, new CharReader());
-        readers.put(Boolean.class, new BooleanReader());
-        readers.put(Float.class, new FloatReader());
-        readers.put(Double.class, new DoubleReader());
-        readers.put(int[].class, new IntArrayReader());
-        readers.put(short[].class, new ShortArrayReader());
-        readers.put(long[].class, new LongArrayReader());
-        readers.put(byte[].class, new ByteArrayReader());
-        readers.put(float[].class, new FloatArrayReader());
-        readers.put(double[].class, new DoubleArrayReader());
-        readers.put(boolean[].class, new BooleanArrayReader());
-        readers.put(char[].class, new CharArrayReader());
-        readers.put(String[].class, new StringArrayReader());
-        readers.put(Integer[].class, new ClassIntArrayReader());
-        readers.put(Long[].class, new ClassLongArrayReader());
-        readers.put(Float[].class, new ClassFloatArrayReader());
-        readers.put(Double[].class, new ClassDoubleArrayReader());
-        readers.put(Boolean[].class, new ClassBooleanArrayReader());
-        readers.put(Character[].class, new ClassCharArrayReader());
-        readers.put(Short[].class, new ClassShortArrayReader());
-        readers.put(Byte[].class, new ClassByteArrayReader());
-        readers.put(BigDecimal.class, new BigDecimalReader());
-        readers.put(LocalDateTime.class, new LocalDateTimeReader());
+        standardReaders.put(String.class, new StringReader());
+        standardReaders.put(Integer.class, new IntegerReader());
+        standardReaders.put(Long.class, new LongReader());
+        standardReaders.put(Short.class, new ShortReader());
+        standardReaders.put(Byte.class, new ByteReader());
+        standardReaders.put(Character.class, new CharReader());
+        standardReaders.put(Boolean.class, new BooleanReader());
+        standardReaders.put(Float.class, new FloatReader());
+        standardReaders.put(Double.class, new DoubleReader());
+        standardReaders.put(int[].class, new IntArrayReader());
+        standardReaders.put(short[].class, new ShortArrayReader());
+        standardReaders.put(long[].class, new LongArrayReader());
+        standardReaders.put(byte[].class, new ByteArrayReader());
+        standardReaders.put(float[].class, new FloatArrayReader());
+        standardReaders.put(double[].class, new DoubleArrayReader());
+        standardReaders.put(boolean[].class, new BooleanArrayReader());
+        standardReaders.put(char[].class, new CharArrayReader());
+        standardReaders.put(String[].class, new StringArrayReader());
+        standardReaders.put(Integer[].class, new ClassIntArrayReader());
+        standardReaders.put(Long[].class, new ClassLongArrayReader());
+        standardReaders.put(Float[].class, new ClassFloatArrayReader());
+        standardReaders.put(Double[].class, new ClassDoubleArrayReader());
+        standardReaders.put(Boolean[].class, new ClassBooleanArrayReader());
+        standardReaders.put(Character[].class, new ClassCharArrayReader());
+        standardReaders.put(Short[].class, new ClassShortArrayReader());
+        standardReaders.put(Byte[].class, new ClassByteArrayReader());
+        standardReaders.put(BigDecimal.class, new BigDecimalReader());
+        standardReaders.put(LocalDateTime.class, new LocalDateTimeReader());
         ////
         writers.put(Integer.class, new IntegerWriter());
         writers.put(Short.class, new ShortWriter());
@@ -101,149 +104,20 @@ public class DsonContext
         this(DsonConfig.STANDARD);
     }
 
-    @SneakyThrows
-    public TypeReader parseReader(Type type, Map<TypeVariable<?>, Type> typeVariableContext)
+    public ReaderContext getReaderContext(Type type)
     {
-        TypeReader typeReader = readers.get(type);
-        if (typeReader != null)
-        {
-            return typeReader;
-        }
-        boolean needResolve = needResolve(type, typeVariableContext);
-        Type lookupType = needResolve ? TypeResolver.resolveType(type, typeVariableContext) : type;
-        if (needResolve)
-        {
-            typeReader = readers.get(lookupType);
-            if (typeReader != null)
-            {
-                return typeReader;
-            }
-        }
-        Map<Type, TypeReader> cache = CURRENT_READER_CACHE.get();
-        TypeReader            tmp   = cache.get(lookupType);
-        if (tmp != null)
-        {
-            return tmp;
-        }
-        if (lookupType instanceof GenericArrayType)
-        {
-            typeReader = new NewArrayReader();
-        }
-        else
-        {
-            Class rawType = null;
-            if (lookupType instanceof ParameterizedType)
-            {
-                rawType = (Class) ((ParameterizedType) lookupType).getRawType();
-            }
-            else if (lookupType instanceof Class)
-            {
-                rawType = (Class) lookupType;
-            }
-            else
-            {
-                throw new IllegalArgumentException(lookupType.toString());
-            }
-            if (rawType.isAnnotationPresent(DeSerializeDefinition.class))
-            {
-                try
-                {
-                    typeReader = ((DeSerializeDefinition) rawType.getAnnotation(DeSerializeDefinition.class)).value().getConstructor().newInstance();
-                }
-                catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }
-            else if (rawType.isArray())
-            {
-                typeReader = new NewArrayReader();
-            }
-            else if (Collection.class.isAssignableFrom(rawType))
-            {
-                typeReader = new CollectionReader();
-            }
-            else if (Map.class.isAssignableFrom(rawType))
-            {
-                typeReader = new MapReader();
-            }
-            else if (Enum.class.isAssignableFrom(rawType))
-            {
-                typeReader = new EnumNameReader();
-            }
-            else if (rawType == Object.class)
-            {
-                typeReader = new UnKnowTypeReader();
-            }
-            else if (rawType.isRecord())
-            {
-                typeReader = new ObjectReader();
-            }
-            else
-            {
-                typeReader = config.isReadUseCompile() ? TypeReader.compile(rawType) : new ObjectReader();
-            }
-        }
-        cache.put(lookupType, typeReader);
-        typeReader.initialize(lookupType, this, typeVariableContext);
-        cache.remove(lookupType);
-        readers.put(lookupType, typeReader);
-        return typeReader;
+        return readerContexts.computeIfAbsent(type, each -> new ReaderContext(each, this, standardReaders));
     }
 
-    private static boolean needResolve(Type type, Map<TypeVariable<?>, Type> typeVariableContext)
+    public TypeReader parseReader(Type type)
     {
-        if (typeVariableContext == null || typeVariableContext.isEmpty())
-        {
-            return false;
-        }
-        return containsResolvableTypeVariable(type, typeVariableContext);
+        return getReaderContext(type).getRootReader();
     }
 
-    private static boolean containsResolvableTypeVariable(Type type, Map<TypeVariable<?>, Type> typeVariableContext)
+    @Deprecated
+    public TypeReader parseReader(Type type, Map<TypeVariable<?>, Type> ignored)
     {
-        if (type instanceof TypeVariable<?> typeVariable)
-        {
-            return typeVariableContext.containsKey(typeVariable);
-        }
-        if (type instanceof ParameterizedType parameterizedType)
-        {
-            Type ownerType = parameterizedType.getOwnerType();
-            if (ownerType != null && containsResolvableTypeVariable(ownerType, typeVariableContext))
-            {
-                return true;
-            }
-            for (Type each : parameterizedType.getActualTypeArguments())
-            {
-                if (containsResolvableTypeVariable(each, typeVariableContext))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        if (type instanceof GenericArrayType genericArrayType)
-        {
-            return containsResolvableTypeVariable(genericArrayType.getGenericComponentType(), typeVariableContext);
-        }
-        if (type instanceof WildcardType wildcardType)
-        {
-            for (Type each : wildcardType.getUpperBounds())
-            {
-                if (containsResolvableTypeVariable(each, typeVariableContext))
-                {
-                    return true;
-                }
-            }
-            for (Type each : wildcardType.getLowerBounds())
-            {
-                if (containsResolvableTypeVariable(each, typeVariableContext))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return parseReader(type);
     }
 
     @SneakyThrows
@@ -334,10 +208,16 @@ public class DsonContext
         return typeWriter;
     }
 
-    public <T> T fromString(Type type, String str, Map<TypeVariable<?>, Type> typeVariableContext)
+    public <T> T fromString(Type type, String str)
     {
-        TypeReader typeReader = parseReader(type, typeVariableContext);
-        return (T) typeReader.fromString(new Stream(str), typeVariableContext);
+        ReaderContext readerContext = getReaderContext(type);
+        return (T) readerContext.getRootReader().fromString(new Stream(str));
+    }
+
+    @Deprecated
+    public <T> T fromString(Type type, String str, Map<TypeVariable<?>, Type> ignored)
+    {
+        return fromString(type, str);
     }
 
     public String toJson(Object entity)
@@ -360,9 +240,9 @@ public class DsonContext
         return typeWriter.toJsonValue(entity);
     }
 
-    public Object fromStringByAttribute(String attribute, Type type, String str, Map<TypeVariable<?>, Type> typeVariableContext)
+    public Object fromStringByAttribute(String attribute, Type type, String str)
     {
-        TypeReader typeReader = parseReader(type, typeVariableContext);
+        TypeReader typeReader = getReaderContext(type).getRootReader();
         Stream     stream     = new Stream(str);
         stream.startParseObject();
         boolean skipComma = false;
@@ -372,7 +252,7 @@ public class DsonContext
             stream.skipColon();
             if (name.equals(attribute))
             {
-                return typeReader.fromString(stream, typeVariableContext);
+                return typeReader.fromString(stream);
             }
             else
             {
@@ -381,5 +261,11 @@ public class DsonContext
             skipComma = stream.skipComma();
         }
         return null;
+    }
+
+    @Deprecated
+    public Object fromStringByAttribute(String attribute, Type type, String str, Map<TypeVariable<?>, Type> ignored)
+    {
+        return fromStringByAttribute(attribute, type, str);
     }
 }

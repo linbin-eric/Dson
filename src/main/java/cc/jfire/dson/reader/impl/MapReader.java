@@ -1,13 +1,12 @@
 package cc.jfire.dson.reader.impl;
 
 import cc.jfire.baseutil.reflect.ReflectUtil;
-import cc.jfire.dson.DsonContext;
+import cc.jfire.dson.reader.ReaderContext;
 import cc.jfire.dson.reader.Stream;
 import cc.jfire.dson.reader.TypeReader;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +16,7 @@ public class MapReader  implements TypeReader
     private Class      ckass;
 
     @Override
-    public void initialize(Type type, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
+    public void initialize(Type type, ReaderContext readerContext)
     {
         if (type instanceof Class)
         {
@@ -42,17 +41,17 @@ public class MapReader  implements TypeReader
         }
         if (type instanceof Class)
         {
-            this.valueReader = dsonContext.parseReader(Object.class, typeVariableContext);
+            this.valueReader = readerContext.parseReader(Object.class);
         }
         else if (type instanceof ParameterizedType)
         {
             Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
-            this.valueReader = dsonContext.parseReader(typeArguments[1], typeVariableContext);
+            this.valueReader = readerContext.parseReader(typeArguments[1]);
         }
     }
 
     @Override
-    public Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext)
+    public Object fromString(Stream stream)
     {
         TypeReader valueReader = this.valueReader;
         stream.startParseObject();
@@ -69,7 +68,7 @@ public class MapReader  implements TypeReader
                 }
                 else
                 {
-                    map.put(name, valueReader.fromString(stream, typeVariableContext));
+                    map.put(name, valueReader.fromString(stream));
                 }
                 stream.skipComma();
             }

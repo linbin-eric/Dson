@@ -7,7 +7,6 @@ import cc.jfire.baseutil.smc.model.ClassModel;
 import cc.jfire.baseutil.smc.model.FieldModel;
 import cc.jfire.baseutil.smc.model.MethodModel;
 import cc.jfire.dson.Dson;
-import cc.jfire.dson.DsonContext;
 import cc.jfire.dson.reader.support.FieldIndexNode;
 import cc.jfire.dson.util.JsonRenameStrategy;
 import lombok.SneakyThrows;
@@ -15,17 +14,15 @@ import lombok.SneakyThrows;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public interface TypeReader
 {
-    default void initialize(Type type, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
+    default void initialize(Type type, ReaderContext readerContext)
     {
     }
 
-    Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext);
+    Object fromString(Stream stream);
 
     AtomicInteger COMPILE_COUNTER = new AtomicInteger();
 
@@ -35,26 +32,23 @@ public interface TypeReader
         ClassModel classModel = new ClassModel("BeanReader_" + COMPILE_COUNTER.getAndIncrement());
         classModel.addInterface(TypeReader.class);
         classModel.addImport(FieldIndexNode.class);
+        classModel.addImport(ReaderContext.class);
         classModel.addImport(Stream.class);
         classModel.addField(new FieldModel("rootNode", FieldIndexNode.class, classModel));
-        classModel.addField(new FieldModel("readerTypeVariableContext", Map.class, classModel));
         StringBuilder builder       = new StringBuilder();
         String        referenceName = SmcHelper.getReferenceName(ckazz, classModel);
         Field[]       fields        = ReflectUtil.findPojoBeanSetFields(ckazz);
-        MethodModel   initMethod    = new MethodModel(TypeReader.class.getDeclaredMethod("initialize", Type.class, DsonContext.class, Map.class), classModel);
-        initMethod.setParamterNames("type", "dsonContext", "typeVariableContext");
-        StringBuilder initBody = new StringBuilder(STR.format("""
-                java.util.Map thisTypeVariableContext = cc.jfire.dson.reader.support.TypeResolver.resolveTypeArguments(type);
-                thisTypeVariableContext.putAll(typeVariableContext);
-                readerTypeVariableContext = thisTypeVariableContext;
+        MethodModel   initMethod    = new MethodModel(TypeReader.class.getDeclaredMethod("initialize", Type.class, ReaderContext.class), classModel);
+        initMethod.setParamterNames("type", "readerContext");
+        StringBuilder initBody = new StringBuilder("""
                 rootNode   = new FieldIndexNode();
-                """));
+                """);
         for (int i = 0; i < fields.length; i++)
         {
             initBody.append(STR.format("rootNode.put(\"{}\",{});\r\n", JsonRenameStrategy.helpGetRename(fields[i]), i));
         }
-        MethodModel   fromString = new MethodModel(TypeReader.class.getDeclaredMethod("fromString", Stream.class, Map.class), classModel);
-        fromString.setParamterNames("stream", "typeVariableContext");
+        MethodModel   fromString = new MethodModel(TypeReader.class.getDeclaredMethod("fromString", Stream.class), classModel);
+        fromString.setParamterNames("stream");
         builder.append(referenceName).append(" instance = new ").append(referenceName).append("();\r\n");
         builder.append("stream.startParseObject();\r\n");
         builder.append("boolean skipComma = false;\r\n");
@@ -75,9 +69,9 @@ public interface TypeReader
                 initBody.append("try\r\n{\r\n");
                 initBody.append("java.lang.reflect.Field field = " + declaringClassName + ".class.getDeclaredField(\"" + each.getName() + "\");\r\n");
                 initBody.append(typeReaderName + "=field.getAnnotation(DeSerializeDefinition.class).value().newInstance();\r\n");
-                initBody.append(typeReaderName + ".initialize(field.getGenericType(),dsonContext,thisTypeVariableContext);\r\n");
-                initBody.append("}\r\ncatch(Throwable e){;}\r\n");
-                content = STR.format("{}.{}(({}){}.fromString(stream,readerTypeVariableContext));", setterTarget, methodName, SmcHelper.getReferenceName(each.getType(), classModel), typeReaderName);
+                initBody.append(typeReaderName + ".initialize(readerContext.resolveType(type,field.getGenericType()),readerContext);\r\n");
+                initBody.append("}\r\ncatch(Throwable e){cc.jfire.baseutil.reflect.ReflectUtil.throwException(e);}\r\n");
+                content = STR.format("{}.{}(({}){}.fromString(stream));", setterTarget, methodName, SmcHelper.getReferenceName(each.getType(), classModel), typeReaderName);
             }
             else if (isInlineArray(each))
             {
@@ -97,9 +91,9 @@ public interface TypeReader
                 classModel.addField(new FieldModel(typeReaderName, TypeReader.class, classModel));
                 initBody.append("try\r\n{\r\n");
                 initBody.append("java.lang.reflect.Field field = " + declaringClassName + ".class.getDeclaredField(\"" + each.getName() + "\");\r\n");
-                initBody.append(typeReaderName + "=dsonContext.parseReader(field.getGenericType(),thisTypeVariableContext);\r\n");
-                initBody.append("}\r\ncatch(Throwable e){;}\r\n");
-                content = STR.format("{}.{}(({}){}.fromString(stream,readerTypeVariableContext));", setterTarget, methodName, SmcHelper.getReferenceName(each.getType(), classModel), typeReaderName);
+                initBody.append(typeReaderName + "=readerContext.parseReader(type,field.getGenericType());\r\n");
+                initBody.append("}\r\ncatch(Throwable e){cc.jfire.baseutil.reflect.ReflectUtil.throwException(e);}\r\n");
+                content = STR.format("{}.{}(({}){}.fromString(stream));", setterTarget, methodName, SmcHelper.getReferenceName(each.getType(), classModel), typeReaderName);
             }
             else
             {
@@ -215,9 +209,9 @@ public interface TypeReader
             classModel.addField(new FieldModel(typeReaderName, TypeReader.class, classModel));
             initBody.append("try\r\n{\r\n");
             initBody.append("java.lang.reflect.Field field = " + declaringClassName + ".class.getDeclaredField(\"" + field.getName() + "\");\r\n");
-            initBody.append(typeReaderName + "=dsonContext.parseReader(field.getType().getComponentType(),thisTypeVariableContext);\r\n");
-            initBody.append("}\r\ncatch(Throwable e){;}\r\n");
-            readElement = STR.format("array[count] = ({}){}.fromString(stream,readerTypeVariableContext);", componentName, typeReaderName);
+            initBody.append(typeReaderName + "=readerContext.parseReader(field.getType().getComponentType());\r\n");
+            initBody.append("}\r\ncatch(Throwable e){cc.jfire.baseutil.reflect.ReflectUtil.throwException(e);}\r\n");
+            readElement = STR.format("array[count] = ({}){}.fromString(stream);", componentName, typeReaderName);
         }
         return STR.format("""
                 {
@@ -322,9 +316,9 @@ public interface TypeReader
                 initBody.append("try\r\n{\r\n");
                 initBody.append("java.lang.reflect.Field field = " + declaringClassName + ".class.getDeclaredField(\"" + field.getName() + "\");\r\n");
                 initBody.append("java.lang.reflect.ParameterizedType parameterizedType = (java.lang.reflect.ParameterizedType) field.getGenericType();\r\n");
-                initBody.append(typeReaderName + "=dsonContext.parseReader(parameterizedType.getActualTypeArguments()[0],thisTypeVariableContext);\r\n");
-                initBody.append("}\r\ncatch(Throwable e){;}\r\n");
-                yield typeReaderName + ".fromString(stream,readerTypeVariableContext)";
+                initBody.append(typeReaderName + "=readerContext.parseReader(parameterizedType.getActualTypeArguments()[0]);\r\n");
+                initBody.append("}\r\ncatch(Throwable e){cc.jfire.baseutil.reflect.ReflectUtil.throwException(e);}\r\n");
+                yield typeReaderName + ".fromString(stream)";
             }
         };
     }
@@ -407,9 +401,9 @@ public interface TypeReader
                 initBody.append("try\r\n{\r\n");
                 initBody.append("java.lang.reflect.Field field = " + declaringClassName + ".class.getDeclaredField(\"" + field.getName() + "\");\r\n");
                 initBody.append("java.lang.reflect.ParameterizedType parameterizedType = (java.lang.reflect.ParameterizedType) field.getGenericType();\r\n");
-                initBody.append(typeReaderName + "=dsonContext.parseReader(parameterizedType.getActualTypeArguments()[1],thisTypeVariableContext);\r\n");
-                initBody.append("}\r\ncatch(Throwable e){;}\r\n");
-                yield typeReaderName + ".fromString(stream,readerTypeVariableContext)";
+                initBody.append(typeReaderName + "=readerContext.parseReader(parameterizedType.getActualTypeArguments()[1]);\r\n");
+                initBody.append("}\r\ncatch(Throwable e){cc.jfire.baseutil.reflect.ReflectUtil.throwException(e);}\r\n");
+                yield typeReaderName + ".fromString(stream)";
             }
         };
     }

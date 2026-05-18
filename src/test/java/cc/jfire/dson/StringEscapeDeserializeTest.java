@@ -20,7 +20,7 @@ public class StringEscapeDeserializeTest
     {
         for (DsonContext each : contexts())
         {
-            assertEquals(DECODED_VALUE, each.fromString(String.class, "\"" + ESCAPED_VALUE + "\"", new HashMap<>()));
+            assertEquals(DECODED_VALUE, each.fromString(String.class, "\"" + ESCAPED_VALUE + "\""));
         }
     }
 
@@ -36,7 +36,7 @@ public class StringEscapeDeserializeTest
                       + "}";
         for (DsonContext each : contexts())
         {
-            EscapeData result = each.fromString(EscapeData.class, json, new HashMap<>());
+            EscapeData result = each.fromString(EscapeData.class, json);
             assertEquals(DECODED_VALUE, result.getText());
             assertArrayEquals(new String[]{"a\nb", "\\", "中"}, result.getArray());
             assertEquals(Arrays.asList("x\ty"), result.getList());
@@ -58,7 +58,7 @@ public class StringEscapeDeserializeTest
         for (DsonContext each : contexts())
         {
             String     json   = each.toJson(data);
-            EscapeData result = each.fromString(EscapeData.class, json, new HashMap<>());
+            EscapeData result = each.fromString(EscapeData.class, json);
             assertEquals(data.getText(), result.getText());
             assertArrayEquals(data.getArray(), result.getArray());
             assertEquals(data.getList(), result.getList());

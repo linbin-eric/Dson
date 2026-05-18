@@ -3,16 +3,13 @@ package cc.jfire.dson.reader.support.entry;
 import cc.jfire.baseutil.reflect.ReflectUtil;
 import cc.jfire.baseutil.reflect.valueaccessor.ValueAccessor;
 import cc.jfire.dson.DsonConfig;
-import cc.jfire.dson.DsonContext;
 import cc.jfire.dson.reader.DeSerializeDefinition;
+import cc.jfire.dson.reader.ReaderContext;
 import cc.jfire.dson.reader.Stream;
 import cc.jfire.dson.reader.TypeReader;
-import cc.jfire.dson.reader.support.TypeResolver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.Map;
 
 public class StandardReadEntry implements ReadEntry
 {
@@ -21,19 +18,17 @@ public class StandardReadEntry implements ReadEntry
     protected final TypeReader                 typeReader;
     protected final int                        classId;
     protected final ValueAccessor              valueAccessor;
-    protected final Map<TypeVariable<?>, Type> typeVariableContext;
 
-    public StandardReadEntry(String name, Field field, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
+    public StandardReadEntry(String name, Field field, Type ownerType, ReaderContext readerContext)
     {
         this.name      = name;
         this.fieldName = field.getName();
-        DsonConfig config = dsonContext.getConfig();
-        this.typeVariableContext = typeVariableContext;
-        valueAccessor            = config.isValueAccessorUseCompile() ? ValueAccessor.compile(field) : ValueAccessor.standard(field);
-        Type resolvedType = TypeResolver.resolveType(field.getGenericType(), typeVariableContext);
-        if (resolvedType instanceof Class<?>)
+        DsonConfig config = readerContext.getConfig();
+        valueAccessor     = config.isValueAccessorUseCompile() ? ValueAccessor.compile(field) : ValueAccessor.standard(field);
+        Type resolvedType = readerContext.resolveType(ownerType, field.getGenericType());
+        if (resolvedType instanceof Class<?> resolvedClass)
         {
-            classId = ReflectUtil.getClassId((Class) resolvedType);
+            classId = ReflectUtil.getClassId((Class) resolvedClass);
         }
         else
         {
@@ -45,7 +40,7 @@ public class StandardReadEntry implements ReadEntry
             try
             {
                 typeReader = annotation.value().newInstance();
-                typeReader.initialize(field.getGenericType(), dsonContext, typeVariableContext);
+                typeReader.initialize(resolvedType, readerContext);
             }
             catch (Exception e)
             {
@@ -56,7 +51,7 @@ public class StandardReadEntry implements ReadEntry
         {
             if (ReflectUtil.isNonBoxedObject(classId) && classId != ReflectUtil.CLASS_STRING)
             {
-                typeReader = dsonContext.parseReader(field.getGenericType(), typeVariableContext);
+                typeReader = readerContext.parseReader(ownerType, field.getGenericType());
             }
             else
             {
@@ -72,15 +67,15 @@ public class StandardReadEntry implements ReadEntry
         {
             switch (classId)
             {
-                case ReflectUtil.PRIMITIVE_INT -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream, typeVariableContext)).intValue());
-                case ReflectUtil.PRIMITIVE_LONG -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream, typeVariableContext)).longValue());
-                case ReflectUtil.PRIMITIVE_FLOAT -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream, typeVariableContext)).floatValue());
-                case ReflectUtil.PRIMITIVE_DOUBLE -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream, typeVariableContext)).doubleValue());
-                case ReflectUtil.PRIMITIVE_BOOL -> valueAccessor.set(instance, ((Boolean) typeReader.fromString(stream, typeVariableContext)).booleanValue());
-                case ReflectUtil.PRIMITIVE_BYTE -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream, typeVariableContext)).byteValue());
-                case ReflectUtil.PRIMITIVE_SHORT -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream, typeVariableContext)).shortValue());
-                case ReflectUtil.PRIMITIVE_CHAR -> valueAccessor.set(instance, ((Character) typeReader.fromString(stream, typeVariableContext)).charValue());
-                default -> valueAccessor.setReference(instance, typeReader.fromString(stream, typeVariableContext));
+                case ReflectUtil.PRIMITIVE_INT -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).intValue());
+                case ReflectUtil.PRIMITIVE_LONG -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).longValue());
+                case ReflectUtil.PRIMITIVE_FLOAT -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).floatValue());
+                case ReflectUtil.PRIMITIVE_DOUBLE -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).doubleValue());
+                case ReflectUtil.PRIMITIVE_BOOL -> valueAccessor.set(instance, ((Boolean) typeReader.fromString(stream)).booleanValue());
+                case ReflectUtil.PRIMITIVE_BYTE -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).byteValue());
+                case ReflectUtil.PRIMITIVE_SHORT -> valueAccessor.set(instance, ((Number) typeReader.fromString(stream)).shortValue());
+                case ReflectUtil.PRIMITIVE_CHAR -> valueAccessor.set(instance, ((Character) typeReader.fromString(stream)).charValue());
+                default -> valueAccessor.setReference(instance, typeReader.fromString(stream));
             }
         }
         else
@@ -121,6 +116,4 @@ public class StandardReadEntry implements ReadEntry
         return name;
     }
 }
-
-
 

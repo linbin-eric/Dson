@@ -1,25 +1,23 @@
 package cc.jfire.dson.reader.impl.basic;
 
-import cc.jfire.dson.DsonContext;
+import cc.jfire.dson.reader.ReaderContext;
 import cc.jfire.dson.reader.Stream;
 import cc.jfire.dson.reader.TypeReader;
 
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.Map;
 
 public class EnumNameReader implements TypeReader
 {
     private Class type;
 
     @Override
-    public void initialize(Type type, DsonContext dsonContext, Map<TypeVariable<?>, Type> typeVariableContext)
+    public void initialize(Type type, ReaderContext readerContext)
     {
         this.type = (Class) type;
     }
 
     @Override
-    public Object fromString(Stream stream, Map<TypeVariable<?>, Type> typeVariableContext)
+    public Object fromString(Stream stream)
     {
         return Enum.valueOf(type, stream.getStringValue());
     }

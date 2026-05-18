@@ -13,8 +13,6 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.io.IOException;
-import java.util.HashMap;
-
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 2, time = 2)
 @Measurement(iterations = 3, time = 3)
@@ -60,28 +58,28 @@ public class BenchmarkSmall
     @Benchmark
     public void testStandard(Blackhole blackhole, SmallData smallData)
     {
-        Object o = standard.fromString(SmallObject.class, smallData.value, new HashMap<>());
+        Object o = standard.fromString(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
     @Benchmark
     public void testCompile1(Blackhole blackhole, SmallData smallData)
     {
-        Object o = compile.fromString(SmallObject.class, smallData.value, new HashMap<>());
+        Object o = compile.fromString(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
     @Benchmark
     public void testCompile2(Blackhole blackhole, SmallData smallData)
     {
-        Object o = compile2.fromString(SmallObject.class, smallData.value, new HashMap<>());
+        Object o = compile2.fromString(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 
     @Benchmark
     public void testCompile3(Blackhole blackhole, SmallData smallData)
     {
-        Object o = compile3.fromString(SmallObject.class, smallData.value, new HashMap<>());
+        Object o = compile3.fromString(SmallObject.class, smallData.value);
         blackhole.consume(o);
     }
 

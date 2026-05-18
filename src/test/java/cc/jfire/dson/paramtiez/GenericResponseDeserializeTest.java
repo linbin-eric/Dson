@@ -2,15 +2,10 @@ package cc.jfire.dson.paramtiez;
 
 import cc.jfire.baseutil.reflect.TypeUtil;
 import cc.jfire.dson.Dson;
-import cc.jfire.dson.reader.support.TypeResolver;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openjdk.jmh.generators.core.SourceThrowableError;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 public class GenericResponseDeserializeTest
@@ -648,62 +643,6 @@ public class GenericResponseDeserializeTest
         public R right()
         {
             return right;
-        }
-    }
-
-
-
-    private static void get(Type type, Map<Class, Map<Integer, Type>> context)
-    {
-        if (type instanceof Class<?> ckass)
-        {
-            Class<?>                           superclass     = ckass.getSuperclass();
-            Map<Integer, Type>                 currentContext = context.computeIfAbsent(ckass, k -> new HashMap<>());
-            Map<Integer, Type>                 superContext   = context.computeIfAbsent(superclass, k -> new HashMap<>());
-            TypeVariable<? extends Class<?>>[] typeParameters = superclass.getTypeParameters();
-            if (typeParameters.length != 0)
-            {
-                ParameterizedType genericSuperclass   = (ParameterizedType) ckass.getGenericSuperclass();
-                Type[]            actualTypeArguments = genericSuperclass.getActualTypeArguments();
-                for (int i = 0; i < typeParameters.length; i++)
-                {
-                    Type actualTypeArgument = actualTypeArguments[i];
-                    if (actualTypeArgument instanceof Class)
-                    {
-                        superContext.put(i, actualTypeArgument);
-                    }
-                    else if (actualTypeArgument instanceof TypeVariable<?> typeVariable)
-                    {
-                    }
-                }
-            }
-        }
-        else if (type instanceof ParameterizedType parameterizedType)
-        {
-            Class              rawType             = (Class) parameterizedType.getRawType();
-            TypeVariable[]     typeParameters      = rawType.getTypeParameters();
-            Type[]             actualTypeArguments = parameterizedType.getActualTypeArguments();
-            Map<Integer, Type> currentContext      = context.computeIfAbsent(rawType, k -> new HashMap<>());
-            for (int i = 0; i < typeParameters.length; i++)
-            {
-                if (actualTypeArguments[i] instanceof Class<?>)
-                {
-                    currentContext.put(i, actualTypeArguments[i]);
-                }
-                else if (actualTypeArguments[i] instanceof ParameterizedType)
-                {
-                    currentContext.put(i, actualTypeArguments[i]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException();
-                }
-            }
-            get(rawType, context);
-        }
-        else
-        {
-            throw new IllegalArgumentException();
         }
     }
 
